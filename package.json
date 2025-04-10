@@ -1,0 +1,7 @@
+{
+    "dependencies": {
+      "graphology": "^0.26.0",
+      "graphology-utils": "^2.5.2"
+    }
+  }
+  

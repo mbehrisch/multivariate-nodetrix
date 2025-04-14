@@ -4,9 +4,14 @@ import { svg } from './main.js';
 import { cellSize } from './main.js';
 import { width, height } from './main.js';
 
+let simulation = null
+export function getSimulation(){
+    return simulation
+}
+
 export function applyForceLayout(graph, nodes, links, dummyMap, matrixGroups) {
     //Define simulation on updated nodes and links
-    const simulation = d3.forceSimulation(nodes)
+    simulation = d3.forceSimulation(nodes)
         .force("link", d3.forceLink(links)
             .id(d => d.id)
             .distance(100)
@@ -52,7 +57,6 @@ export function applyForceLayout(graph, nodes, links, dummyMap, matrixGroups) {
         
             matrixGroup.attr("transform", `translate(${dummyNode.x}, ${dummyNode.y})`);
         });
-        
 
         // Update NL links
         svg.selectAll(".NLlink")
@@ -85,7 +89,6 @@ export function applyForceLayout(graph, nodes, links, dummyMap, matrixGroups) {
         svg.selectAll(".matrix-matrix-link")
         .raise()
         .attr("d", d => {
-            console.log(d)
             const sourcePos = getMatrixNodePos(d.source);
             const targetPos = getMatrixNodePos(d.target);
             const midX = (sourcePos.x + targetPos.x) / 2;

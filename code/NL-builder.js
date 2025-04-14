@@ -1,5 +1,6 @@
 import { svg } from './main.js';
 import { getEdgeRelation } from './utils.js';
+import { nodeDragStarted, nodeDragged, nodeDragEnded } from './dragging.js';
 
 //Builds nodes, establishes node-node paths and node-matrix paths
 export function buildNL(graph, matrixGroups){
@@ -38,6 +39,10 @@ export function buildNL(graph, matrixGroups){
         .enter().append("circle")
         .attr("class", "node")
         .attr("r", d => d.r)
+        .call(d3.drag()
+            .on("start", event => nodeDragStarted(event, matrixGroups))
+            .on("drag", event => nodeDragged(event, matrixGroups))
+            .on("end", nodeDragEnded));
 
     //Add label to nodes
     const labels = svg.selectAll(".NLlabel")

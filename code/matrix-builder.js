@@ -31,6 +31,7 @@ export function buildMatrix(graph, matrixGroups){
         const matrixSvg = svg.append("g")
             .attr("transform", `translate(${pos.x},${pos.y})`)
             .attr("class", "matrix")
+            .attr("data-matrix-id", matrixId)
             
         //Make rows
         const rows = matrixSvg.selectAll(".row")

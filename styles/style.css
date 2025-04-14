@@ -50,3 +50,18 @@ svg {
 .cellNegative {
     fill: white; /* No edge */
 }
+
+/* Highlight the dragged node */
+.highlighted {
+    stroke: orange;
+    stroke-width: 3px;
+    fill: yellow;  /* Optional: highlight the node with a color */
+}
+
+/* Add a border around the entire matrix group */
+.matrixHighlighted {
+    opacity: 0.8; /* Slight opacity to emphasize highlighted matrix */
+    stroke: 2px; /* Remove stroke from matrix cells */
+    stroke-width: 4; /* Reset stroke for individual cells */
+    fill: none; /* Ensure no fill for cells */
+}

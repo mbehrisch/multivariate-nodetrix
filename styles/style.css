@@ -1,0 +1,52 @@
+/* Style for the body */
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: #fcfcfc;
+}
+
+/* Style for the SVG container */
+svg {
+    border: 1px solid #ccc;
+    display: block;
+    margin: auto;
+}
+
+/* Style for the NL nodes */
+.node {
+    stroke: white;
+    stroke-width: 1.5px;
+    fill: black;
+}
+
+/* Style for all types of links */
+.link {
+    stroke-opacity: 0.6;
+    fill: none;
+    stroke-width: 1;
+    stroke: black;
+}
+
+/* Style for Node labels: both matrix and NL */
+.label {
+    fill: black;
+    font-size: 14px;
+    text-anchor: middle;
+}
+
+/* Style for the matrix cells */
+.cell {
+    stroke: gray;
+}
+
+.cellDiagonal {
+    fill: #ccc; /* Grey for diagonal */
+}
+  
+.cellPositive {
+    fill: black; /* Or any color for edges */
+}
+  
+.cellNegative {
+    fill: white; /* No edge */
+}

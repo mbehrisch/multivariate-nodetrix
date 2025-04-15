@@ -118,18 +118,20 @@ function NodeMatrixOverlap(node, matrixGroups) {
             node.y >= minY &&
             node.y <= maxY;
 
-        if (isInside){ 
-            //Select the matrix svg
-            const matrixGroup = svg.selectAll(".matrix")
-            .filter(function () {
-                return d3.select(this).attr("data-matrix-id") === matrixId;
-            });
+        //Select the matrix svg
+        const matrixGroup = svg.selectAll(".matrix")
+        .filter(function () {
+            return d3.select(this).attr("data-matrix-id") === matrixId;
+        });
 
+        if (isInside){ 
             //highlight matrix
             matrixGroup.classed("matrixHighlighted", true);
 
             //Return status and matrixId
             return { isInside, matrixId }
+        } else{
+            matrixGroup.classed("matrixHighlighted", false);
         }   
     }
 

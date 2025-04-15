@@ -13,8 +13,25 @@ export function getEdgeRelation(graph, source, target) {
 import { buildMatrix } from './matrix-builder.js';
 import { buildNL } from './NL-builder.js';
 import { applyForceLayout } from './force-layout.js';
+import { getSimulation } from './force-layout.js';
+
 //Build everything when called upon
 export function buildEverything (graph, matrixGroups){
+    
+    //Stop and fully clear the sim
+    const sim = getSimulation();
+    if (sim) {
+        sim.stop(); // stops any running ticks
+
+        // Remove previous nodes and forces
+        sim.nodes([]);
+        sim.force("link", null);
+        sim.force("charge", null);
+        sim.force("center", null);
+        sim.force("collide", null);
+    }
+
+    //Start the rebuilding with the matrices
     const {dummyNodes, dummyMap} = buildMatrix(graph, matrixGroups);
 
     //Build the Node-link diagrams
@@ -23,7 +40,6 @@ export function buildEverything (graph, matrixGroups){
     //Add dummyNodes to nodes for force-layout
     dummyNodesToNL(graph, nodes, links, dummyNodes, matrixGroups)
 
-    console.log(links)
     //Apply force layout
     applyForceLayout(graph, nodes, links, dummyMap, matrixGroups);
 }

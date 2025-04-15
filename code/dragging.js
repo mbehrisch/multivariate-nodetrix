@@ -4,11 +4,13 @@ import { svg, cellSize } from './main.js';
 import { getSimulation } from "./force-layout.js";
 import { buildEverything } from './utils.js';
 
-//We need this to prevent some d3 mismatch on DragEnd
-let draggedNodeSelection = null;
-export function getDraggedNodeSelection() {
-    return draggedNodeSelection;
-}
+// //We need this to prevent some d3 mismatch on DragEnd
+// let draggedNodeSelection = null;
+// export function getDraggedNodeSelection() {
+//     return draggedNodeSelection;
+// }
+
+let previouslyOverlappingNodeId = null;
 
 export function nodeDragStarted(event, matrixGroups) {
     //Retrieve the simulation
@@ -32,18 +34,23 @@ export function nodeDragStarted(event, matrixGroups) {
     event.subject.fy = event.subject.y;
 
     // Highlight the dragged node
-    draggedNodeSelection = d3.select(event.sourceEvent.target);
-    draggedNodeSelection.classed("highlighted", true);
+    const draggedNode = d3.select(event.sourceEvent.target);
+    draggedNode.classed("highlighted", true);
 }
 
 
 export function nodeDragged(event, matrixGroups) {
-    //Move with mouse
     event.subject.fx = event.x;
     event.subject.fy = event.y;
 
-    // Keep highlighting the matrix if the node is over it
-    const {isInside, matrixId} = NodeMatrixOverlap(event.subject, matrixGroups);
+    const sim = getSimulation();
+    const allNodes = sim.nodes();
+
+    //Check if there is overlap with nodes and highlight
+    getOverlappingNodes(event.subject, allNodes);
+
+    //Check if there is overlap with matrices and highlight
+    NodeMatrixOverlap(event.subject, matrixGroups);
 }
 
 
@@ -63,17 +70,31 @@ export function nodeDragEnded(event, matrixGroups, graph) {
     event.subject.fx = null;
     event.subject.fy = null;
 
-    //Retrieve which node we selected, necessary due to d3 mismatches, and make it normal again
-    const selectedNode = getDraggedNodeSelection();
-    selectedNode.classed("highlighted", false);
-
-    //Make all matrices normal again
+    //Make all matrices and nodes normal again
+    svg.selectAll(".node").classed("highlighted", false)
     svg.selectAll(".matrix").classed("matrixHighlighted", false);
+
+    //Find if node-node overlap, if this is the case, rebuild everything with a new 2x2 matrix
+    const overlappingNode = getOverlappingNodes(event.subject, sim.nodes())
+    if (overlappingNode) {
+        // Append a matrix to the matrixGroups with the 2 nodes in it
+        const newMatrixId = Object.keys(matrixGroups).length+1;
+        matrixGroups[newMatrixId] = [event.subject.id, overlappingNode.id];
+
+        //Remove everything
+        svg.selectAll("*").remove();
+
+        //Rebuild everything
+        buildEverything(graph, matrixGroups);
+
+        //Stop
+        return
+    }
+    
 
     //Find if a node and matrix overlap, if this is the case, rebuild everything with node added to matrix
     const {isInside, matrixId} = NodeMatrixOverlap(event.subject, matrixGroups)
     if (isInside){
-
             // Add the node to the matrix
             matrixGroups[matrixId].push(event.subject.id); // Add the node to the matrix's list of nodes
 
@@ -82,6 +103,8 @@ export function nodeDragEnded(event, matrixGroups, graph) {
 
             //Rebuild everything, inefficent but effective
             buildEverything(graph, matrixGroups)
+            //Stop
+            return
     }
 
     // Normal simulation intensity when dragging is over, with cooldown to no movement
@@ -89,6 +112,41 @@ export function nodeDragEnded(event, matrixGroups, graph) {
     sim.alphaTarget(0)
 }
 
+function getOverlappingNodes(draggedNode, allNodes) {
+    //Find if there is an overlapping node
+    const overlappingNode = allNodes.find(n =>
+        n.id !== draggedNode.id &&
+        Math.hypot(n.x - draggedNode.x, n.y - draggedNode.y) < 10
+    );
+
+    // If overlapping with a new node --> we need to remove the highlight from the previously overlapping node
+    if (overlappingNode?.id !== previouslyOverlappingNodeId) {
+        // Remove highlight from previously overlapping node
+        svg.selectAll(".node")
+            .filter(d => d.id === previouslyOverlappingNodeId)
+            .classed("highlighted", false);
+
+        // Highlight new overlapping node
+        if (overlappingNode) {
+            svg.selectAll(".node")
+                .filter(d => d.id === overlappingNode.id)
+                .classed("highlighted", true);
+        }
+
+        // Track the new overlap
+        previouslyOverlappingNodeId = overlappingNode?.id || null;
+    }
+
+    // If no overlap and one was previously highlighted
+    if (!overlappingNode && previouslyOverlappingNodeId) {
+        svg.selectAll(".node")
+            .filter(d => d.id === previouslyOverlappingNodeId)
+            .classed("highlighted", false);
+        previouslyOverlappingNodeId = null;
+    }
+
+    return overlappingNode
+}
 
 //Find if a Node and Matrix overlap
 function NodeMatrixOverlap(node, matrixGroups) {

@@ -51,9 +51,9 @@ export function applyForceLayout(graph, nodes, links, dummyMap, matrixGroups) {
             const matrixWidth = matrixSize * cellSize;
             const matrixHeight = matrixSize * cellSize;
         
-            // Clamp dummy node position so matrix stays in bounds
-            dummyNode.x = Math.max(0, Math.min(800 - matrixWidth, dummyNode.x));
-            dummyNode.y = Math.max(0, Math.min(600 - matrixHeight, dummyNode.y));
+            // Clamp dummy node position so matrix stays in bounds (as well as labels)
+            dummyNode.x = Math.max(20, Math.min(800 - matrixWidth, dummyNode.x));
+            dummyNode.y = Math.max(20, Math.min(600 - matrixHeight, dummyNode.y));
         
             matrixGroup.attr("transform", `translate(${dummyNode.x}, ${dummyNode.y})`);
         });

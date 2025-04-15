@@ -1,6 +1,8 @@
-import { svg } from './main.js';
-import { getEdgeRelation } from './utils.js'; 
-import { cellSize } from './main.js'; 
+import { svg } from '../main.js';
+import { getEdgeRelation } from '../utils.js'; 
+import { cellSize } from '../main.js'; 
+
+import { matrixDragStarted, matrixDragged, matrixDragEnded } from '../dragging/MatrixDragging.js';
 
 // Builds matrices and establishes paths for matrix-to-matrix edges
 export function buildMatrix(graph, matrixGroups) {
@@ -27,7 +29,13 @@ export function buildMatrix(graph, matrixGroups) {
         const matrixSvg = svg.append("g")
             .attr("transform", `translate(${pos.x},${pos.y})`)
             .attr("class", "matrix")
-            .attr("data-matrix-id", matrixId);
+            .attr("data-matrix-id", matrixId)
+            .call(d3.drag()
+                .on("start", (event) => matrixDragStarted(event,matrixId ))
+                .on("drag", (event) => matrixDragged(event, matrixId ))
+                .on("end", (event) =>  matrixDragEnded(event, matrixId, graph, matrixGroups))
+            );
+
 
         // Matrix rows
         const rows = matrixSvg.selectAll(".row")

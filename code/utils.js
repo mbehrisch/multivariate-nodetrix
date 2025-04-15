@@ -10,10 +10,10 @@ export function getEdgeRelation(graph, source, target) {
 }
 
 
-import { buildMatrix } from './matrix-builder.js';
-import { buildNL } from './NL-builder.js';
-import { applyForceLayout } from './force-layout.js';
-import { getSimulation } from './force-layout.js';
+import { buildMatrix } from './building/matrix-builder.js';
+import { buildNL } from './building/NL-builder.js';
+import { applyForceLayout } from './building/force-layout.js';
+import { getSimulation } from './building/force-layout.js';
 
 //Build everything when called upon
 export function buildEverything (graph, matrixGroups){

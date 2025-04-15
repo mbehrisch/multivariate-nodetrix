@@ -1,8 +1,8 @@
 //Called when the force-directed layout needs updating
 
-import { svg } from './main.js';
-import { cellSize } from './main.js';
-import { width, height } from './main.js';
+import { svg } from '../main.js';
+import { cellSize } from '../main.js';
+import { width, height } from '../main.js';
 
 let simulation = null
 export function getSimulation(){

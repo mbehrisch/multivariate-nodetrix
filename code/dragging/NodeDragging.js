@@ -1,8 +1,8 @@
 //Dragging functions to enable moving, but more importantly merging
 
-import { svg, cellSize } from './main.js';
-import { getSimulation } from "./force-layout.js";
-import { buildEverything } from './utils.js';
+import { svg, cellSize } from '../main.js';
+import { getSimulation } from "../building/force-layout.js";
+import { buildEverything } from '../utils.js';
 
 // //We need this to prevent some d3 mismatch on DragEnd
 // let draggedNodeSelection = null;
@@ -77,10 +77,12 @@ export function nodeDragEnded(event, matrixGroups, graph) {
     //Find if node-node overlap, if this is the case, rebuild everything with a new 2x2 matrix
     const overlappingNode = getOverlappingNodes(event.subject, sim.nodes())
     if (overlappingNode) {
+        // Find the highest MatrixId, and become 1 higher than that (prevent overwriting exisiting matrices)
+        const newMatrixId = Math.max(0, ...Object.keys(matrixGroups).map(id => +id || 0)) + 1;
         // Append a matrix to the matrixGroups with the 2 nodes in it
-        const newMatrixId = Object.keys(matrixGroups).length+1;
         matrixGroups[newMatrixId] = [event.subject.id, overlappingNode.id];
 
+        console.log(matrixGroups)
         //Remove everything
         svg.selectAll("*").remove();
 
@@ -91,7 +93,6 @@ export function nodeDragEnded(event, matrixGroups, graph) {
         return
     }
     
-
     //Find if a node and matrix overlap, if this is the case, rebuild everything with node added to matrix
     const {isInside, matrixId} = NodeMatrixOverlap(event.subject, matrixGroups)
     if (isInside){
@@ -106,10 +107,19 @@ export function nodeDragEnded(event, matrixGroups, graph) {
             //Stop
             return
     }
-
+  
     // Normal simulation intensity when dragging is over, with cooldown to no movement
-    sim.alphaTarget(0.3).restart();            
-    sim.alphaTarget(0)
+    if (!event.active && sim){      
+        sim.velocityDecay(0.4);         
+    
+        const chargeForce = sim.force("charge");
+        if (chargeForce) chargeForce.strength(-50);
+    
+        const linkForce = sim.force("link");
+        if (linkForce) linkForce.distance(100); 
+        sim.alphaTarget(0.3).restart();
+        setTimeout(() => sim.alphaTarget(0), 500);
+    }
 }
 
 function getOverlappingNodes(draggedNode, allNodes) {

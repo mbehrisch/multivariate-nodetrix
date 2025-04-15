@@ -1,6 +1,6 @@
-import { svg } from './main.js';
-import { getEdgeRelation } from './utils.js';
-import { nodeDragStarted, nodeDragged, nodeDragEnded } from './dragging.js';
+import { svg } from '../main.js';
+import { getEdgeRelation } from '../utils.js';
+import { nodeDragStarted, nodeDragged, nodeDragEnded } from '../dragging/NodeDragging.js';
 
 //Builds nodes, establishes node-node paths and node-matrix paths
 export function buildNL(graph, matrixGroups){

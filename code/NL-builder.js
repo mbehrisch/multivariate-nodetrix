@@ -42,7 +42,7 @@ export function buildNL(graph, matrixGroups){
         .call(d3.drag()
             .on("start", event => nodeDragStarted(event, matrixGroups))
             .on("drag", event => nodeDragged(event, matrixGroups))
-            .on("end", nodeDragEnded));
+            .on("end", event => nodeDragEnded(event, matrixGroups, graph)));
 
     //Add label to nodes
     const labels = svg.selectAll(".NLlabel")

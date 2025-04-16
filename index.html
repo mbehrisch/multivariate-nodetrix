@@ -1,24 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NodeTrix Visualisation</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NodeTrix Visualisation</title>
 
-    <!-- load style-->
-    <link rel="stylesheet" href="styles/style.css">
-    <!-- load d3-->
-    <script src="https://d3js.org/d3.v6.min.js"></script>
+  <!-- Load style -->
+  <link rel="stylesheet" href="styles/page-styling.css">
+  <link rel="stylesheet" href="styles/NodeTrixStyle.css">
+  <!-- Load d3 -->
+  <script src="https://d3js.org/d3.v6.min.js"></script>
 </head>
 
-
 <body>
-    <h2>NodeTrix Graph Visualisation</h2>
+  <div id="main-container">
+    <div id="graph-container">
+      <h2>NodeTrix Graph Visualisation</h2>
+      <div id="graph"></div>
+    </div>
 
-    <!-- load initial preset-->
-    <!-- <script type ="module" src="code/NodeTrix.js"></script> -->
-    <script type ="module" src="code/main.js"></script>
+    <div id="instructions">
+      <h4>How to use:</h4>
+      <ul>
+        <li>Drag and drop <strong>matrices</strong> over other matrices to merge</li>
+        <li>Drag and drop <strong>nodes</strong> over matrices or other nodes to merge</li>
+        <li><kbd>Ctrl</kbd>+Click a matrix row or column header to drop the node from the matrix</li>
+      </ul>
+    </div>
+  </div>
+
+  <script type="module" src="code/main.js"></script>
 </body>
-
-
 </html>

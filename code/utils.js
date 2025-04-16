@@ -14,9 +14,11 @@ import { buildMatrix } from './building/matrix-builder.js';
 import { buildNL } from './building/NL-builder.js';
 import { applyForceLayout } from './building/force-layout.js';
 import { getSimulation } from './building/force-layout.js';
+import { svg } from './main.js';
 
 //Build everything when called upon
 export function buildEverything (graph, matrixGroups){
+    svg.selectAll("*").remove()
     
     //Stop and fully clear the sim
     const sim = getSimulation();

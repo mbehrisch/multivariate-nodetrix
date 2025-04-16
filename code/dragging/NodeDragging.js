@@ -83,8 +83,6 @@ export function nodeDragEnded(event, matrixGroups, graph) {
         matrixGroups[newMatrixId] = [event.subject.id, overlappingNode.id];
 
         console.log(matrixGroups)
-        //Remove everything
-        svg.selectAll("*").remove();
 
         //Rebuild everything
         buildEverything(graph, matrixGroups);
@@ -98,9 +96,6 @@ export function nodeDragEnded(event, matrixGroups, graph) {
     if (isInside){
             // Add the node to the matrix
             matrixGroups[matrixId].push(event.subject.id); // Add the node to the matrix's list of nodes
-
-            // Clear the entire SVG by removing all elements, inefficient but works
-            svg.selectAll("*").remove();
 
             //Rebuild everything, inefficent but effective
             buildEverything(graph, matrixGroups)

@@ -7,7 +7,7 @@ import { buildEverything } from './utils.js';
 export const width = 800, height = 600;
 export const cellSize = 15;
 
-export const svg = d3.select("body").append("svg")
+export const svg = d3.select("#graph").append("svg")
     .attr("width", width)
     .attr("height", height);
 

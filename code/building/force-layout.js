@@ -118,7 +118,7 @@ export function applyForceLayout(graph, nodes, links, dummyMap, matrixGroups) {
         const rowIndex = matrixNodeIds.indexOf(nodeId);
     
         return {
-            x: dummy.x + cellSize * matrixNodeIds.length - 1,
+            x: dummy.x + cellSize * matrixNodeIds.length,
             y: dummy.y + rowIndex * cellSize + cellSize / 2
         };
     }

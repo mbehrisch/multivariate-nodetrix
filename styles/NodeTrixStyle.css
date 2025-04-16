@@ -1,17 +1,3 @@
-/* Style for the body */
-body {
-    font-family: Arial, sans-serif;
-    text-align: center;
-    background-color: #fcfcfc;
-}
-
-/* Style for the SVG container */
-svg {
-    border: 1px solid #ccc;
-    display: block;
-    margin: auto;
-}
-
 /* Style for the NL nodes */
 .node {
     stroke: white;
@@ -37,6 +23,7 @@ svg {
 /* Style for the matrix cells */
 .cell {
     stroke: gray;
+    stroke-width: 0.5px;
 }
 
 .cellDiagonal {
@@ -51,6 +38,12 @@ svg {
     fill: white; /* No edge */
 }
 
+.cellLabel {
+    fill: lightblue;
+    stroke: darkblue;
+    stroke-width: 0.5px
+}
+
 /* Highlight the dragged node */
 .highlighted {
     stroke: orange;
@@ -59,9 +52,8 @@ svg {
 }
 
 /* Add a border around the entire matrix group */
-.matrixHighlighted {
+.matrixHighlighted .cell,
+.matrixHighlighted .cellLabel {
     opacity: 0.8; /* Slight opacity to emphasize highlighted matrix */
-    stroke: 2px; /* Remove stroke from matrix cells */
     stroke-width: 4; /* Reset stroke for individual cells */
-    fill: none; /* Ensure no fill for cells */
 }

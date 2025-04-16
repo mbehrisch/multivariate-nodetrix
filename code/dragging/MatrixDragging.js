@@ -1,4 +1,4 @@
-//To do: make standard force public
+//To do: make standard force public; or maybe do not reset upon dragging for better user impact;
 
 import { svg, cellSize } from '../main.js';
 import { getSimulation } from "../building/force-layout.js";
@@ -73,7 +73,6 @@ export function matrixDragEnded(event, draggedMatrixId, graph, matrixGroups) {
         console.log(matrixGroups)
 
         // Rebuild the full visualization
-        svg.selectAll("*").remove();
         buildEverything(graph, matrixGroups);
         return;
     }
@@ -147,5 +146,20 @@ function findOverlappingMatrices(draggedId) {
 
     //Return the id of the overlapping matrix
     return foundOverlapId;
+}
+
+//Function to remove NodeFromMatrix when row or column is control-clicked
+export function removeNodeFromMatrix (event, graph, matrixGroups, nodeId){
+    for (const [matrixId, nodes] of Object.entries(matrixGroups)) {
+        const index = nodes.indexOf(nodeId);
+        if (index !== -1) {
+            nodes.splice(index, 1); // Remove node from array
+            // If the matrix is now empty, optionally delete it:
+            if (nodes.length === 1) {
+                delete matrixGroups[matrixId];
+            }
+        }
+    }
+    buildEverything(graph, matrixGroups)
 }
 

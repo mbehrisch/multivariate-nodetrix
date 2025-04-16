@@ -1,8 +1,7 @@
 import { svg } from '../main.js';
 import { getEdgeRelation } from '../utils.js'; 
 import { cellSize } from '../main.js'; 
-
-import { matrixDragStarted, matrixDragged, matrixDragEnded } from '../dragging/MatrixDragging.js';
+import { matrixDragStarted, matrixDragged, matrixDragEnded, removeNodeFromMatrix } from '../dragging/MatrixDragging.js';
 
 // Builds matrices and establishes paths for matrix-to-matrix edges
 export function buildMatrix(graph, matrixGroups) {
@@ -17,7 +16,7 @@ export function buildMatrix(graph, matrixGroups) {
     let i = 0;
     const spacing = 100;
 
-    // Phase 1: Build matrices and dummy nodes
+    // Build matrices
     for (const [matrixId, nodesInMatrix] of Object.entries(matrixGroups)) {
         const size = nodesInMatrix.length;
         const x = 20 + (i % 3) * (cellSize * size + spacing * 2);
@@ -36,7 +35,7 @@ export function buildMatrix(graph, matrixGroups) {
                 .on("end", (event) =>  matrixDragEnded(event, matrixId, graph, matrixGroups))
             );
 
-
+        ////Build actual matrix
         // Matrix rows
         const rows = matrixSvg.selectAll(".row")
             .data(nodesInMatrix)
@@ -59,26 +58,79 @@ export function buildMatrix(graph, matrixGroups) {
             .attr("width", cellSize)
             .attr("height", cellSize);
 
-        // Column labels
-        matrixSvg.selectAll(".col-label")
+        ////Row labels
+        //Establish all labels of a row
+        const labelRow = matrixSvg.append("g")
+            .attr("class", "matrix-label-row")
+            .attr("transform", `translate(0, ${-cellSize})`);
+        
+        //Make a group for each label to contain the cell and the text and append a control-click event
+        const colLabelGroups = labelRow.selectAll(".label-group")
             .data(nodesInMatrix)
-            .enter().append("text")
-            .attr("class", "label col-label")
-            .attr("x", (d, i) => i * cellSize + cellSize / 2)
-            .attr("y", -5)
-            .text(d => d);
-
-        // Row labels
-        matrixSvg.selectAll(".row-label")
-            .data(nodesInMatrix)
-            .enter().append("text")
-            .attr("class", "label row-label")
-            .attr("x", -10)
-            .attr("y", (d, i) => i * cellSize + cellSize / 2)
+            .enter()
+            .append("g")
+            .attr("class", "label-group")
+            .attr("transform", (d, i) => `translate(${i * cellSize}, 0)`)
+            .on("click", (event, nodeId) => {
+                if (event.ctrlKey || event.metaKey) {
+                    removeNodeFromMatrix(event, graph, matrixGroups, nodeId);
+                }
+            });
+        
+        //Make the rectangle
+        colLabelGroups.append("rect")
+            .attr("class", "cellLabel")
+            .attr("width", cellSize)
+            .attr("height", cellSize);
+        
+        //Make the rectangle, add the text
+        colLabelGroups.append("text")
+            .attr("class", "label label-text")
+            .attr("x", cellSize / 2)
+            .attr("y", cellSize / 2)
             .attr("dy", ".35em")
             .text(d => d);
+        
+        ////Do the same procedure of the column labels
+        const labelColumn = matrixSvg.append("g")
+            .attr("class", "matrix-label-column")
+            .attr("transform", `translate(${-cellSize}, 0)`);
+        
+        const labelGroups = labelColumn.selectAll(".label-group")
+            .data(nodesInMatrix)
+            .enter()
+            .append("g")
+            .attr("class", "label-group")
+            .attr("transform", (d, i) => `translate(0, ${i * cellSize})`)
+            .on("click", (event, nodeId) => {
+                if (event.ctrlKey || event.metaKey) {
+                    removeNodeFromMatrix(event, graph, matrixGroups, nodeId);
+                }
+            });
+        
+        labelGroups.append("rect")
+            .attr("class", "cellLabel")
+            .attr("width", cellSize)
+            .attr("height", cellSize);
+        
+        labelGroups.append("text")
+            .attr("class", "label label-text")
+            .attr("x", cellSize / 2)
+            .attr("y", cellSize / 2)
+            .attr("dy", ".35em")
+            .text(d => d);
+        
 
-        // Store matrix position for each node (used for routing links)
+        // Top-left corner cell where row and column labels intersect
+        matrixSvg.append("rect")
+            .attr("class", "cellLabel")
+            .attr("x", -cellSize)
+            .attr("y", -cellSize)
+            .attr("width", cellSize)
+            .attr("height", cellSize);
+
+        ////Now matrix is in place, do other work
+        // Store matrix position for each node (used for placing links)
         nodesInMatrix.forEach((nodeId, rowIndex) => {
             graph.setNodeAttribute(nodeId, "matrixPosNode", {
                 x: pos.x,
@@ -101,7 +153,7 @@ export function buildMatrix(graph, matrixGroups) {
         i++;
     }
 
-    // Phase 2: Build matrix-to-matrix links AFTER dummy nodes are available
+    //Build matrix-to-matrix links AFTER dummy nodes are available
     const interMatrixLinks = [];
 
     for (let i = 0; i < matrixNodes.length; i++) {

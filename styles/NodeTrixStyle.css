@@ -55,5 +55,5 @@
 .matrixHighlighted .cell,
 .matrixHighlighted .cellLabel {
     opacity: 0.8; /* Slight opacity to emphasize highlighted matrix */
-    stroke-width: 4; /* Reset stroke for individual cells */
+    stroke-width: 4;
 }

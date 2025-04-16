@@ -61,42 +61,32 @@ export function applyForceLayout(graph, nodes, links, dummyMap, matrixGroups) {
         // Update NL links
         svg.selectAll(".NLlink")
             .attr("d", d => {
-                const source = getNode(d.source);
-                const target = getNode(d.target);
-                const midX = (source.x + target.x) / 2;
-
-                return `M${source.x},${source.y} 
-                        C${midX},${source.y} 
-                        ${midX},${target.y} 
-                        ${target.x},${target.y}`;
+                const sourcePos = getNode(d.source);
+                const targetPos = getNode(d.target);
+                return getBezierPath(sourcePos, targetPos)
             });
 
         // Update matrix-NL links
         svg.selectAll(".matrix-NL-link")
         .attr("d", d => {
-            //Find the position of the node's row within the matrix
-            const sourcePos = getMatrixNodePos(d.source);
-            const target = getNode(d.target);
-            const midX = (sourcePos.x + target.x) / 2;
-    
-            return `M${sourcePos.x},${sourcePos.y} 
-                    C${midX},${sourcePos.y} 
-                    ${midX},${target.y} 
-                    ${target.x},${target.y}`;
+            //Source is always the matrix, decide which side to take
+            const sourcePos = MatrixNodeLinkPositions(d.source, d.target, true);
+            //Target is always the node, can be read directly
+            const targetPos = getNode(d.target)
+      
+            return getBezierPath(sourcePos, targetPos)
         });
+      
 
         // Update matrix-matrix links
         svg.selectAll(".matrix-matrix-link")
         .raise()
         .attr("d", d => {
-            const sourcePos = getMatrixNodePos(d.source);
-            const targetPos = getMatrixNodePos(d.target);
-            const midX = (sourcePos.x + targetPos.x) / 2;
+            //Both are matrices, so both need to decide which side
+            const sourcePos = MatrixNodeLinkPositions(d.source, d.target, false);
+            const targetPos = MatrixNodeLinkPositions(d.target, d.source, false);
     
-            return `M${sourcePos.x},${sourcePos.y} 
-                    C${midX},${sourcePos.y} 
-                    ${midX},${targetPos.y} 
-                    ${targetPos.x},${targetPos.y}`;
+            return getBezierPath(sourcePos, targetPos)
         });
     
     }
@@ -109,17 +99,86 @@ export function applyForceLayout(graph, nodes, links, dummyMap, matrixGroups) {
             return nodes.find(d => d.id === n);
     }
 
-    //Helper function to find the the location of the row of the node given the location of the dummy
-    function getMatrixNodePos(nodeId) {
-        // Which matrix is it in
-        const matrixId = Object.keys(matrixGroups).find(k => matrixGroups[k].includes(nodeId));
-        const dummy = getNode(`dummy-${matrixId}`);
-        const matrixNodeIds = matrixGroups[matrixId];
-        const rowIndex = matrixNodeIds.indexOf(nodeId);
+    //Helper function to draw BezierPaths
+    function getBezierPath(sourcePos, targetPos) {
+        const verticalOffset = 10
+        const dx = targetPos.x - sourcePos.x;
+        const dy = targetPos.y - sourcePos.y;
     
-        return {
-            x: dummy.x + cellSize * matrixNodeIds.length,
-            y: dummy.y + rowIndex * cellSize + cellSize / 2
-        };
+        // Midpoint between source and target
+        const midX = sourcePos.x + dx / 2;
+    
+        // Add offset to reduce overlap — push up/down based on direction
+        const controlY1 = sourcePos.y + (dy > 0 ? verticalOffset : -verticalOffset);
+        const controlY2 = targetPos.y + (dy > 0 ? -verticalOffset : verticalOffset);
+    
+        return `M${sourcePos.x},${sourcePos.y}
+                C${midX},${controlY1}
+                ${midX},${controlY2}
+                ${targetPos.x},${targetPos.y}`;
+    }
+    
+    //Helper function to find the matrixNode position as well as either the externalNode position (either matrix or node)
+    function MatrixNodeLinkPositions(sourceNode, targetNode, targetIsNode) {
+        // Find matrix group and dummy node of source node
+        const matrixId = Object.keys(matrixGroups).find(k => matrixGroups[k].includes(sourceNode));
+        const dummy = getNode(`dummy-${matrixId}`);
+        const matrixX = dummy.x;
+        const matrixY = dummy.y;
+        
+        const matrixNodeIds = matrixGroups[matrixId];
+        //Find index and size of matrix source
+        const rowIndex = matrixNodeIds.indexOf(sourceNode);
+        const matrixSize = matrixNodeIds.length;
+    
+        // Compute matrix cell center of source
+        const cellY = matrixY + rowIndex * cellSize + cellSize / 2;
+        const colX = matrixX + rowIndex * cellSize + cellSize / 2;
+
+        //initisialize
+        let dx,dy;
+        
+        //If the target is in a matrix
+        if (!targetIsNode){
+
+            //Find the matrix it is in and its dummy
+            const otherMatrixId = Object.keys(matrixGroups).find(k => matrixGroups[k].includes(targetNode));
+            const otherDummy = getNode(`dummy-${otherMatrixId}`);
+
+            // Figure out direction from matrix to external node
+            dx = otherDummy.x - dummy.x;
+            dy = otherDummy.y - dummy.y;
+        }else{
+            //Read the direction of the node directly
+            dx = targetNode.x - dummy.x;
+            dy = targetNode.y - dummy.y;
+
+            dx = getNode(targetNode).x - dummy.x;
+            dy = getNode(targetNode).y - dummy.y;
+        }
+
+        //Take absolutes of the distance to find which direction to go
+        const absDx = Math.abs(dx);
+        const absDy = Math.abs(dy);
+
+        // Link to left or right of row
+        if (absDx > absDy) {
+            if (dx > 0) {
+                // Right
+                return { x: matrixX + matrixSize * cellSize, y: cellY };
+            } else {
+                // Left
+                return { x: matrixX - cellSize, y: cellY }; //X-cellSize to link to label
+            }
+        // Link to top or bottom of column
+        } else {
+            if (dy > 0) {
+                // Bottom
+                return { x: colX, y: matrixY + matrixSize * cellSize };
+            } else {
+                // Top
+                return { x: colX, y: matrixY - cellSize }; //Y-cellSize to link to label
+            }
+        }
     }
 }

@@ -1,5 +1,5 @@
 import { svg } from '../main.js';
-import { getEdgeRelation } from '../utils.js'; 
+import { getEdgeRelation } from '../utils.js';  // Keep the function name unchanged
 import { cellSize } from '../main.js'; 
 import { matrixDragStarted, matrixDragged, matrixDragEnded, removeNodeFromMatrix } from '../dragging/MatrixDragging.js';
 
@@ -30,12 +30,12 @@ export function buildMatrix(graph, matrixGroups) {
             .attr("class", "matrix")
             .attr("data-matrix-id", matrixId)
             .call(d3.drag()
-                .on("start", (event) => matrixDragStarted(event,matrixId ))
-                .on("drag", (event) => matrixDragged(event, matrixId ))
-                .on("end", (event) =>  matrixDragEnded(event, matrixId, graph, matrixGroups))
+                .on("start", (event) => matrixDragStarted(event, matrixId))
+                .on("drag", (event) => matrixDragged(event, matrixId))
+                .on("end", (event) => matrixDragEnded(event, matrixId, graph, matrixGroups))
             );
 
-        ////Build actual matrix
+        //// Build actual matrix
         // Matrix rows
         const rows = matrixSvg.selectAll(".row")
             .data(nodesInMatrix)
@@ -46,25 +46,26 @@ export function buildMatrix(graph, matrixGroups) {
         // Cells in matrix
         rows.selectAll(".cell")
             .data(row => nodesInMatrix.map(col => {
-                const relation = getEdgeRelation(graph, row, col);
-                return { row, col, relation };
+                // Check if an edge exists between the row and column node
+                const relation = graph.hasEdge(row, col) || graph.hasEdge(col,row);  // Use `hasEdge` method to check for edge
+                return { row, col, relation };  // Return relation (true/false) for cell styling
             }))
             .enter().append("rect")
             .attr("class", d => {
-                if (d.row === d.col) return "cell cellDiagonal";
-                return d.relation ? "cell cellPositive" : "cell cellNegative";
+                if (d.row === d.col) return "cell cellDiagonal";  // Diagonal cells (self-links)
+                return d.relation ? "cell cellPositive" : "cell cellNegative";  // Positive if relation exists, otherwise Negative
             })
             .attr("x", (d, i) => i * cellSize)
             .attr("width", cellSize)
             .attr("height", cellSize);
 
-        ////Row labels
-        //Establish all labels of a row
+        //// Row labels
+        // Establish all labels of a row
         const labelRow = matrixSvg.append("g")
             .attr("class", "matrix-label-row")
             .attr("transform", `translate(0, ${-cellSize})`);
-        
-        //Make a group for each label to contain the cell and the text and append a control-click event
+
+        // Make a group for each label to contain the cell and the text and append a control-click event
         const colLabelGroups = labelRow.selectAll(".label-group")
             .data(nodesInMatrix)
             .enter()
@@ -73,29 +74,29 @@ export function buildMatrix(graph, matrixGroups) {
             .attr("transform", (d, i) => `translate(${i * cellSize}, 0)`)
             .on("click", (event, nodeId) => {
                 if (event.ctrlKey || event.metaKey) {
-                    removeNodeFromMatrix(event, graph, matrixGroups, nodeId);
+                    removeNodeFromMatrix(event, graph, matrixGroups, nodeId);  // Allow removal of node on ctrl/meta-click
                 }
             });
-        
-        //Make the rectangle
+
+        // Make the rectangle
         colLabelGroups.append("rect")
             .attr("class", "cellLabel")
             .attr("width", cellSize)
             .attr("height", cellSize);
-        
-        //Make the rectangle, add the text
+
+        // Make the rectangle, add the text
         colLabelGroups.append("text")
             .attr("class", "label label-text")
             .attr("x", cellSize / 2)
             .attr("y", cellSize / 2)
             .attr("dy", ".35em")
-            .text(d => d);
-        
-        ////Do the same procedure of the column labels
+            .text(d => graph.getNodeAttribute(d, 'IATA'));  // Get IATA code here for the label text
+
+        //// Do the same procedure for column labels
         const labelColumn = matrixSvg.append("g")
             .attr("class", "matrix-label-column")
             .attr("transform", `translate(${-cellSize}, 0)`);
-        
+
         const labelGroups = labelColumn.selectAll(".label-group")
             .data(nodesInMatrix)
             .enter()
@@ -104,22 +105,21 @@ export function buildMatrix(graph, matrixGroups) {
             .attr("transform", (d, i) => `translate(0, ${i * cellSize})`)
             .on("click", (event, nodeId) => {
                 if (event.ctrlKey || event.metaKey) {
-                    removeNodeFromMatrix(event, graph, matrixGroups, nodeId);
+                    removeNodeFromMatrix(event, graph, matrixGroups, nodeId);  // Allow removal of node on ctrl/meta-click
                 }
             });
-        
+
         labelGroups.append("rect")
             .attr("class", "cellLabel")
             .attr("width", cellSize)
             .attr("height", cellSize);
-        
+
         labelGroups.append("text")
             .attr("class", "label label-text")
             .attr("x", cellSize / 2)
             .attr("y", cellSize / 2)
             .attr("dy", ".35em")
-            .text(d => d);
-        
+            .text(d => graph.getNodeAttribute(d, 'IATA'));  // Should work since d is the node ID
 
         // Top-left corner cell where row and column labels intersect
         matrixSvg.append("rect")
@@ -129,7 +129,7 @@ export function buildMatrix(graph, matrixGroups) {
             .attr("width", cellSize)
             .attr("height", cellSize);
 
-        ////Now matrix is in place, do other work
+        //// Now matrix is in place, do other work
         // Store matrix position for each node (used for placing links)
         nodesInMatrix.forEach((nodeId, rowIndex) => {
             graph.setNodeAttribute(nodeId, "matrixPosNode", {
@@ -153,7 +153,7 @@ export function buildMatrix(graph, matrixGroups) {
         i++;
     }
 
-    //Build matrix-to-matrix links AFTER dummy nodes are available
+    // Build matrix-to-matrix links AFTER dummy nodes are available
     const interMatrixLinks = [];
 
     for (let i = 0; i < matrixNodes.length; i++) {
@@ -165,7 +165,7 @@ export function buildMatrix(graph, matrixGroups) {
             const targetMatrix = Object.keys(matrixGroups).find(k => matrixGroups[k].includes(target));
 
             if (sourceMatrix !== targetMatrix) {
-                const relation = getEdgeRelation(graph, source, target);
+                const relation = graph.hasEdge(source, target);  // Check if there's an edge between source and target nodes
                 if (relation) {
                     interMatrixLinks.push({
                         source,

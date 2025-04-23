@@ -3,6 +3,7 @@
 import { svg, cellSize } from '../main.js';
 import { getSimulation } from "../building/force-layout.js";
 import { buildEverything } from '../utils.js';
+import { setSimulationState } from '../utils.js';
 
 // //We need this to prevent some d3 mismatch on DragEnd
 // let draggedNodeSelection = null;
@@ -17,16 +18,13 @@ export function nodeDragStarted(event, matrixGroups) {
     const sim = getSimulation();
 
     //As the simulation places nodes and links we need it alive, just very slowly to make it easier
-    if (!event.active && sim){
-        sim.alphaTarget(0.005);           // Keep simulation technically "alive"
-        sim.velocityDecay(0.99);          // Heavy damping, almost no movement
-    
-        const chargeForce = sim.force("charge");
-        if (chargeForce) chargeForce.strength(-1); // Barely any repulsion
-    
-        const linkForce = sim.force("link");
-        if (linkForce) linkForce.distance(500);    // Reduce pull strength
-        sim.restart()
+    if (!event.active) {
+        setSimulationState({
+            alphaTarget: 0.005,
+            velocityDecay: 0.99,
+            chargeStrength: -1,
+            linkDistance: 500
+        });
     }
 
     //Move with mouse
@@ -57,14 +55,15 @@ export function nodeDragged(event, matrixGroups) {
 export function nodeDragEnded(event, matrixGroups, graph) {
     //Re-activate the simulation
     const sim = getSimulation();
-
-    sim.velocityDecay(0.4);           // Restore normal damping
-
-    const chargeForce = sim.force("charge");
-    if (chargeForce) chargeForce.strength(-50); // Normal repulsion
-
-    const linkForce = sim.force("link");
-    if (linkForce) linkForce.distance(100);     // Normal tension
+    if (!event.active) {
+        setSimulationState({
+            alphaTarget: 0.3,
+            velocityDecay: 0.4,
+            chargeStrength: -50,
+            linkDistance: 100
+        });
+        setTimeout(() => getSimulation()?.alphaTarget(0), 500);
+    }
 
     //Make node movable by force-layout again
     event.subject.fx = null;
@@ -104,22 +103,21 @@ export function nodeDragEnded(event, matrixGroups, graph) {
     }
   
     // Normal simulation intensity when dragging is over, with cooldown to no movement
-    if (!event.active && sim){      
-        sim.velocityDecay(0.4);         
-    
-        const chargeForce = sim.force("charge");
-        if (chargeForce) chargeForce.strength(-50);
-    
-        const linkForce = sim.force("link");
-        if (linkForce) linkForce.distance(100); 
-        sim.alphaTarget(0.3).restart();
-        setTimeout(() => sim.alphaTarget(0), 500);
+    if (!event.active) {
+        setSimulationState({
+            alphaTarget: 0.3,
+            velocityDecay: 0.4,
+            chargeStrength: -50,
+            linkDistance: 100
+        });
+        setTimeout(() => getSimulation()?.alphaTarget(0), 500);
     }
 }
 
 function getOverlappingNodes(draggedNode, allNodes) {
     //Find if there is an overlapping node
     const overlappingNode = allNodes.find(n =>
+        !n.id.startsWith("dummy-") && //Prevent rare unwanted behaviour
         n.id !== draggedNode.id &&
         Math.hypot(n.x - draggedNode.x, n.y - draggedNode.y) < 10
     );
@@ -155,7 +153,7 @@ function getOverlappingNodes(draggedNode, allNodes) {
 
 //Find if a Node and Matrix overlap
 function NodeMatrixOverlap(node, matrixGroups) {
-    //Find the simulation to find the dummyNode (can be more efficient --> store dummy in matrixGroups)
+    //Find the simulation to find the dummyNode
     const sim = getSimulation();
 
     const nodes = sim.nodes();

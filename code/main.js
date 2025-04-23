@@ -1,8 +1,8 @@
 import Graph from 'https://cdn.skypack.dev/graphology';
 import louvain from 'https://cdn.skypack.dev/graphology-communities-louvain';
 
-import { getEdgeRelation } from './utils.js';
 import { buildEverything } from './utils.js';
+import { applyJobColorScale } from './multivariate/NodeLabels.js';
 
 export const width = 800, height = 600;
 export const cellSize = 15;
@@ -11,43 +11,64 @@ export const svg = d3.select("#graph").append("svg")
     .attr("width", width)
     .attr("height", height);
 
-let graph = new Graph();
+let graph = new Graph({ multi: true });
 
 //Fetch data and initialise graph
-fetch("data/data.json")
+fetch("data/sampled_data.json")
     .then(res => res.json())
     .then(data => {
+        // Add nodes
         data.nodes.forEach(node => {
-            graph.addNode(node.key, { label: node.key, class: node.attributes.class });
+            graph.addNode(node.key, {
+                airport: node.attributes.name,
+                city: node.attributes.city,
+                country: node.attributes.country,
+                IATA: node.attributes.IATA,
+                ICAO: node.attributes.ICAO,
+                latitude: node.attributes.latitude,
+                longitude: node.attributes.longitude,
+                timezone: node.attributes.timezone
+            });
         });
 
+        // Add edges
         data.edges.forEach(edge => {
-            graph.addEdge(edge.source, edge.target, { relation: edge.attributes.Relation });
+            // Since it's a Multi-Graph, we can have multiple edges between nodes
+            graph.addEdge(edge.source, edge.target, {
+                airline: edge.attributes.airline,
+                airline_id: edge.attributes.airline_id,
+                codeshare: edge.attributes.codeshare,
+                stops: edge.attributes.stops,
+                equipment: edge.attributes.equipment
+            });
         });
 
-    console.log(graph.nodes())
+        console.log(graph.nodes());
 
-    ////initialise graph
-    //Louvain algorithm --> prob change to density related
-    const communities = louvain(graph);
+        // Louvain community detection
+        const communities = louvain(graph);
 
-    //Find the size of communities
-    const communitySizes = {};
-    Object.values(communities).forEach(c => {
-        communitySizes[c] = (communitySizes[c] || 0) + 1;
+        // Count sizes of communities
+        const communitySizes = {};
+        Object.values(communities).forEach(c => {
+            communitySizes[c] = (communitySizes[c] || 0) + 1;
+        });
+
+        // Group large communities (5+ nodes) into matrices
+        const matrixGroups = {};
+        Object.entries(communities).forEach(([node, comm]) => {
+            if (communitySizes[comm] >= 5) {
+                if (!matrixGroups[comm]) matrixGroups[comm] = [];
+                matrixGroups[comm].push(node);
+            }
+        });
+
+        console.log(matrixGroups);
+
+        buildEverything(graph, matrixGroups);
+
+        // Hook up color scale button
+        document.getElementById("color-scale-btn").addEventListener("click", () => {
+            applyJobColorScale(graph);
+        });
     });
-
-    //If communities are of size 5+, then they are pushed to a Matrix group
-    const matrixGroups = {};
-    Object.entries(communities).forEach(([node, comm]) => {
-        if (communitySizes[comm] >= 5) {
-            if (!matrixGroups[comm]) matrixGroups[comm] = [];
-            matrixGroups[comm].push(node);
-        }
-    });
-
-    
-    console.log(matrixGroups)
-
-    buildEverything(graph, matrixGroups)
-})

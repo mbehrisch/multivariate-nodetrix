@@ -151,7 +151,8 @@ function findOverlappingMatrices(draggedId) {
 //Function to remove NodeFromMatrix when row or column is control-clicked
 export function removeNodeFromMatrix (event, graph, matrixGroups, nodeId){
     for (const [matrixId, nodes] of Object.entries(matrixGroups)) {
-        const index = nodes.indexOf(nodeId);
+        const nodeIdStr = String(nodeId);
+        const index = nodes.indexOf(nodeIdStr);
         if (index !== -1) {
             nodes.splice(index, 1); // Remove node from array
             // If the matrix is now empty, optionally delete it:

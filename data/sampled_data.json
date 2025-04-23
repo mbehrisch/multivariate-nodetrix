@@ -1,0 +1,2095 @@
+{
+  "attributes": {},
+  "nodes": [
+    {
+      "key": "193",
+      "attributes": {
+        "name": "Lester B. Pearson International Airport",
+        "city": "Toronto",
+        "country": "Canada",
+        "IATA": "YYZ",
+        "ICAO": "CYYZ",
+        "latitude": 43.6772003174,
+        "longitude": -79.63059997559999,
+        "timezone": "America/Toronto"
+      }
+    },
+    {
+      "key": "209",
+      "attributes": {
+        "name": "Soummam Airport",
+        "city": "Bejaja",
+        "country": "Algeria",
+        "IATA": "BJA",
+        "ICAO": "DAAE",
+        "latitude": 36.7120018005,
+        "longitude": 5.0699200630200005,
+        "timezone": "Africa/Algiers"
+      }
+    },
+    {
+      "key": "210",
+      "attributes": {
+        "name": "Houari Boumediene Airport",
+        "city": "Algier",
+        "country": "Algeria",
+        "IATA": "ALG",
+        "ICAO": "DAAG",
+        "latitude": 36.69100189208984,
+        "longitude": 3.215409994125366,
+        "timezone": "Africa/Algiers"
+      }
+    },
+    {
+      "key": "302",
+      "attributes": {
+        "name": "Brussels Airport",
+        "city": "Brussels",
+        "country": "Belgium",
+        "IATA": "BRU",
+        "ICAO": "EBBR",
+        "latitude": 50.9014015198,
+        "longitude": 4.48443984985,
+        "timezone": "Europe/Brussels"
+      }
+    },
+    {
+      "key": "340",
+      "attributes": {
+        "name": "Frankfurt am Main Airport",
+        "city": "Frankfurt",
+        "country": "Germany",
+        "IATA": "FRA",
+        "ICAO": "EDDF",
+        "latitude": 50.033333,
+        "longitude": 8.570556,
+        "timezone": "Europe/Berlin"
+      }
+    },
+    {
+      "key": "345",
+      "attributes": {
+        "name": "D\u00fcsseldorf Airport",
+        "city": "Duesseldorf",
+        "country": "Germany",
+        "IATA": "DUS",
+        "ICAO": "EDDL",
+        "latitude": 51.289501,
+        "longitude": 6.76678,
+        "timezone": "Europe/Berlin"
+      }
+    },
+    {
+      "key": "346",
+      "attributes": {
+        "name": "Munich Airport",
+        "city": "Munich",
+        "country": "Germany",
+        "IATA": "MUC",
+        "ICAO": "EDDM",
+        "latitude": 48.353802,
+        "longitude": 11.7861,
+        "timezone": "Europe/Berlin"
+      }
+    },
+    {
+      "key": "478",
+      "attributes": {
+        "name": "Manchester Airport",
+        "city": "Manchester",
+        "country": "United Kingdom",
+        "IATA": "MAN",
+        "ICAO": "EGCC",
+        "latitude": 53.35369873046875,
+        "longitude": -2.2749500274658203,
+        "timezone": "Europe/London"
+      }
+    },
+    {
+      "key": "502",
+      "attributes": {
+        "name": "London Gatwick Airport",
+        "city": "London",
+        "country": "United Kingdom",
+        "IATA": "LGW",
+        "ICAO": "EGKK",
+        "latitude": 51.148102,
+        "longitude": -0.190278,
+        "timezone": "Europe/London"
+      }
+    },
+    {
+      "key": "507",
+      "attributes": {
+        "name": "London Heathrow Airport",
+        "city": "London",
+        "country": "United Kingdom",
+        "IATA": "LHR",
+        "ICAO": "EGLL",
+        "latitude": 51.4706,
+        "longitude": -0.461941,
+        "timezone": "Europe/London"
+      }
+    },
+    {
+      "key": "580",
+      "attributes": {
+        "name": "Amsterdam Airport Schiphol",
+        "city": "Amsterdam",
+        "country": "Netherlands",
+        "IATA": "AMS",
+        "ICAO": "EHAM",
+        "latitude": 52.308601,
+        "longitude": 4.76389,
+        "timezone": "Europe/Amsterdam"
+      }
+    },
+    {
+      "key": "1218",
+      "attributes": {
+        "name": "Barcelona International Airport",
+        "city": "Barcelona",
+        "country": "Spain",
+        "IATA": "BCN",
+        "ICAO": "LEBL",
+        "latitude": 41.2971,
+        "longitude": 2.07846,
+        "timezone": "Europe/Madrid"
+      }
+    },
+    {
+      "key": "1229",
+      "attributes": {
+        "name": "Adolfo Su\u00e1rez Madrid\u2013Barajas Airport",
+        "city": "Madrid",
+        "country": "Spain",
+        "IATA": "MAD",
+        "ICAO": "LEMD",
+        "latitude": 40.471926,
+        "longitude": -3.56264,
+        "timezone": "Europe/Madrid"
+      }
+    },
+    {
+      "key": "1335",
+      "attributes": {
+        "name": "Lyon Saint-Exup\u00e9ry Airport",
+        "city": "Lyon",
+        "country": "France",
+        "IATA": "LYS",
+        "ICAO": "LFLL",
+        "latitude": 45.725556,
+        "longitude": 5.081111,
+        "timezone": "Europe/Paris"
+      }
+    },
+    {
+      "key": "1353",
+      "attributes": {
+        "name": "Marseille Provence Airport",
+        "city": "Marseille",
+        "country": "France",
+        "IATA": "MRS",
+        "ICAO": "LFML",
+        "latitude": 43.439271922,
+        "longitude": 5.22142410278,
+        "timezone": "Europe/Paris"
+      }
+    },
+    {
+      "key": "1382",
+      "attributes": {
+        "name": "Charles de Gaulle International Airport",
+        "city": "Paris",
+        "country": "France",
+        "IATA": "CDG",
+        "ICAO": "LFPG",
+        "latitude": 49.012798,
+        "longitude": 2.55,
+        "timezone": "Europe/Paris"
+      }
+    },
+    {
+      "key": "1386",
+      "attributes": {
+        "name": "Paris-Orly Airport",
+        "city": "Paris",
+        "country": "France",
+        "IATA": "ORY",
+        "ICAO": "LFPO",
+        "latitude": 48.7233333,
+        "longitude": 2.3794444,
+        "timezone": "Europe/Paris"
+      }
+    },
+    {
+      "key": "1555",
+      "attributes": {
+        "name": "Leonardo da Vinci\u2013Fiumicino Airport",
+        "city": "Rome",
+        "country": "Italy",
+        "IATA": "FCO",
+        "ICAO": "LIRF",
+        "latitude": 41.8002778,
+        "longitude": 12.2388889,
+        "timezone": "Europe/Rome"
+      }
+    },
+    {
+      "key": "1701",
+      "attributes": {
+        "name": "Atat\u00fcrk International Airport",
+        "city": "Istanbul",
+        "country": "Turkey",
+        "IATA": "ISL",
+        "ICAO": "LTBA",
+        "latitude": 40.976898,
+        "longitude": 28.8146,
+        "timezone": "Europe/Istanbul"
+      }
+    },
+    {
+      "key": "2188",
+      "attributes": {
+        "name": "Dubai International Airport",
+        "city": "Dubai",
+        "country": "United Arab Emirates",
+        "IATA": "DXB",
+        "ICAO": "OMDB",
+        "latitude": 25.2527999878,
+        "longitude": 55.3643989563,
+        "timezone": "Asia/Dubai"
+      }
+    },
+    {
+      "key": "3364",
+      "attributes": {
+        "name": "Beijing Capital International Airport",
+        "city": "Beijing",
+        "country": "China",
+        "IATA": "PEK",
+        "ICAO": "ZBAA",
+        "latitude": 40.0801010131836,
+        "longitude": 116.58499908447266,
+        "timezone": "Asia/Shanghai"
+      }
+    },
+    {
+      "key": "3370",
+      "attributes": {
+        "name": "Guangzhou Baiyun International Airport",
+        "city": "Guangzhou",
+        "country": "China",
+        "IATA": "CAN",
+        "ICAO": "ZGGG",
+        "latitude": 23.39240074157715,
+        "longitude": 113.29900360107422,
+        "timezone": "Asia/Shanghai"
+      }
+    },
+    {
+      "key": "3406",
+      "attributes": {
+        "name": "Shanghai Pudong International Airport",
+        "city": "Shanghai",
+        "country": "China",
+        "IATA": "PVG",
+        "ICAO": "ZSPD",
+        "latitude": 31.143400192260746,
+        "longitude": 121.80500030517578,
+        "timezone": "Asia/Shanghai"
+      }
+    },
+    {
+      "key": "3484",
+      "attributes": {
+        "name": "Los Angeles International Airport",
+        "city": "Los Angeles",
+        "country": "United States",
+        "IATA": "LAX",
+        "ICAO": "KLAX",
+        "latitude": 33.94250107,
+        "longitude": -118.4079971,
+        "timezone": "America/Los_Angeles"
+      }
+    },
+    {
+      "key": "3494",
+      "attributes": {
+        "name": "Newark Liberty International Airport",
+        "city": "Newark",
+        "country": "United States",
+        "IATA": "EWR",
+        "ICAO": "KEWR",
+        "latitude": 40.692501068115234,
+        "longitude": -74.168701171875,
+        "timezone": "America/New_York"
+      }
+    },
+    {
+      "key": "3550",
+      "attributes": {
+        "name": "George Bush Intercontinental Houston Airport",
+        "city": "Houston",
+        "country": "United States",
+        "IATA": "IAH",
+        "ICAO": "KIAH",
+        "latitude": 29.984399795532227,
+        "longitude": -95.34140014648438,
+        "timezone": "America/Chicago"
+      }
+    },
+    {
+      "key": "3670",
+      "attributes": {
+        "name": "Dallas Fort Worth International Airport",
+        "city": "Dallas-Fort Worth",
+        "country": "United States",
+        "IATA": "DFW",
+        "ICAO": "KDFW",
+        "latitude": 32.896801,
+        "longitude": -97.038002,
+        "timezone": "America/Chicago"
+      }
+    },
+    {
+      "key": "3682",
+      "attributes": {
+        "name": "Hartsfield Jackson Atlanta International Airport",
+        "city": "Atlanta",
+        "country": "United States",
+        "IATA": "ATL",
+        "ICAO": "KATL",
+        "latitude": 33.6367,
+        "longitude": -84.428101,
+        "timezone": "America/New_York"
+      }
+    },
+    {
+      "key": "3751",
+      "attributes": {
+        "name": "Denver International Airport",
+        "city": "Denver",
+        "country": "United States",
+        "IATA": "DEN",
+        "ICAO": "KDEN",
+        "latitude": 39.861698150635,
+        "longitude": -104.672996521,
+        "timezone": "America/Denver"
+      }
+    },
+    {
+      "key": "3797",
+      "attributes": {
+        "name": "John F Kennedy International Airport",
+        "city": "New York",
+        "country": "United States",
+        "IATA": "JFK",
+        "ICAO": "KJFK",
+        "latitude": 40.63980103,
+        "longitude": -73.77890015,
+        "timezone": "America/New_York"
+      }
+    },
+    {
+      "key": "3830",
+      "attributes": {
+        "name": "Chicago O'Hare International Airport",
+        "city": "Chicago",
+        "country": "United States",
+        "IATA": "ORD",
+        "ICAO": "KORD",
+        "latitude": 41.9786,
+        "longitude": -87.9048,
+        "timezone": "America/Chicago"
+      }
+    },
+    {
+      "key": "4029",
+      "attributes": {
+        "name": "Domodedovo International Airport",
+        "city": "Moscow",
+        "country": "Russia",
+        "IATA": "DME",
+        "ICAO": "UUDD",
+        "latitude": 55.40879821777344,
+        "longitude": 37.90629959106445,
+        "timezone": "Europe/Moscow"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "source": "1218",
+      "target": "345",
+      "attributes": {
+        "airline": "4U",
+        "airline_id": "2548",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "320 319"
+      }
+    },
+    {
+      "source": "345",
+      "target": "1218",
+      "attributes": {
+        "airline": "4U",
+        "airline_id": "2548",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "320 319"
+      }
+    },
+    {
+      "source": "345",
+      "target": "1335",
+      "attributes": {
+        "airline": "4U",
+        "airline_id": "2548",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "CRJ"
+      }
+    },
+    {
+      "source": "345",
+      "target": "1229",
+      "attributes": {
+        "airline": "4U",
+        "airline_id": "2548",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "CRJ"
+      }
+    },
+    {
+      "source": "1335",
+      "target": "345",
+      "attributes": {
+        "airline": "4U",
+        "airline_id": "2548",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "CRJ"
+      }
+    },
+    {
+      "source": "1229",
+      "target": "345",
+      "attributes": {
+        "airline": "4U",
+        "airline_id": "2548",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "CRJ"
+      }
+    },
+    {
+      "source": "1382",
+      "target": "1701",
+      "attributes": {
+        "airline": "8Q",
+        "airline_id": "3788",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "320"
+      }
+    },
+    {
+      "source": "1701",
+      "target": "1382",
+      "attributes": {
+        "airline": "8Q",
+        "airline_id": "3788",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "320"
+      }
+    },
+    {
+      "source": "302",
+      "target": "3494",
+      "attributes": {
+        "airline": "9W",
+        "airline_id": "3000",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "333"
+      }
+    },
+    {
+      "source": "302",
+      "target": "193",
+      "attributes": {
+        "airline": "9W",
+        "airline_id": "3000",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "332 333"
+      }
+    },
+    {
+      "source": "3494",
+      "target": "302",
+      "attributes": {
+        "airline": "9W",
+        "airline_id": "3000",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "333"
+      }
+    },
+    {
+      "source": "193",
+      "target": "302",
+      "attributes": {
+        "airline": "9W",
+        "airline_id": "3000",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "332 333"
+      }
+    },
+    {
+      "source": "302",
+      "target": "1335",
+      "attributes": {
+        "airline": "A5",
+        "airline_id": "1203",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "ER4"
+      }
+    },
+    {
+      "source": "1555",
+      "target": "1335",
+      "attributes": {
+        "airline": "A5",
+        "airline_id": "1203",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "CRK"
+      }
+    },
+    {
+      "source": "1335",
+      "target": "302",
+      "attributes": {
+        "airline": "A5",
+        "airline_id": "1203",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "ER4"
+      }
+    },
+    {
+      "source": "1335",
+      "target": "1555",
+      "attributes": {
+        "airline": "A5",
+        "airline_id": "1203",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "CRK"
+      }
+    },
+    {
+      "source": "1335",
+      "target": "1353",
+      "attributes": {
+        "airline": "A5",
+        "airline_id": "1203",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "AT5 CRJ"
+      }
+    },
+    {
+      "source": "1353",
+      "target": "1335",
+      "attributes": {
+        "airline": "A5",
+        "airline_id": "1203",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "AT5 CRJ"
+      }
+    },
+    {
+      "source": "580",
+      "target": "507",
+      "attributes": {
+        "airline": "AA",
+        "airline_id": "24",
+        "codeshare": "Y",
+        "stops": 0,
+        "equipment": "320 767 321 319"
+      }
+    },
+    {
+      "source": "3682",
+      "target": "3670",
+      "attributes": {
+        "airline": "AA",
+        "airline_id": "24",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "M80 319 M83"
+      }
+    },
+    {
+      "source": "3682",
+      "target": "507",
+      "attributes": {
+        "airline": "AA",
+        "airline_id": "24",
+        "codeshare": "Y",
+        "stops": 0,
+        "equipment": "777"
+      }
+    },
+    {
+      "source": "3682",
+      "target": "3830",
+      "attributes": {
+        "airline": "AA",
+        "airline_id": "24",
+        "codeshare": "Y",
+        "stops": 0,
+        "equipment": "CR7 E75"
+      }
+    },
+    {
+      "source": "1218",
+      "target": "3797",
+      "attributes": {
+        "airline": "AA",
+        "airline_id": "24",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "763"
+      }
+    },
+    {
+      "source": "1218",
+      "target": "507",
+      "attributes": {
+        "airline": "AA",
+        "airline_id": "24",
+        "codeshare": "Y",
+        "stops": 0,
+        "equipment": "320 319 321 767"
+      }
+    },
+    {
+      "source": "302",
+      "target": "507",
+      "attributes": {
+        "airline": "AA",
+        "airline_id": "24",
+        "codeshare": "Y",
+        "stops": 0,
+        "equipment": "319 320 321"
+      }
+    },
+    {
+      "source": "1382",
+      "target": "3670",
+      "attributes": {
+        "airline": "AA",
+        "airline_id": "24",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "763 777"
+      }
+    },
+    {
+      "source": "1382",
+      "target": "3797",
+      "attributes": {
+        "airline": "AA",
+        "airline_id": "24",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "763 757"
+      }
+    },
+    {
+      "source": "1382",
+      "target": "507",
+      "attributes": {
+        "airline": "AA",
+        "airline_id": "24",
+        "codeshare": "Y",
+        "stops": 0,
+        "equipment": "319 320 321"
+      }
+    },
+    {
+      "source": "1382",
+      "target": "3830",
+      "attributes": {
+        "airline": "AA",
+        "airline_id": "24",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "763"
+      }
+    },
+    {
+      "source": "3751",
+      "target": "3670",
+      "attributes": {
+        "airline": "AA",
+        "airline_id": "24",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "738 M83 M80"
+      }
+    },
+    {
+      "source": "3751",
+      "target": "3484",
+      "attributes": {
+        "airline": "AA",
+        "airline_id": "24",
+        "codeshare": "Y",
+        "stops": 0,
+        "equipment": "CR7"
+      }
+    },
+    {
+      "source": "3751",
+      "target": "507",
+      "attributes": {
+        "airline": "AA",
+        "airline_id": "24",
+        "codeshare": "Y",
+        "stops": 0,
+        "equipment": "777"
+      }
+    },
+    {
+      "source": "3751",
+      "target": "3830",
+      "attributes": {
+        "airline": "AA",
+        "airline_id": "24",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "M80 M83"
+      }
+    },
+    {
+      "source": "3670",
+      "target": "3682",
+      "attributes": {
+        "airline": "AA",
+        "airline_id": "24",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "M83 M80 319"
+      }
+    },
+    {
+      "source": "3670",
+      "target": "1382",
+      "attributes": {
+        "airline": "AA",
+        "airline_id": "24",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "763 777"
+      }
+    },
+    {
+      "source": "3670",
+      "target": "3751",
+      "attributes": {
+        "airline": "AA",
+        "airline_id": "24",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "738 M80 M83"
+      }
+    },
+    {
+      "source": "3670",
+      "target": "3494",
+      "attributes": {
+        "airline": "AA",
+        "airline_id": "24",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "M83 M80"
+      }
+    },
+    {
+      "source": "3670",
+      "target": "340",
+      "attributes": {
+        "airline": "AA",
+        "airline_id": "24",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "777"
+      }
+    },
+    {
+      "source": "3670",
+      "target": "3550",
+      "attributes": {
+        "airline": "AA",
+        "airline_id": "24",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "M83 M80"
+      }
+    },
+    {
+      "source": "3670",
+      "target": "3797",
+      "attributes": {
+        "airline": "AA",
+        "airline_id": "24",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "738"
+      }
+    },
+    {
+      "source": "345",
+      "target": "3797",
+      "attributes": {
+        "airline": "AA",
+        "airline_id": "24",
+        "codeshare": "Y",
+        "stops": 0,
+        "equipment": "330"
+      }
+    },
+    {
+      "source": "345",
+      "target": "3484",
+      "attributes": {
+        "airline": "AA",
+        "airline_id": "24",
+        "codeshare": "Y",
+        "stops": 0,
+        "equipment": "330"
+      }
+    },
+    {
+      "source": "345",
+      "target": "507",
+      "attributes": {
+        "airline": "AA",
+        "airline_id": "24",
+        "codeshare": "Y",
+        "stops": 0,
+        "equipment": "319 320"
+      }
+    },
+    {
+      "source": "345",
+      "target": "3830",
+      "attributes": {
+        "airline": "AA",
+        "airline_id": "24",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "763"
+      }
+    },
+    {
+      "source": "2188",
+      "target": "507",
+      "attributes": {
+        "airline": "AA",
+        "airline_id": "24",
+        "codeshare": "Y",
+        "stops": 0,
+        "equipment": "744 777"
+      }
+    },
+    {
+      "source": "3494",
+      "target": "507",
+      "attributes": {
+        "airline": "AA",
+        "airline_id": "24",
+        "codeshare": "Y",
+        "stops": 0,
+        "equipment": "777 787"
+      }
+    },
+    {
+      "source": "3494",
+      "target": "3830",
+      "attributes": {
+        "airline": "AA",
+        "airline_id": "24",
+        "codeshare": "Y",
+        "stops": 0,
+        "equipment": "E75 CR7"
+      }
+    },
+    {
+      "source": "3494",
+      "target": "1386",
+      "attributes": {
+        "airline": "AA",
+        "airline_id": "24",
+        "codeshare": "Y",
+        "stops": 0,
+        "equipment": "757"
+      }
+    },
+    {
+      "source": "1555",
+      "target": "3797",
+      "attributes": {
+        "airline": "AA",
+        "airline_id": "24",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "763"
+      }
+    },
+    {
+      "source": "1555",
+      "target": "507",
+      "attributes": {
+        "airline": "AA",
+        "airline_id": "24",
+        "codeshare": "Y",
+        "stops": 0,
+        "equipment": "321 767 319 320"
+      }
+    },
+    {
+      "source": "1555",
+      "target": "3830",
+      "attributes": {
+        "airline": "AA",
+        "airline_id": "24",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "763"
+      }
+    },
+    {
+      "source": "3550",
+      "target": "3484",
+      "attributes": {
+        "airline": "AA",
+        "airline_id": "24",
+        "codeshare": "Y",
+        "stops": 0,
+        "equipment": "CR7"
+      }
+    },
+    {
+      "source": "3550",
+      "target": "3830",
+      "attributes": {
+        "airline": "AA",
+        "airline_id": "24",
+        "codeshare": "Y",
+        "stops": 0,
+        "equipment": "CR7"
+      }
+    },
+    {
+      "source": "3797",
+      "target": "1218",
+      "attributes": {
+        "airline": "AA",
+        "airline_id": "24",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "763"
+      }
+    },
+    {
+      "source": "3797",
+      "target": "1382",
+      "attributes": {
+        "airline": "AA",
+        "airline_id": "24",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "763 757"
+      }
+    },
+    {
+      "source": "3797",
+      "target": "1555",
+      "attributes": {
+        "airline": "AA",
+        "airline_id": "24",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "763"
+      }
+    },
+    {
+      "source": "3797",
+      "target": "3484",
+      "attributes": {
+        "airline": "AA",
+        "airline_id": "24",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "32B 762"
+      }
+    },
+    {
+      "source": "3797",
+      "target": "1229",
+      "attributes": {
+        "airline": "AA",
+        "airline_id": "24",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "330 757 340"
+      }
+    },
+    {
+      "source": "3484",
+      "target": "3751",
+      "attributes": {
+        "airline": "AA",
+        "airline_id": "24",
+        "codeshare": "Y",
+        "stops": 0,
+        "equipment": "CR7"
+      }
+    },
+    {
+      "source": "3484",
+      "target": "3550",
+      "attributes": {
+        "airline": "AA",
+        "airline_id": "24",
+        "codeshare": "Y",
+        "stops": 0,
+        "equipment": "CR7"
+      }
+    },
+    {
+      "source": "3484",
+      "target": "1229",
+      "attributes": {
+        "airline": "AA",
+        "airline_id": "24",
+        "codeshare": "Y",
+        "stops": 0,
+        "equipment": "340"
+      }
+    },
+    {
+      "source": "3484",
+      "target": "3830",
+      "attributes": {
+        "airline": "AA",
+        "airline_id": "24",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "738"
+      }
+    },
+    {
+      "source": "3484",
+      "target": "3406",
+      "attributes": {
+        "airline": "AA",
+        "airline_id": "24",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "777"
+      }
+    },
+    {
+      "source": "3484",
+      "target": "193",
+      "attributes": {
+        "airline": "AA",
+        "airline_id": "24",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "738"
+      }
+    },
+    {
+      "source": "1229",
+      "target": "3830",
+      "attributes": {
+        "airline": "AA",
+        "airline_id": "24",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "330"
+      }
+    },
+    {
+      "source": "478",
+      "target": "3830",
+      "attributes": {
+        "airline": "AA",
+        "airline_id": "24",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "763"
+      }
+    },
+    {
+      "source": "1386",
+      "target": "3494",
+      "attributes": {
+        "airline": "AA",
+        "airline_id": "24",
+        "codeshare": "Y",
+        "stops": 0,
+        "equipment": "757"
+      }
+    },
+    {
+      "source": "4029",
+      "target": "340",
+      "attributes": {
+        "airline": "AB",
+        "airline_id": "214",
+        "codeshare": "Y",
+        "stops": 0,
+        "equipment": "319"
+      }
+    },
+    {
+      "source": "4029",
+      "target": "346",
+      "attributes": {
+        "airline": "AB",
+        "airline_id": "214",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "738"
+      }
+    },
+    {
+      "source": "340",
+      "target": "4029",
+      "attributes": {
+        "airline": "AB",
+        "airline_id": "214",
+        "codeshare": "Y",
+        "stops": 0,
+        "equipment": "319"
+      }
+    },
+    {
+      "source": "340",
+      "target": "1229",
+      "attributes": {
+        "airline": "AB",
+        "airline_id": "214",
+        "codeshare": "Y",
+        "stops": 0,
+        "equipment": "32A"
+      }
+    },
+    {
+      "source": "1229",
+      "target": "340",
+      "attributes": {
+        "airline": "AB",
+        "airline_id": "214",
+        "codeshare": "Y",
+        "stops": 0,
+        "equipment": "32A"
+      }
+    },
+    {
+      "source": "1229",
+      "target": "346",
+      "attributes": {
+        "airline": "AB",
+        "airline_id": "214",
+        "codeshare": "Y",
+        "stops": 0,
+        "equipment": "319 320 321"
+      }
+    },
+    {
+      "source": "346",
+      "target": "4029",
+      "attributes": {
+        "airline": "AB",
+        "airline_id": "214",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "738"
+      }
+    },
+    {
+      "source": "346",
+      "target": "1229",
+      "attributes": {
+        "airline": "AB",
+        "airline_id": "214",
+        "codeshare": "Y",
+        "stops": 0,
+        "equipment": "319 320 321"
+      }
+    },
+    {
+      "source": "3682",
+      "target": "3751",
+      "attributes": {
+        "airline": "AC",
+        "airline_id": "330",
+        "codeshare": "Y",
+        "stops": 0,
+        "equipment": "CR7"
+      }
+    },
+    {
+      "source": "3682",
+      "target": "193",
+      "attributes": {
+        "airline": "AC",
+        "airline_id": "330",
+        "codeshare": "Y",
+        "stops": 0,
+        "equipment": "CRA CRJ"
+      }
+    },
+    {
+      "source": "1218",
+      "target": "193",
+      "attributes": {
+        "airline": "AC",
+        "airline_id": "330",
+        "codeshare": "Y",
+        "stops": 0,
+        "equipment": "763"
+      }
+    },
+    {
+      "source": "302",
+      "target": "193",
+      "attributes": {
+        "airline": "AC",
+        "airline_id": "330",
+        "codeshare": "Y",
+        "stops": 0,
+        "equipment": "332"
+      }
+    },
+    {
+      "source": "1382",
+      "target": "193",
+      "attributes": {
+        "airline": "AC",
+        "airline_id": "330",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "77W"
+      }
+    },
+    {
+      "source": "3751",
+      "target": "3682",
+      "attributes": {
+        "airline": "AC",
+        "airline_id": "330",
+        "codeshare": "Y",
+        "stops": 0,
+        "equipment": "CR7"
+      }
+    },
+    {
+      "source": "3751",
+      "target": "193",
+      "attributes": {
+        "airline": "AC",
+        "airline_id": "330",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "E90"
+      }
+    },
+    {
+      "source": "3494",
+      "target": "193",
+      "attributes": {
+        "airline": "AC",
+        "airline_id": "330",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "E75 E90"
+      }
+    },
+    {
+      "source": "1555",
+      "target": "193",
+      "attributes": {
+        "airline": "AC",
+        "airline_id": "330",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "333"
+      }
+    },
+    {
+      "source": "210",
+      "target": "1382",
+      "attributes": {
+        "airline": "AF",
+        "airline_id": "137",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "319"
+      }
+    },
+    {
+      "source": "210",
+      "target": "1353",
+      "attributes": {
+        "airline": "AF",
+        "airline_id": "137",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "320 319"
+      }
+    },
+    {
+      "source": "580",
+      "target": "1335",
+      "attributes": {
+        "airline": "AF",
+        "airline_id": "137",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "F70"
+      }
+    },
+    {
+      "source": "580",
+      "target": "1353",
+      "attributes": {
+        "airline": "AF",
+        "airline_id": "137",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "319"
+      }
+    },
+    {
+      "source": "3682",
+      "target": "302",
+      "attributes": {
+        "airline": "AF",
+        "airline_id": "137",
+        "codeshare": "Y",
+        "stops": 0,
+        "equipment": "76W"
+      }
+    },
+    {
+      "source": "3682",
+      "target": "3751",
+      "attributes": {
+        "airline": "AF",
+        "airline_id": "137",
+        "codeshare": "Y",
+        "stops": 0,
+        "equipment": "M90 757 738"
+      }
+    },
+    {
+      "source": "3682",
+      "target": "3494",
+      "attributes": {
+        "airline": "AF",
+        "airline_id": "137",
+        "codeshare": "Y",
+        "stops": 0,
+        "equipment": "717"
+      }
+    },
+    {
+      "source": "302",
+      "target": "1335",
+      "attributes": {
+        "airline": "AF",
+        "airline_id": "137",
+        "codeshare": "Y",
+        "stops": 0,
+        "equipment": "ER4"
+      }
+    },
+    {
+      "source": "1555",
+      "target": "1353",
+      "attributes": {
+        "airline": "AF",
+        "airline_id": "137",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "319"
+      }
+    },
+    {
+      "source": "1701",
+      "target": "1353",
+      "attributes": {
+        "airline": "AF",
+        "airline_id": "137",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "320"
+      }
+    },
+    {
+      "source": "1229",
+      "target": "1386",
+      "attributes": {
+        "airline": "AF",
+        "airline_id": "137",
+        "codeshare": "Y",
+        "stops": 0,
+        "equipment": "738 E90"
+      }
+    },
+    {
+      "source": "1353",
+      "target": "210",
+      "attributes": {
+        "airline": "AF",
+        "airline_id": "137",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "320 319"
+      }
+    },
+    {
+      "source": "1353",
+      "target": "580",
+      "attributes": {
+        "airline": "AF",
+        "airline_id": "137",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "319"
+      }
+    },
+    {
+      "source": "1353",
+      "target": "1555",
+      "attributes": {
+        "airline": "AF",
+        "airline_id": "137",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "319"
+      }
+    },
+    {
+      "source": "1353",
+      "target": "1701",
+      "attributes": {
+        "airline": "AF",
+        "airline_id": "137",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "320"
+      }
+    },
+    {
+      "source": "210",
+      "target": "1218",
+      "attributes": {
+        "airline": "AH",
+        "airline_id": "794",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "736 738"
+      }
+    },
+    {
+      "source": "210",
+      "target": "209",
+      "attributes": {
+        "airline": "AH",
+        "airline_id": "794",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "738 ATR"
+      }
+    },
+    {
+      "source": "210",
+      "target": "2188",
+      "attributes": {
+        "airline": "AH",
+        "airline_id": "794",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "330"
+      }
+    },
+    {
+      "source": "210",
+      "target": "1555",
+      "attributes": {
+        "airline": "AH",
+        "airline_id": "794",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "736"
+      }
+    },
+    {
+      "source": "210",
+      "target": "340",
+      "attributes": {
+        "airline": "AH",
+        "airline_id": "794",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "736"
+      }
+    },
+    {
+      "source": "210",
+      "target": "1701",
+      "attributes": {
+        "airline": "AH",
+        "airline_id": "794",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "736"
+      }
+    },
+    {
+      "source": "210",
+      "target": "1386",
+      "attributes": {
+        "airline": "AH",
+        "airline_id": "794",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "736 330"
+      }
+    },
+    {
+      "source": "209",
+      "target": "1386",
+      "attributes": {
+        "airline": "AH",
+        "airline_id": "794",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "736"
+      }
+    },
+    {
+      "source": "1386",
+      "target": "209",
+      "attributes": {
+        "airline": "AH",
+        "airline_id": "794",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "736"
+      }
+    },
+    {
+      "source": "580",
+      "target": "2188",
+      "attributes": {
+        "airline": "AZ",
+        "airline_id": "596",
+        "codeshare": "Y",
+        "stops": 0,
+        "equipment": "777"
+      }
+    },
+    {
+      "source": "2188",
+      "target": "580",
+      "attributes": {
+        "airline": "AZ",
+        "airline_id": "596",
+        "codeshare": "Y",
+        "stops": 0,
+        "equipment": "777"
+      }
+    },
+    {
+      "source": "2188",
+      "target": "3550",
+      "attributes": {
+        "airline": "B6",
+        "airline_id": "3029",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "77W"
+      }
+    },
+    {
+      "source": "3550",
+      "target": "2188",
+      "attributes": {
+        "airline": "B6",
+        "airline_id": "3029",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "77W"
+      }
+    },
+    {
+      "source": "580",
+      "target": "502",
+      "attributes": {
+        "airline": "BA",
+        "airline_id": "1355",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "319 734"
+      }
+    },
+    {
+      "source": "1218",
+      "target": "502",
+      "attributes": {
+        "airline": "BA",
+        "airline_id": "1355",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "319 734 320"
+      }
+    },
+    {
+      "source": "3494",
+      "target": "1386",
+      "attributes": {
+        "airline": "BA",
+        "airline_id": "1355",
+        "codeshare": "Y",
+        "stops": 0,
+        "equipment": "752"
+      }
+    },
+    {
+      "source": "502",
+      "target": "580",
+      "attributes": {
+        "airline": "BA",
+        "airline_id": "1355",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "319 734"
+      }
+    },
+    {
+      "source": "502",
+      "target": "1218",
+      "attributes": {
+        "airline": "BA",
+        "airline_id": "1355",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "319 734 320"
+      }
+    },
+    {
+      "source": "3370",
+      "target": "1701",
+      "attributes": {
+        "airline": "CA",
+        "airline_id": "751",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "330 343"
+      }
+    },
+    {
+      "source": "3370",
+      "target": "3364",
+      "attributes": {
+        "airline": "CA",
+        "airline_id": "751",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "333 773 321 777 772 738 744"
+      }
+    },
+    {
+      "source": "3370",
+      "target": "3406",
+      "attributes": {
+        "airline": "CA",
+        "airline_id": "751",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "340 330 321"
+      }
+    },
+    {
+      "source": "2188",
+      "target": "3364",
+      "attributes": {
+        "airline": "CA",
+        "airline_id": "751",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "333"
+      }
+    },
+    {
+      "source": "340",
+      "target": "3364",
+      "attributes": {
+        "airline": "CA",
+        "airline_id": "751",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "773"
+      }
+    },
+    {
+      "source": "340",
+      "target": "3406",
+      "attributes": {
+        "airline": "CA",
+        "airline_id": "751",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "330"
+      }
+    },
+    {
+      "source": "3550",
+      "target": "3364",
+      "attributes": {
+        "airline": "CA",
+        "airline_id": "751",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "773"
+      }
+    },
+    {
+      "source": "1701",
+      "target": "3370",
+      "attributes": {
+        "airline": "CA",
+        "airline_id": "751",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "330 343"
+      }
+    },
+    {
+      "source": "1701",
+      "target": "3364",
+      "attributes": {
+        "airline": "CA",
+        "airline_id": "751",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "77W"
+      }
+    },
+    {
+      "source": "1701",
+      "target": "3406",
+      "attributes": {
+        "airline": "CA",
+        "airline_id": "751",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "77W"
+      }
+    },
+    {
+      "source": "502",
+      "target": "3364",
+      "attributes": {
+        "airline": "CA",
+        "airline_id": "751",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "330"
+      }
+    },
+    {
+      "source": "346",
+      "target": "3364",
+      "attributes": {
+        "airline": "CA",
+        "airline_id": "751",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "330"
+      }
+    },
+    {
+      "source": "346",
+      "target": "3406",
+      "attributes": {
+        "airline": "CA",
+        "airline_id": "751",
+        "codeshare": "Y",
+        "stops": 0,
+        "equipment": "346"
+      }
+    },
+    {
+      "source": "3364",
+      "target": "3370",
+      "attributes": {
+        "airline": "CA",
+        "airline_id": "751",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "321 777 772 738 773 744 333"
+      }
+    },
+    {
+      "source": "3364",
+      "target": "2188",
+      "attributes": {
+        "airline": "CA",
+        "airline_id": "751",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "333"
+      }
+    },
+    {
+      "source": "3364",
+      "target": "340",
+      "attributes": {
+        "airline": "CA",
+        "airline_id": "751",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "773"
+      }
+    },
+    {
+      "source": "3406",
+      "target": "3370",
+      "attributes": {
+        "airline": "CA",
+        "airline_id": "751",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "340 330 321"
+      }
+    },
+    {
+      "source": "3406",
+      "target": "340",
+      "attributes": {
+        "airline": "CA",
+        "airline_id": "751",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "330"
+      }
+    },
+    {
+      "source": "3406",
+      "target": "1701",
+      "attributes": {
+        "airline": "CA",
+        "airline_id": "751",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "77W"
+      }
+    },
+    {
+      "source": "3406",
+      "target": "346",
+      "attributes": {
+        "airline": "CA",
+        "airline_id": "751",
+        "codeshare": "Y",
+        "stops": 0,
+        "equipment": "346"
+      }
+    },
+    {
+      "source": "580",
+      "target": "478",
+      "attributes": {
+        "airline": "CI",
+        "airline_id": "1756",
+        "codeshare": "Y",
+        "stops": 0,
+        "equipment": "737 E90 F70"
+      }
+    },
+    {
+      "source": "580",
+      "target": "3370",
+      "attributes": {
+        "airline": "CZ",
+        "airline_id": "1767",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "332"
+      }
+    },
+    {
+      "source": "3370",
+      "target": "2188",
+      "attributes": {
+        "airline": "CZ",
+        "airline_id": "1767",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "772"
+      }
+    },
+    {
+      "source": "3370",
+      "target": "3406",
+      "attributes": {
+        "airline": "CZ",
+        "airline_id": "1767",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "320 738"
+      }
+    },
+    {
+      "source": "2188",
+      "target": "3370",
+      "attributes": {
+        "airline": "CZ",
+        "airline_id": "1767",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "772"
+      }
+    },
+    {
+      "source": "1218",
+      "target": "502",
+      "attributes": {
+        "airline": "DY",
+        "airline_id": "3737",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "73H"
+      }
+    },
+    {
+      "source": "4029",
+      "target": "346",
+      "attributes": {
+        "airline": "LH",
+        "airline_id": "3320",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "321 320 319"
+      }
+    },
+    {
+      "source": "478",
+      "target": "346",
+      "attributes": {
+        "airline": "LH",
+        "airline_id": "3320",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "320 319"
+      }
+    },
+    {
+      "source": "346",
+      "target": "4029",
+      "attributes": {
+        "airline": "LH",
+        "airline_id": "3320",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "320 321 319"
+      }
+    },
+    {
+      "source": "4029",
+      "target": "3550",
+      "attributes": {
+        "airline": "SQ",
+        "airline_id": "4435",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "77W"
+      }
+    },
+    {
+      "source": "3550",
+      "target": "4029",
+      "attributes": {
+        "airline": "SQ",
+        "airline_id": "4435",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "77W"
+      }
+    },
+    {
+      "source": "4029",
+      "target": "502",
+      "attributes": {
+        "airline": "U2",
+        "airline_id": "2297",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "320"
+      }
+    },
+    {
+      "source": "4029",
+      "target": "478",
+      "attributes": {
+        "airline": "U2",
+        "airline_id": "2297",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "319 320"
+      }
+    },
+    {
+      "source": "209",
+      "target": "1386",
+      "attributes": {
+        "airline": "ZI",
+        "airline_id": "21",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "320 319"
+      }
+    },
+    {
+      "source": "1386",
+      "target": "209",
+      "attributes": {
+        "airline": "ZI",
+        "airline_id": "21",
+        "codeshare": null,
+        "stops": 0,
+        "equipment": "320 319"
+      }
+    }
+  ]
+}

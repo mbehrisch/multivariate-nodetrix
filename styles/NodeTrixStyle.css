@@ -2,7 +2,7 @@
 .node {
     stroke: white;
     stroke-width: 1.5px;
-    fill: black;
+    /* fill: currentColor; */
 }
 
 /* Style for all types of links */
@@ -16,9 +16,13 @@
 /* Style for Node labels: both matrix and NL */
 .label {
     fill: black;
-    font-size: 14px;
+    font-size: 6px;
     text-anchor: middle;
+    word-wrap: break-word; /* Allow wrapping of text */
+    white-space: normal; /* Ensure it wraps inside the cell */
+    text-overflow: ellipsis; /* Adds ellipsis for overflowed text */
 }
+
 
 /* Style for the matrix cells */
 .cell {

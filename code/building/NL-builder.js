@@ -1,10 +1,10 @@
 import { svg } from '../main.js';
-import { getEdgeRelation } from '../utils.js';
+import { getEdgeRelation } from '../utils.js';  // Keep the function name unchanged
 import { nodeDragStarted, nodeDragged, nodeDragEnded } from '../dragging/NodeDragging.js';
 
-//Builds nodes, establishes node-node paths and node-matrix paths
-export function buildNL(graph, matrixGroups){
-    //Split up nodes into a group that is going into matrix and into NL nodes
+// Builds nodes, establishes node-node paths and node-matrix paths
+export function buildNL(graph, matrixGroups) {
+    // Split up nodes into a group that is going into matrix and into NL nodes
     const matrixNodes = Object.values(matrixGroups).flat();
     const nodeLinkNodes = graph.nodes().filter(k => !matrixNodes.includes(k));
 
@@ -21,14 +21,15 @@ export function buildNL(graph, matrixGroups){
         for (let j = i + 1; j < nodeLinkNodes.length; j++) {
             const source = nodeLinkNodes[i];
             const target = nodeLinkNodes[j];
-            const relation = getEdgeRelation(graph, source, target);
+            // Ensure getEdgeRelation returns the relation or use graph.hasEdge
+            const relation = getEdgeRelation(graph, source, target);  // Use getEdgeRelation or fallback to hasEdge
             if (relation) {
                 nodeLinkEdges.push({ source, target, relation });
             }
         }
     }
 
-    //Place NL links and nodes
+    // Place NL links and nodes
     const links = svg.selectAll(".NLlink")
         .data(nodeLinkEdges)
         .enter().append("path")
@@ -44,23 +45,23 @@ export function buildNL(graph, matrixGroups){
             .on("drag", event => nodeDragged(event, matrixGroups))
             .on("end", event => nodeDragEnded(event, matrixGroups, graph)));
 
-    //Add label to nodes
+    // Add label to nodes
     const labels = svg.selectAll(".NLlabel")
         .data(Object.values(nodeLinkDict))
         .enter().append("text")
         .attr("class", "label NLlabel")
         .attr("dy", -10)
-        .text(d => d.label);
+        .text(d => graph.getNodeAttribute(d.id, 'IATA'));
 
     // Find links between each matrix group and NL nodes
     const matrixToNLLinks = [];
 
-    //Loop over all matrices and the nodes within
+    // Loop over all matrices and the nodes within
     for (const [matrixId, matrixNodeIds] of Object.entries(matrixGroups)) {
         for (const matrixNodeId of matrixNodeIds) {
-            //Loop over all NL nodes, if there is a relation, save it, and the matrixId
+            // Loop over all NL nodes, if there is a relation, save it, and the matrixId
             for (const nlNodeId of nodeLinkNodes) {
-                const relation = getEdgeRelation(graph, matrixNodeId, nlNodeId);
+                const relation = getEdgeRelation(graph, matrixNodeId, nlNodeId);  // Check relation between matrix node and NL node
                 if (relation) {
                     matrixToNLLinks.push({
                         source: matrixNodeId,
@@ -73,17 +74,16 @@ export function buildNL(graph, matrixGroups){
         }
     }
 
-    //Place the links in the canvas, force-layout will properly update the position
+    // Place the links in the canvas, force-layout will properly update the position
     const matrixToNLLinkSelection = svg.selectAll(".matrix-NL-link")
         .data(matrixToNLLinks)
         .enter()
         .append("path")
         .attr("class", "link matrix-NL-link");
-    
-    //Update the nodes, links
+
+    // Update the nodes and links
     return {
         nodes: Object.values(nodeLinkDict),
         links: nodeLinkEdges,
     };
-
 }

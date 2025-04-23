@@ -2,7 +2,7 @@ import Graph from 'https://cdn.skypack.dev/graphology';
 import louvain from 'https://cdn.skypack.dev/graphology-communities-louvain';
 
 import { buildEverything } from './utils.js';
-import { applyJobColorScale } from './multivariate/NodeLabels.js';
+import { addCodeshareColourLegend } from './pageInteraction/EdgeButtons.js';
 
 export const width = 800, height = 600;
 export const cellSize = 15;
@@ -67,8 +67,5 @@ fetch("data/sampled_data.json")
 
         buildEverything(graph, matrixGroups);
 
-        // Hook up color scale button
-        document.getElementById("color-scale-btn").addEventListener("click", () => {
-            applyJobColorScale(graph);
-        });
+        addCodeshareColourLegend();
     });

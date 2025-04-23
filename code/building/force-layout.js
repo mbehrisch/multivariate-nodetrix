@@ -76,7 +76,6 @@ export function applyForceLayout(graph, nodes, links, dummyMap, matrixGroups) {
 
         // Update matrix-matrix links
         svg.selectAll(".matrix-matrix-link")
-            .raise()
             .attr("d", d => {
                 const sourcePos = MatrixNodeLinkPositions(d.source, d.target, false); // Matrix to Matrix link
                 const targetPos = MatrixNodeLinkPositions(d.target, d.source, false);

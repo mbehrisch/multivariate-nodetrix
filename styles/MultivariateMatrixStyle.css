@@ -1,0 +1,19 @@
+.CellCodeShareYes {
+    fill: green;
+    stroke: darkgreen;
+    stroke-width: 0.5px;
+  }
+  
+.CellCodeShareNo {
+    fill: red;
+    stroke: darkred;
+    stroke-width: 0.5px
+  }
+
+.linkCodeShareYes {
+    stroke: green !important;
+  }
+  
+.linkCodeShareNo {
+    stroke: red !important;
+  }

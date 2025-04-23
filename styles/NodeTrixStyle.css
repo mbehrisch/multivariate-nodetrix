@@ -1,8 +1,8 @@
 /* Style for the NL nodes */
 .node {
-    stroke: white;
+    stroke: black;
     stroke-width: 1.5px;
-    /* fill: currentColor; */
+    fill: lightblue
 }
 
 /* Style for all types of links */

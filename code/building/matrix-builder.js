@@ -37,27 +37,41 @@ export function buildMatrix(graph, matrixGroups) {
 
         //// Build actual matrix
         // Matrix rows
-        const rows = matrixSvg.selectAll(".row")
+        const rows = matrixSvg.selectAll(".matrix-row")
             .data(nodesInMatrix)
             .enter().append("g")
-            .attr("class", "row")
+            .attr("class", "matrix-row")
             .attr("transform", (d, j) => `translate(0, ${j * cellSize})`);
 
-        // Cells in matrix
-        rows.selectAll(".cell")
-            .data(row => nodesInMatrix.map(col => {
-                // Check if an edge exists between the row and column node
-                const relation = graph.hasEdge(row, col) || graph.hasEdge(col,row);  // Use `hasEdge` method to check for edge
-                return { row, col, relation };  // Return relation (true/false) for cell styling
-            }))
+            rows.selectAll(".cell")
+            .data(function(rowId) {
+                return nodesInMatrix.map(colId => {
+                    let attributes = null;
+        
+                    if (graph.hasEdge(rowId, colId)) {
+                        const entries = [...graph.edgeEntries(rowId, colId)];
+                        if (entries.length > 0) {
+                            attributes = entries[0].attributes;
+                        }
+                    } else if (graph.hasEdge(colId, rowId)) {
+                        const entries = [...graph.edgeEntries(rowId, colId)];
+                        if (entries.length > 0) {
+                            attributes = entries[0].attributes;
+                        }
+                    }
+        
+                    return { row: rowId, col: colId, attributes };
+                });
+            })
             .enter().append("rect")
             .attr("class", d => {
-                if (d.row === d.col) return "cell cellDiagonal";  // Diagonal cells (self-links)
-                return d.relation ? "cell cellPositive" : "cell cellNegative";  // Positive if relation exists, otherwise Negative
+                if (d.row === d.col) return "cell cellDiagonal";
+                return d.attributes ? "cell cellPositive" : "cell cellNegative";
             })
             .attr("x", (d, i) => i * cellSize)
             .attr("width", cellSize)
             .attr("height", cellSize);
+        
 
         //// Row labels
         // Establish all labels of a row
@@ -156,28 +170,23 @@ export function buildMatrix(graph, matrixGroups) {
     // Build matrix-to-matrix links AFTER dummy nodes are available
     const interMatrixLinks = [];
 
-    for (let i = 0; i < matrixNodes.length; i++) {
-        for (let j = i + 1; j < matrixNodes.length; j++) {
-            const source = matrixNodes[i];
-            const target = matrixNodes[j];
-
-            const sourceMatrix = Object.keys(matrixGroups).find(k => matrixGroups[k].includes(source));
-            const targetMatrix = Object.keys(matrixGroups).find(k => matrixGroups[k].includes(target));
-
-            if (sourceMatrix !== targetMatrix) {
-                const relation = graph.hasEdge(source, target);  // Check if there's an edge between source and target nodes
-                if (relation) {
-                    interMatrixLinks.push({
-                        source,
-                        target,
-                        relation,
-                        sourceMatrix,
-                        targetMatrix
-                    });
-                }
-            }
+    graph.forEachEdge((edgeKey, attributes, source, target) => {
+        const sourceMatrix = Object.keys(matrixGroups).find(k => matrixGroups[k].includes(source));
+        const targetMatrix = Object.keys(matrixGroups).find(k => matrixGroups[k].includes(target));
+      
+        const isInDifferentMatrices = sourceMatrix && targetMatrix && sourceMatrix !== targetMatrix;
+      
+        if (isInDifferentMatrices) {
+          interMatrixLinks.push({
+            source,
+            target,
+            sourceMatrix,
+            targetMatrix,
+            ...attributes // Include all edge attributes like `relation`, `codeshare`, etc.
+          });
         }
-    }
+      });
+      
 
     // Draw placeholder SVG paths for matrix-to-matrix links (to be positioned in ticked)
     svg.selectAll(".matrix-matrix-link")

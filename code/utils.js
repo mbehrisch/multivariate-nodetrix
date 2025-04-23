@@ -19,6 +19,7 @@ import { buildNL } from './building/NL-builder.js';
 import { applyForceLayout } from './building/force-layout.js';
 import { getSimulation } from './building/force-layout.js';
 import { svg } from './main.js';
+import { applyCodeshareColoring } from './multivariate/EdgeTypes.js';
 
 //Build everything when called upon
 export function buildEverything (graph, matrixGroups){
@@ -48,6 +49,11 @@ export function buildEverything (graph, matrixGroups){
 
     //Apply force layout
     applyForceLayout(graph, nodes, links, dummyMap, matrixGroups);
+
+    //Check button settings
+    if (document.getElementById("edge-type-color-toggle").checked){
+        applyCodeshareColoring()
+    }
 }
 
 //Set simulation states

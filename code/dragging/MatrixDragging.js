@@ -44,7 +44,7 @@ export function matrixDragged(event, draggedMatrixId) {
     findOverlappingMatrices(draggedMatrixId);
 }
 
-export function matrixDragEnded(event, draggedMatrixId, graph, matrixGroups) {
+export function matrixDragEnded(event, draggedMatrixId, graph, reorderedMatrixGroups) {
     //Find dummynode
     const sim = getSimulation();
     const nodes = sim.nodes();
@@ -62,18 +62,18 @@ export function matrixDragEnded(event, draggedMatrixId, graph, matrixGroups) {
     const overlappedMatrixId = findOverlappingMatrices(draggedMatrixId)
     if (overlappedMatrixId) {
         // Merge the matrices at the id of the overlapped matrix
-        matrixGroups[overlappedMatrixId] = [
+        reorderedMatrixGroups[overlappedMatrixId] = [
             ...new Set([
-                ...matrixGroups[overlappedMatrixId],
-                ...matrixGroups[draggedMatrixId]
+                ...reorderedMatrixGroups[overlappedMatrixId],
+                ...reorderedMatrixGroups[draggedMatrixId]
             ])
         ];
         //Remove the dragged Matrix
-        delete matrixGroups[draggedMatrixId];
-        console.log(matrixGroups)
+        delete reorderedMatrixGroups[draggedMatrixId];
+        console.log(reorderedMatrixGroups)
 
         // Rebuild the full visualization
-        buildEverything(graph, matrixGroups);
+        buildEverything(graph, reorderedMatrixGroups);
         return;
     }
 
@@ -149,18 +149,18 @@ function findOverlappingMatrices(draggedId) {
 }
 
 //Function to remove NodeFromMatrix when row or column is control-clicked
-export function removeNodeFromMatrix (event, graph, matrixGroups, nodeId){
-    for (const [matrixId, nodes] of Object.entries(matrixGroups)) {
+export function removeNodeFromMatrix (event, graph, reorderedMatrixGroups, nodeId){
+    for (const [matrixId, nodes] of Object.entries(reorderedMatrixGroups)) {
         const nodeIdStr = String(nodeId);
         const index = nodes.indexOf(nodeIdStr);
         if (index !== -1) {
             nodes.splice(index, 1); // Remove node from array
             // If the matrix is now empty, optionally delete it:
             if (nodes.length === 1) {
-                delete matrixGroups[matrixId];
+                delete reorderedMatrixGroups[matrixId];
             }
         }
     }
-    buildEverything(graph, matrixGroups)
+    buildEverything(graph, reorderedMatrixGroups)
 }
 

@@ -8,7 +8,7 @@ export function getSimulation() {
     return simulation;
 }
 
-export function applyForceLayout(graph, nodes, links, dummyMap, matrixGroups) {
+export function applyForceLayout(graph, nodes, links, dummyMap, reorderedMatrixGroups) {
     // Define the simulation on updated nodes and links
     simulation = d3.forceSimulation(nodes)
         .force("link", d3.forceLink(links)
@@ -41,8 +41,7 @@ export function applyForceLayout(graph, nodes, links, dummyMap, matrixGroups) {
             .attr("y", d => d.y) // Follow node's y position, with an offset to prevent overlap
             .style("pointer-events", "none"); // Optional: Prevent labels from interfering with node dragging
 
-
-        // Move dummy nodes and attached matrices
+        // Move dummy nodes and attached matrices based on reorderedMatrixGroups
         Object.entries(dummyMap).forEach(([dummyId, matrixGroup]) => {
             const dummyNode = getNode(dummyId);
 
@@ -66,19 +65,19 @@ export function applyForceLayout(graph, nodes, links, dummyMap, matrixGroups) {
                 return getBezierPath(sourcePos, targetPos);
             });
 
-        // Update matrix-NL links
+        // Update matrix-NL links using reorderedMatrixGroups
         svg.selectAll(".matrix-NL-link")
             .attr("d", d => {
-                const sourcePos = MatrixNodeLinkPositions(d.source, d.target, true); // Matrix to Node link
+                const sourcePos = MatrixNodeLinkPositions(d.source, d.target, true, reorderedMatrixGroups); // Matrix to Node link
                 const targetPos = getNode(d.target);
                 return getBezierPath(sourcePos, targetPos);
             });
 
-        // Update matrix-matrix links
+        // Update matrix-matrix links using reorderedMatrixGroups
         svg.selectAll(".matrix-matrix-link")
             .attr("d", d => {
-                const sourcePos = MatrixNodeLinkPositions(d.source, d.target, false); // Matrix to Matrix link
-                const targetPos = MatrixNodeLinkPositions(d.target, d.source, false);
+                const sourcePos = MatrixNodeLinkPositions(d.source, d.target, false, reorderedMatrixGroups); // Matrix to Matrix link
+                const targetPos = MatrixNodeLinkPositions(d.target, d.source, false, reorderedMatrixGroups);
                 return getBezierPath(sourcePos, targetPos);
             });
     }
@@ -109,14 +108,14 @@ export function applyForceLayout(graph, nodes, links, dummyMap, matrixGroups) {
     }
 
     // Helper function to find the matrix node position as well as either the external node position (either matrix or node)
-    function MatrixNodeLinkPositions(sourceNode, targetNode, targetIsNode) {
-        // Find matrix group and dummy node of source node
-        const matrixId = Object.keys(matrixGroups).find(k => matrixGroups[k].includes(sourceNode));
+    function MatrixNodeLinkPositions(sourceNode, targetNode, targetIsNode, reorderedMatrixGroups) {
+        // Find matrix group and dummy node of source node using reorderedMatrixGroups
+        const matrixId = Object.keys(reorderedMatrixGroups).find(k => reorderedMatrixGroups[k].includes(sourceNode));
         const dummy = getNode(`dummy-${matrixId}`);
         const matrixX = dummy.x;
         const matrixY = dummy.y;
 
-        const matrixNodeIds = matrixGroups[matrixId];
+        const matrixNodeIds = reorderedMatrixGroups[matrixId];
         const rowIndex = matrixNodeIds.indexOf(sourceNode);
         const matrixSize = matrixNodeIds.length;
 
@@ -128,8 +127,8 @@ export function applyForceLayout(graph, nodes, links, dummyMap, matrixGroups) {
         let dx, dy;
 
         if (!targetIsNode) {
-            // Find the matrix it is in and its dummy
-            const otherMatrixId = Object.keys(matrixGroups).find(k => matrixGroups[k].includes(targetNode));
+            // Find the matrix it is in and its dummy using reorderedMatrixGroups
+            const otherMatrixId = Object.keys(reorderedMatrixGroups).find(k => reorderedMatrixGroups[k].includes(targetNode));
             const otherDummy = getNode(`dummy-${otherMatrixId}`);
 
             // Direction from matrix to external node
@@ -165,3 +164,4 @@ export function applyForceLayout(graph, nodes, links, dummyMap, matrixGroups) {
         }
     }
 }
+

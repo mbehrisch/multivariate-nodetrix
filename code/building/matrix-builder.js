@@ -1,11 +1,10 @@
 import { svg } from '../main.js';
-import { getEdgeRelation } from '../utils.js';  // Keep the function name unchanged
 import { cellSize } from '../main.js'; 
 import { matrixDragStarted, matrixDragged, matrixDragEnded, removeNodeFromMatrix } from '../dragging/MatrixDragging.js';
 
 // Builds matrices and establishes paths for matrix-to-matrix edges
-export function buildMatrix(graph, matrixGroups) {
-    const matrixNodes = Object.values(matrixGroups).flat();
+export function buildMatrix(graph, reorderedMatrixGroups) {
+    const matrixNodes = Object.values(reorderedMatrixGroups).flat();
     const matrixDict = {};
     matrixNodes.forEach(k => matrixDict[k] = graph.getNodeAttributes(k));
 
@@ -16,9 +15,9 @@ export function buildMatrix(graph, matrixGroups) {
     let i = 0;
     const spacing = 100;
 
-    // Build matrices
-    for (const [matrixId, nodesInMatrix] of Object.entries(matrixGroups)) {
-        const size = nodesInMatrix.length;
+    // Build matrices (after reordering)
+    for (const [matrixId, reorderedNodes] of Object.entries(reorderedMatrixGroups)) {
+        const size = reorderedNodes.length;
         const x = 20 + (i % 3) * (cellSize * size + spacing * 2);
         const y = 20 + Math.floor(i / 3) * (cellSize * size + spacing * 2);
         matrixPositions[matrixId] = { x, y };
@@ -32,22 +31,21 @@ export function buildMatrix(graph, matrixGroups) {
             .call(d3.drag()
                 .on("start", (event) => matrixDragStarted(event, matrixId))
                 .on("drag", (event) => matrixDragged(event, matrixId))
-                .on("end", (event) => matrixDragEnded(event, matrixId, graph, matrixGroups))
+                .on("end", (event) => matrixDragEnded(event, matrixId, graph, reorderedMatrixGroups))
             );
 
-        //// Build actual matrix
-        // Matrix rows
+        //// Build actual matrix (Cells)
         const rows = matrixSvg.selectAll(".matrix-row")
-            .data(nodesInMatrix)
+            .data(reorderedNodes)
             .enter().append("g")
             .attr("class", "matrix-row")
             .attr("transform", (d, j) => `translate(0, ${j * cellSize})`);
 
-            rows.selectAll(".cell")
+        rows.selectAll(".cell")
             .data(function(rowId) {
-                return nodesInMatrix.map(colId => {
+                return reorderedNodes.map(colId => {
                     let attributes = null;
-        
+
                     if (graph.hasEdge(rowId, colId)) {
                         const entries = [...graph.edgeEntries(rowId, colId)];
                         if (entries.length > 0) {
@@ -59,7 +57,7 @@ export function buildMatrix(graph, matrixGroups) {
                             attributes = entries[0].attributes;
                         }
                     }
-        
+
                     return { row: rowId, col: colId, attributes };
                 });
             })
@@ -71,34 +69,29 @@ export function buildMatrix(graph, matrixGroups) {
             .attr("x", (d, i) => i * cellSize)
             .attr("width", cellSize)
             .attr("height", cellSize);
-        
 
-        //// Row labels
-        // Establish all labels of a row
+        //// Row labels (for matrix)
         const labelRow = matrixSvg.append("g")
             .attr("class", "matrix-label-row")
             .attr("transform", `translate(0, ${-cellSize})`);
 
-        // Make a group for each label to contain the cell and the text and append a control-click event
         const colLabelGroups = labelRow.selectAll(".label-group")
-            .data(nodesInMatrix)
+            .data(reorderedNodes)
             .enter()
             .append("g")
             .attr("class", "label-group")
             .attr("transform", (d, i) => `translate(${i * cellSize}, 0)`)
             .on("click", (event, nodeId) => {
                 if (event.ctrlKey || event.metaKey) {
-                    removeNodeFromMatrix(event, graph, matrixGroups, nodeId);  // Allow removal of node on ctrl/meta-click
+                    removeNodeFromMatrix(event, graph, reorderedMatrixGroups, nodeId);  // Allow removal of node on ctrl/meta-click
                 }
             });
 
-        // Make the rectangle
         colLabelGroups.append("rect")
             .attr("class", "cellLabel")
             .attr("width", cellSize)
             .attr("height", cellSize);
 
-        // Make the rectangle, add the text
         colLabelGroups.append("text")
             .attr("class", "label label-text")
             .attr("x", cellSize / 2)
@@ -106,20 +99,20 @@ export function buildMatrix(graph, matrixGroups) {
             .attr("dy", ".35em")
             .text(d => graph.getNodeAttribute(d, 'IATA'));  // Get IATA code here for the label text
 
-        //// Do the same procedure for column labels
+        //// Column labels (for matrix)
         const labelColumn = matrixSvg.append("g")
             .attr("class", "matrix-label-column")
             .attr("transform", `translate(${-cellSize}, 0)`);
 
         const labelGroups = labelColumn.selectAll(".label-group")
-            .data(nodesInMatrix)
+            .data(reorderedNodes)
             .enter()
             .append("g")
             .attr("class", "label-group")
             .attr("transform", (d, i) => `translate(0, ${i * cellSize})`)
             .on("click", (event, nodeId) => {
                 if (event.ctrlKey || event.metaKey) {
-                    removeNodeFromMatrix(event, graph, matrixGroups, nodeId);  // Allow removal of node on ctrl/meta-click
+                    removeNodeFromMatrix(event, graph, reorderedMatrixGroups, nodeId);  // Allow removal of node on ctrl/meta-click
                 }
             });
 
@@ -143,9 +136,8 @@ export function buildMatrix(graph, matrixGroups) {
             .attr("width", cellSize)
             .attr("height", cellSize);
 
-        //// Now matrix is in place, do other work
-        // Store matrix position for each node (used for placing links)
-        nodesInMatrix.forEach((nodeId, rowIndex) => {
+        //// Store matrix position for each node
+        reorderedNodes.forEach((nodeId, rowIndex) => {
             graph.setNodeAttribute(nodeId, "matrixPosNode", {
                 x: pos.x,
                 y: pos.y + rowIndex * cellSize + cellSize / 2
@@ -171,8 +163,8 @@ export function buildMatrix(graph, matrixGroups) {
     const interMatrixLinks = [];
 
     graph.forEachEdge((edgeKey, attributes, source, target) => {
-        const sourceMatrix = Object.keys(matrixGroups).find(k => matrixGroups[k].includes(source));
-        const targetMatrix = Object.keys(matrixGroups).find(k => matrixGroups[k].includes(target));
+        const sourceMatrix = Object.keys(reorderedMatrixGroups).find(k => reorderedMatrixGroups[k].includes(source));
+        const targetMatrix = Object.keys(reorderedMatrixGroups).find(k => reorderedMatrixGroups[k].includes(target));
       
         const isInDifferentMatrices = sourceMatrix && targetMatrix && sourceMatrix !== targetMatrix;
       

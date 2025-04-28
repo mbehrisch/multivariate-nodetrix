@@ -3,9 +3,9 @@ import { getEdgeRelation } from '../utils.js';  // Keep the function name unchan
 import { nodeDragStarted, nodeDragged, nodeDragEnded } from '../dragging/NodeDragging.js';
 
 // Builds nodes, establishes node-node paths and node-matrix paths
-export function buildNL(graph, matrixGroups) {
+export function buildNL(graph, reorderedMatrixGroups) {
     // Split up nodes into a group that is going into matrix and into NL nodes
-    const matrixNodes = Object.values(matrixGroups).flat();
+    const matrixNodes = Object.values(reorderedMatrixGroups).flat();
     const nodeLinkNodes = graph.nodes().filter(k => !matrixNodes.includes(k));
 
     const nodeLinkDict = {};
@@ -56,7 +56,7 @@ export function buildNL(graph, matrixGroups) {
     //matrixToNLLinks
     const matrixToNLLinks = [];
 
-    for (const [matrixId, matrixNodeIds] of Object.entries(matrixGroups)) {
+    for (const [matrixId, matrixNodeIds] of Object.entries(reorderedMatrixGroups)) {
         for (const matrixNodeId of matrixNodeIds) {
             for (const nlNodeId of nodeLinkNodes) {
                 if (graph.hasEdge(matrixNodeId, nlNodeId)) {
@@ -90,9 +90,9 @@ export function buildNL(graph, matrixGroups) {
     .attr("class", "node")
     .attr("r", d => d.r)
     .call(d3.drag()
-        .on("start", event => nodeDragStarted(event, matrixGroups))
-        .on("drag", event => nodeDragged(event, matrixGroups))
-        .on("end", event => nodeDragEnded(event, matrixGroups, graph)));
+        .on("start", event => nodeDragStarted(event, reorderedMatrixGroups))
+        .on("drag", event => nodeDragged(event, reorderedMatrixGroups))
+        .on("end", event => nodeDragEnded(event, reorderedMatrixGroups, graph)));
 
     // Update the nodes and links
     return {

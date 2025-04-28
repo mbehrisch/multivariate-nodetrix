@@ -76,10 +76,10 @@ body {
   margin-right: 10px;
 }
 
-.code-share-yes {
+.binary-yes {
   background-color: green;  /* Green for Codeshare Yes */
 }
 
-.code-share-no {
+.binary-no {
   background-color: red;    /* Red for Codeshare No */
 }

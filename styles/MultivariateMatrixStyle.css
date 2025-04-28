@@ -1,19 +1,19 @@
-.CellCodeShareYes {
+.CellBinaryYes {
     fill: green;
     stroke: darkgreen;
     stroke-width: 0.5px;
   }
   
-.CellCodeShareNo {
+.CellBinaryNo {
     fill: red;
     stroke: darkred;
     stroke-width: 0.5px
   }
 
-.linkCodeShareYes {
+.linkBinaryYes {
     stroke: green !important;
   }
   
-.linkCodeShareNo {
+.linkBinaryNo {
     stroke: red !important;
   }

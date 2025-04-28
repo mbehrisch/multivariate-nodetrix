@@ -13,7 +13,7 @@ import { setSimulationState } from '../utils.js';
 
 let previouslyOverlappingNodeId = null;
 
-export function nodeDragStarted(event, matrixGroups) {
+export function nodeDragStarted(event, reorderedMatrixGroups) {
     //Retrieve the simulation
     const sim = getSimulation();
 
@@ -37,7 +37,7 @@ export function nodeDragStarted(event, matrixGroups) {
 }
 
 
-export function nodeDragged(event, matrixGroups) {
+export function nodeDragged(event, reorderedMatrixGroups) {
     event.subject.fx = event.x;
     event.subject.fy = event.y;
 
@@ -48,11 +48,11 @@ export function nodeDragged(event, matrixGroups) {
     getOverlappingNodes(event.subject, allNodes);
 
     //Check if there is overlap with matrices and highlight
-    NodeMatrixOverlap(event.subject, matrixGroups);
+    NodeMatrixOverlap(event.subject, reorderedMatrixGroups);
 }
 
 
-export function nodeDragEnded(event, matrixGroups, graph) {
+export function nodeDragEnded(event, reorderedMatrixGroups, graph) {
     //Re-activate the simulation
     const sim = getSimulation();
     if (!event.active) {
@@ -77,27 +77,27 @@ export function nodeDragEnded(event, matrixGroups, graph) {
     const overlappingNode = getOverlappingNodes(event.subject, sim.nodes())
     if (overlappingNode) {
         // Find the highest MatrixId, and become 1 higher than that (prevent overwriting exisiting matrices)
-        const newMatrixId = Math.max(0, ...Object.keys(matrixGroups).map(id => +id || 0)) + 1;
-        // Append a matrix to the matrixGroups with the 2 nodes in it
-        matrixGroups[newMatrixId] = [event.subject.id, overlappingNode.id];
+        const newMatrixId = Math.max(0, ...Object.keys(reorderedMatrixGroups).map(id => +id || 0)) + 1;
+        // Append a matrix to the reorderedMatrixGroups with the 2 nodes in it
+        reorderedMatrixGroups[newMatrixId] = [event.subject.id, overlappingNode.id];
 
-        console.log(matrixGroups)
+        console.log(reorderedMatrixGroups)
 
         //Rebuild everything
-        buildEverything(graph, matrixGroups);
+        buildEverything(graph, reorderedMatrixGroups);
 
         //Stop
         return
     }
     
     //Find if a node and matrix overlap, if this is the case, rebuild everything with node added to matrix
-    const {isInside, matrixId} = NodeMatrixOverlap(event.subject, matrixGroups)
+    const {isInside, matrixId} = NodeMatrixOverlap(event.subject, reorderedMatrixGroups)
     if (isInside){
             // Add the node to the matrix
-            matrixGroups[matrixId].push(event.subject.id); // Add the node to the matrix's list of nodes
+            reorderedMatrixGroups[matrixId].push(event.subject.id); // Add the node to the matrix's list of nodes
 
             //Rebuild everything, inefficent but effective
-            buildEverything(graph, matrixGroups)
+            buildEverything(graph, reorderedMatrixGroups)
             //Stop
             return
     }
@@ -152,12 +152,12 @@ function getOverlappingNodes(draggedNode, allNodes) {
 }
 
 //Find if a Node and Matrix overlap
-function NodeMatrixOverlap(node, matrixGroups) {
+function NodeMatrixOverlap(node, reorderedMatrixGroups) {
     //Find the simulation to find the dummyNode
     const sim = getSimulation();
 
     const nodes = sim.nodes();
-    for (const [matrixId, matrixNodeIds] of Object.entries(matrixGroups)) {
+    for (const [matrixId, matrixNodeIds] of Object.entries(reorderedMatrixGroups)) {
         //Retrieve dummyNode for relevant matrixposition
         const dummyId = `dummy-${matrixId}`;
         const dummyNode = nodes.find(n => n.id === dummyId);

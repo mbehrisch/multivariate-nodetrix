@@ -19,12 +19,13 @@ import { buildNL } from './building/NL-builder.js';
 import { applyForceLayout } from './building/force-layout.js';
 import { getSimulation } from './building/force-layout.js';
 import { svg } from './main.js';
-import { applyCodeshareColoring } from './multivariate/EdgeTypes.js';
+import { applyBinaryColouring } from './multivariate/EdgeTypes.js';
+import { spectralReorderMatrix } from './multivariate/EdgeTypes.js';
 
 //Build everything when called upon
 export function buildEverything (graph, matrixGroups){
     svg.selectAll("*").remove()
-    
+
     //Stop and fully clear the sim
     const sim = getSimulation();
     if (sim) {
@@ -38,21 +39,29 @@ export function buildEverything (graph, matrixGroups){
         sim.force("collide", null);
     }
 
+    // Reordering Phase: Reorder matrices first
+    const reorderedmatrixGroups = {};
+    for (const [matrixId, nodesInMatrix] of Object.entries(matrixGroups)) {
+        // Perform the reordering of nodes in the matrix using spectralReorderMatrix
+        const reorderedNodes = spectralReorderMatrix(nodesInMatrix, graph);
+        reorderedmatrixGroups[matrixId] = reorderedNodes;
+    }
+
     //Start the rebuilding with the matrices
-    const {dummyNodes, dummyMap} = buildMatrix(graph, matrixGroups);
+    const {dummyNodes, dummyMap} = buildMatrix(graph, reorderedmatrixGroups);
 
     //Build the Node-link diagrams
-    const { nodes, links } = buildNL(graph, matrixGroups);
+    const { nodes, links } = buildNL(graph, reorderedmatrixGroups);
 
     //Add dummyNodes to nodes for force-layout
-    dummyNodesToNL(graph, nodes, links, dummyNodes, matrixGroups)
+    dummyNodesToNL(graph, nodes, links, dummyNodes, reorderedmatrixGroups)
 
     //Apply force layout
-    applyForceLayout(graph, nodes, links, dummyMap, matrixGroups);
+    applyForceLayout(graph, nodes, links, dummyMap, reorderedmatrixGroups);
 
     //Check button settings
-    if (document.getElementById("edge-type-color-toggle").checked){
-        applyCodeshareColoring()
+    if (document.getElementById("edge-binary-color-toggle").checked){
+        applyBinaryColouring()
     }
 }
 
@@ -75,11 +84,11 @@ export function setSimulationState({ alphaTarget, velocityDecay, chargeStrength,
 
 
 //Local helper function to add dummyNodes to the force-layout
-function dummyNodesToNL(graph, nodes, links, dummyNodes, matrixGroups){
+function dummyNodesToNL(graph, nodes, links, dummyNodes, reorderedMatrixGroups){
 
     dummyNodes.forEach(dummy => {
         const matrixId = dummy.matrixId;
-        const matrixNodeIds = matrixGroups[matrixId];
+        const matrixNodeIds = reorderedMatrixGroups[matrixId];
     
         for (const nlNode of nodes) {
             for (const matrixNodeId of matrixNodeIds) {

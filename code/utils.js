@@ -20,7 +20,6 @@ import { applyForceLayout } from './building/force-layout.js';
 import { getSimulation } from './building/force-layout.js';
 import { svg } from './main.js';
 import { applyBinaryColouring } from './multivariate/EdgeTypes.js';
-import { spectralReorderMatrix } from './multivariate/EdgeTypes.js';
 
 //Build everything when called upon
 export function buildEverything (graph, matrixGroups){
@@ -106,4 +105,46 @@ function dummyNodesToNL(graph, nodes, links, dummyNodes, reorderedMatrixGroups){
     
     // Add dummy nodes after link logic is done
     nodes.push(...dummyNodes);
+}
+
+import numeric from 'https://cdn.skypack.dev/numeric';
+
+function spectralReorderMatrix(matrixGroup, graph) {
+    // Create adjacency matrix for the group
+    const n = matrixGroup.length;
+    const adjMatrix = Array.from(Array(n), () => Array(n).fill(0));
+
+    let hasEdges = false; // <-- Track if any edge exists
+
+    matrixGroup.forEach((rowId, i) => {
+        matrixGroup.forEach((colId, j) => {
+            if (graph.hasEdge(rowId, colId)) {
+                adjMatrix[i][j] = 1;
+                hasEdges = true; // <-- Found at least one edge
+            }
+        });
+    });
+
+    if (!hasEdges) {
+        // If no edges, return the original ordering
+        return [...matrixGroup];
+    }
+
+    // (continue as normal)
+    const degreeMatrix = adjMatrix.map((row, i) => {
+        const degree = row.reduce((acc, val) => acc + val, 0);
+        return row.map(() => degree);
+    });
+
+    const laplacianMatrix = numeric.add(degreeMatrix, numeric.neg(adjMatrix));
+    const eigen = numeric.eig(laplacianMatrix);
+    const eigenvectors = eigen.E.x;
+    const fiedlerVector = eigenvectors.map(row => row[1]);
+
+    const reorderedMatrixGroup = matrixGroup
+        .map((nodeId, index) => ({ nodeId, value: fiedlerVector[index] }))
+        .sort((a, b) => a.value - b.value)
+        .map(item => item.nodeId);
+
+    return reorderedMatrixGroup;
 }

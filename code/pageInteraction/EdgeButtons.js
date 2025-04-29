@@ -1,16 +1,15 @@
 import { applyBinaryColouring, resetEdgeColors } from "../multivariate/EdgeTypes.js";
-export function addCodeshareColourLegend(){
-// Initially check the checkbox state to apply colors
-    const edgeTypeBinaryToggle = document.getElementById("edge-binary-color-toggle");
-    edgeTypeBinaryToggle.checked = false;  // Set to unchecked initially
+import { buildEverything } from "../utils.js";
 
-    // Add legend container
+export function addBinaryColourLegend() {
+    const edgeTypeBinaryToggle = document.getElementById("edge-binary-color-toggle");
+    edgeTypeBinaryToggle.checked = false;
+
     const legendContainer = d3.select("#multivariate-options")
         .append("div")
         .attr("id", "legend-container")
-        .style("display", "none"); // Initially hidden
+        .style("display", "none");
 
-    // Create legend content
     const legend = legendContainer.append("ul");
 
     legend.append("li")
@@ -23,20 +22,41 @@ export function addCodeshareColourLegend(){
         .style("align-items", "center")
         .html('<span style="width: 20px; height: 20px; background-color: red; margin-right: 10px;"></span>No');
 
-    // Function to show/hide the legend based on checkbox state
+    const reorderItem = legend.append("li")
+        .style("display", "flex")
+        .style("align-items", "center")
+        .style("gap", "10px");
+
+    reorderItem.append("input")
+        .attr("type", "checkbox")
+        .attr("id", "reorder-matrices-checkbox");
+
+    reorderItem.append("label")
+        .attr("for", "reorder-matrices-checkbox")
+        .text("Reorder matrices");
+
     function toggleBinaryEdgeColoring() {
         if (edgeTypeBinaryToggle.checked) {
-            applyBinaryColouring();  // Apply coloring if checked
-            legendContainer.style("display", "block");  // Show the legend
+            applyBinaryColouring();
+            legendContainer.style("display", "block");
         } else {
-            resetEdgeColors();  // Reset to default colors if unchecked
-            legendContainer.style("display", "none");  // Hide the legend
+            resetEdgeColors();
+            legendContainer.style("display", "none");
+            document.getElementById("reorder-matrices-checkbox").checked = false;
         }
     }
 
-    // Add event listener to toggle edge colors when checkbox state changes
     edgeTypeBinaryToggle.addEventListener("change", toggleBinaryEdgeColoring);
+    document.getElementById("reorder-matrices-checkbox").addEventListener("change", () => {
+        buildEverything();
+    });
 
-    // Call the toggle function initially to reflect the current state of the checkbox
+    // Additional listener to ensure that buildEverything is called when unchecked
+    document.getElementById("reorder-matrices-checkbox").addEventListener("change", () => {
+        if (!document.getElementById("reorder-matrices-checkbox").checked) {
+            buildEverything();  // Rebuild everything if the checkbox is unchecked
+        }
+    });
+
     toggleBinaryEdgeColoring();
 }

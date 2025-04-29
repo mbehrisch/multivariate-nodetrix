@@ -1,16 +1,12 @@
-import { svg } from '../main.js';
+import { appState, svg } from '../main.js';
 import { cellSize } from '../main.js';
 import { width, height } from '../main.js';
 
-let simulation = null;
-
-export function getSimulation() {
-    return simulation;
-}
-
-export function applyForceLayout(graph, nodes, links, dummyMap, reorderedMatrixGroups) {
+export function applyForceLayout(nodes, links, dummyMap) {
+    graph = appState.graph
+    const reorderedMatrixGroups = appState.matrixGroups
     // Define the simulation on updated nodes and links
-    simulation = d3.forceSimulation(nodes)
+    appState.sim = d3.forceSimulation(nodes)
         .force("link", d3.forceLink(links)
             .id(d => d.id)
             .distance(100) // Define the distance between linked nodes

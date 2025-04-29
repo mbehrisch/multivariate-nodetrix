@@ -6,8 +6,6 @@ import { addBinaryColourLegend } from './pageInteraction/EdgeButtons.js';
 
 export const width = 800, height = 600;
 export const cellSize = 15;
-export let currentGraph = null
-export let currentMatrixGroups = null
 
 export const svg = d3.select("#graph").append("svg")
     .attr("width", width)
@@ -69,9 +67,12 @@ fetch("data/sampled_data.json")
             }
         });
 
-        console.log(matrixGroups);
+        appState.graph = graph;
+        appState.matrixGroups = matrixGroups;
 
-        buildEverything(graph, matrixGroups);
+        console.log(appState.matrixGroups);
+
+        buildEverything();
 
         addBinaryColourLegend();
     });

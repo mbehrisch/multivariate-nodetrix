@@ -1,9 +1,12 @@
-import { svg } from '../main.js';
+import { svg , appState} from '../main.js';
 import { cellSize } from '../main.js'; 
 import { matrixDragStarted, matrixDragged, matrixDragEnded, removeNodeFromMatrix } from '../dragging/MatrixDragging.js';
 
 // Builds matrices and establishes paths for matrix-to-matrix edges
-export function buildMatrix(graph, reorderedMatrixGroups) {
+export function buildMatrix() {
+    const graph = appState.graph;
+    const reorderedMatrixGroups = appState.matrixGroups;
+
     const matrixNodes = Object.values(reorderedMatrixGroups).flat();
     const matrixDict = {};
     matrixNodes.forEach(k => matrixDict[k] = graph.getNodeAttributes(k));
@@ -31,7 +34,7 @@ export function buildMatrix(graph, reorderedMatrixGroups) {
             .call(d3.drag()
                 .on("start", (event) => matrixDragStarted(event, matrixId))
                 .on("drag", (event) => matrixDragged(event, matrixId))
-                .on("end", (event) => matrixDragEnded(event, matrixId, graph, reorderedMatrixGroups))
+                .on("end", (event) => matrixDragEnded(event, matrixId))
             );
 
         //// Build actual matrix (Cells)
@@ -83,7 +86,7 @@ export function buildMatrix(graph, reorderedMatrixGroups) {
             .attr("transform", (d, i) => `translate(${i * cellSize}, 0)`)
             .on("click", (event, nodeId) => {
                 if (event.ctrlKey || event.metaKey) {
-                    removeNodeFromMatrix(event, graph, reorderedMatrixGroups, nodeId);  // Allow removal of node on ctrl/meta-click
+                    removeNodeFromMatrix(event, nodeId);  // Allow removal of node on ctrl/meta-click
                 }
             });
 
@@ -112,7 +115,7 @@ export function buildMatrix(graph, reorderedMatrixGroups) {
             .attr("transform", (d, i) => `translate(0, ${i * cellSize})`)
             .on("click", (event, nodeId) => {
                 if (event.ctrlKey || event.metaKey) {
-                    removeNodeFromMatrix(event, graph, reorderedMatrixGroups, nodeId);  // Allow removal of node on ctrl/meta-click
+                    removeNodeFromMatrix(event, nodeId);  // Allow removal of node on ctrl/meta-click
                 }
             });
 

@@ -1,12 +1,11 @@
 //To do: make standard force public; or maybe do not reset upon dragging for better user impact;
 
-import { svg, cellSize } from '../main.js';
-import { getSimulation } from "../building/force-layout.js";
+import { cellSize, appState } from '../main.js';
 import { buildEverything } from '../utils.js';
 
 export function matrixDragStarted(event, draggedMatrixId) {
     d3.select(this).raise(); // bring to front
-    const sim = getSimulation();
+    const sim = appState.sim;
 
     //As the simulation places nodes and links we need it alive, just very slowly to make it easier
     if (!event.active && sim){
@@ -28,7 +27,7 @@ export function matrixDragStarted(event, draggedMatrixId) {
 
 export function matrixDragged(event, draggedMatrixId) {
     //Find dummyNode
-    const sim = getSimulation();
+    const sim = appState.sim;
     const dummyNode = sim.nodes().find(n => n.id === `dummy-${draggedMatrixId}`);
     if (!dummyNode) return;
 
@@ -44,9 +43,11 @@ export function matrixDragged(event, draggedMatrixId) {
     findOverlappingMatrices(draggedMatrixId);
 }
 
-export function matrixDragEnded(event, draggedMatrixId, graph, reorderedMatrixGroups) {
+export function matrixDragEnded(event, draggedMatrixId) {
+    graph=appState.graph
+    const reorderedMatrixGroups = appState.matrixGroups
     //Find dummynode
-    const sim = getSimulation();
+    const sim = appState.sim;
     const nodes = sim.nodes();
     const dummy = nodes.find(n => n.id === `dummy-${draggedMatrixId}`);
     if (!dummy) return;
@@ -73,7 +74,7 @@ export function matrixDragEnded(event, draggedMatrixId, graph, reorderedMatrixGr
         console.log(reorderedMatrixGroups)
 
         // Rebuild the full visualization
-        buildEverything(graph, reorderedMatrixGroups);
+        buildEverything();
         return;
     }
 
@@ -94,7 +95,7 @@ export function matrixDragEnded(event, draggedMatrixId, graph, reorderedMatrixGr
 //Local helper function that finds any overlapping matrices
 function findOverlappingMatrices(draggedId) {
     //Find dummyNode
-    const sim = getSimulation();
+    const sim = appState.sim;
     const nodes = sim.nodes();
     const draggedDummy = nodes.find(n => n.id === `dummy-${draggedId}`);
     if (!draggedDummy) return null;
@@ -149,7 +150,9 @@ function findOverlappingMatrices(draggedId) {
 }
 
 //Function to remove NodeFromMatrix when row or column is control-clicked
-export function removeNodeFromMatrix (event, graph, reorderedMatrixGroups, nodeId){
+export function removeNodeFromMatrix (event, nodeId){
+    graph = appState.graph
+    const reorderedMatrixGroups = appState.matrixGroups
     for (const [matrixId, nodes] of Object.entries(reorderedMatrixGroups)) {
         const nodeIdStr = String(nodeId);
         const index = nodes.indexOf(nodeIdStr);
@@ -161,6 +164,7 @@ export function removeNodeFromMatrix (event, graph, reorderedMatrixGroups, nodeI
             }
         }
     }
-    buildEverything(graph, reorderedMatrixGroups)
+    appState.matrixGroups = reorderedMatrixGroups;
+    buildEverything()
 }
 

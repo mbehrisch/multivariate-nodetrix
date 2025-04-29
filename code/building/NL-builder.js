@@ -1,8 +1,11 @@
-import { svg } from '../main.js';
+import { appState, svg } from '../main.js';
 import { nodeDragStarted, nodeDragged, nodeDragEnded } from '../dragging/NodeDragging.js';
 
 // Builds nodes, establishes node-node paths and node-matrix paths
-export function buildNL(graph, reorderedMatrixGroups) {
+export function buildNL() {
+    graph = appState.graph
+    const reorderedMatrixGroups = appState.matrixGroups
+
     // Split up nodes into a group that is going into matrix and into NL nodes
     const matrixNodes = Object.values(reorderedMatrixGroups).flat();
     const nodeLinkNodes = graph.nodes().filter(k => !matrixNodes.includes(k));

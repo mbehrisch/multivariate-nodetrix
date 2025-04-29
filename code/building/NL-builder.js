@@ -1,5 +1,4 @@
 import { svg } from '../main.js';
-import { getEdgeRelation } from '../utils.js';  // Keep the function name unchanged
 import { nodeDragStarted, nodeDragged, nodeDragEnded } from '../dragging/NodeDragging.js';
 
 // Builds nodes, establishes node-node paths and node-matrix paths

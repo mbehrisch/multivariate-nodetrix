@@ -2,14 +2,22 @@ import Graph from 'https://cdn.skypack.dev/graphology';
 import louvain from 'https://cdn.skypack.dev/graphology-communities-louvain';
 
 import { buildEverything } from './utils.js';
-import { addCodeshareColourLegend } from './pageInteraction/EdgeButtons.js';
+import { addBinaryColourLegend } from './pageInteraction/EdgeButtons.js';
 
 export const width = 800, height = 600;
 export const cellSize = 15;
+export let currentGraph = null
+export let currentMatrixGroups = null
 
 export const svg = d3.select("#graph").append("svg")
     .attr("width", width)
     .attr("height", height);
+
+export const appState = {
+    graph: null,              // Holds the graph data
+    sim: null,                // Holds the simulation state
+    matrixGroups: {}          // Stores matrix groups (merged matrixGroups + reorderedMatrixGroups)
+};
 
 let graph = new Graph({ multi: true });
 
@@ -43,8 +51,6 @@ fetch("data/sampled_data.json")
             });
         });
 
-        console.log(graph.nodes());
-
         // Louvain community detection
         const communities = louvain(graph);
 
@@ -67,5 +73,5 @@ fetch("data/sampled_data.json")
 
         buildEverything(graph, matrixGroups);
 
-        addCodeshareColourLegend();
+        addBinaryColourLegend();
     });

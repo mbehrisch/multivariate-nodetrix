@@ -1,25 +1,10 @@
-//Helper function that finds if two nodes have an edge in any direction
-export function getEdgeRelation(graph, source, target) {
-    //This for now only works for the latest found edge between 2 nodes!
-
-    // Get all edges between source and target
-    const edges = graph.edges(source, target);
-
-    // If there are multiple edges, you need to choose one (e.g., the first one or based on some logic)
-    if (edges.length > 0) {
-        const edgeId = edges[0];  // You can modify this to select the correct edge if needed
-        return graph.getEdgeAttributes(edgeId);  // Get the relation of the selected edge
-    } else {
-        return null;  // No edge exists between the nodes
-    }
-}
-
 import { buildMatrix } from './building/matrix-builder.js';
 import { buildNL } from './building/NL-builder.js';
 import { applyForceLayout } from './building/force-layout.js';
 import { getSimulation } from './building/force-layout.js';
 import { svg } from './main.js';
 import { applyBinaryColouring } from './multivariate/EdgeTypes.js';
+import { currentGraph, currentMatrixGroups } from './main.js';
 
 //Build everything when called upon
 export function buildEverything (graph, matrixGroups){
@@ -109,42 +94,46 @@ function dummyNodesToNL(graph, nodes, links, dummyNodes, reorderedMatrixGroups){
 
 import numeric from 'https://cdn.skypack.dev/numeric';
 
-function spectralReorderMatrix(matrixGroup, graph) {
-    // Create adjacency matrix for the group
+export function spectralReorderMatrix(matrixGroup, graph) {
+    // Only reorder if the checkbox is checked
+    const reorderCheckbox = document.getElementById("reorder-matrices-checkbox");
+    const shouldReorder = reorderCheckbox?.checked;
+
+    if (!shouldReorder) {
+        return [...matrixGroup];  // Skip reordering
+    }
+
     const n = matrixGroup.length;
-    const adjMatrix = Array.from(Array(n), () => Array(n).fill(0));
+    const adjMatrix = Array.from({ length: n }, () => Array(n).fill(0));
+    let hasEdges = false;
 
-    let hasEdges = false; // <-- Track if any edge exists
-
+    // Fill adjacency matrix with unweighted binary presence
     matrixGroup.forEach((rowId, i) => {
         matrixGroup.forEach((colId, j) => {
-            if (graph.hasEdge(rowId, colId)) {
+            if (graph.hasEdge(rowId, colId) || graph.hasEdge(colId, rowId)) {
                 adjMatrix[i][j] = 1;
-                hasEdges = true; // <-- Found at least one edge
+                hasEdges = true;
             }
         });
     });
 
     if (!hasEdges) {
-        // If no edges, return the original ordering
-        return [...matrixGroup];
+        return [...matrixGroup]; // No edges = no reordering
     }
 
-    // (continue as normal)
-    const degreeMatrix = adjMatrix.map((row, i) => {
+    // Degree matrix
+    const degreeMatrix = adjMatrix.map(row => {
         const degree = row.reduce((acc, val) => acc + val, 0);
         return row.map(() => degree);
     });
 
-    const laplacianMatrix = numeric.add(degreeMatrix, numeric.neg(adjMatrix));
-    const eigen = numeric.eig(laplacianMatrix);
-    const eigenvectors = eigen.E.x;
-    const fiedlerVector = eigenvectors.map(row => row[1]);
+    // Laplacian = Degree - Adjacency
+    const laplacian = numeric.add(degreeMatrix, numeric.neg(adjMatrix));
+    const eigen = numeric.eig(laplacian);
+    const fiedlerVector = eigen.E.x.map(row => row[1]);
 
-    const reorderedMatrixGroup = matrixGroup
-        .map((nodeId, index) => ({ nodeId, value: fiedlerVector[index] }))
+    return matrixGroup
+        .map((nodeId, idx) => ({ nodeId, value: fiedlerVector[idx] }))
         .sort((a, b) => a.value - b.value)
-        .map(item => item.nodeId);
-
-    return reorderedMatrixGroup;
+        .map(d => d.nodeId);
 }

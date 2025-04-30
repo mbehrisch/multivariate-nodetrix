@@ -47,16 +47,14 @@ export function addBinaryColourLegend() {
     }
 
     edgeTypeBinaryToggle.addEventListener("change", toggleBinaryEdgeColoring);
+    edgeTypeBinaryToggle.addEventListener("change", buildEverything);
     document.getElementById("reorder-matrices-checkbox").addEventListener("change", () => {
         buildEverything();
     });
 
-    // Additional listener to ensure that buildEverything is called when unchecked
     document.getElementById("reorder-matrices-checkbox").addEventListener("change", () => {
-        if (!document.getElementById("reorder-matrices-checkbox").checked) {
-            buildEverything();  // Rebuild everything if the checkbox is unchecked
-        }
-    });
+        buildEverything();
+    });    
 
     toggleBinaryEdgeColoring();
 }

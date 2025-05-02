@@ -112,6 +112,7 @@ export function applyForceLayout(nodes, links, dummyMap) {
                 ${targetPos.x},${targetPos.y}`;
     }
 
+    //Only accepts M-NL links where source is the matrixNode
     function MatrixNodeLinkPositions(sourceNode, targetNode, targetIsNode, reorderedMatrixGroups) {
         const matrixId = Object.keys(reorderedMatrixGroups).find(k => reorderedMatrixGroups[k].includes(sourceNode));
         const dummy = getNode(`dummy-${matrixId}`);

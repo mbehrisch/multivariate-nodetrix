@@ -2,7 +2,7 @@ import Graph from 'https://cdn.skypack.dev/graphology';
 import louvain from 'https://cdn.skypack.dev/graphology-communities-louvain';
 
 import { buildEverything } from './utils.js';
-import { addBinaryColourLegend } from './pageInteraction/EdgeButtons.js';
+import { addCategoricalColourLegend, addBinaryColourLegend } from './pageInteraction/EdgeButtons.js';
 
 export const width = 800, height = 600;
 export const cellSize = 15;
@@ -14,10 +14,12 @@ export const svg = d3.select("#graph").append("svg")
 export const appState = {
     graph: null,              // Holds the graph data
     sim: null,                // Holds the simulation state
-    matrixGroups: {}          // Stores matrix groups (merged matrixGroups + reorderedMatrixGroups)
+    matrixGroups: {},          // Stores matrix groups (merged matrixGroups + reorderedMatrixGroups),
+    CategoricalDefined: false
 };
 
 let graph = new Graph({ multi: true });
+
 
 //Fetch data and initialise graph
 fetch("data/sampled_data.json")
@@ -72,7 +74,8 @@ fetch("data/sampled_data.json")
 
         console.log(appState.matrixGroups);
 
-        buildEverything();
-
         addBinaryColourLegend();
+        addCategoricalColourLegend();
+        
+        buildEverything();
     });

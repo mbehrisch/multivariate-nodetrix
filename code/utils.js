@@ -2,7 +2,7 @@ import { buildMatrix } from './building/matrix-builder.js';
 import { buildNL } from './building/NL-builder.js';
 import { applyForceLayout } from './building/force-layout.js';
 import { svg, appState } from './main.js';
-import { applyBinaryColouring } from './multivariate/EdgeTypes.js';
+import { applyCategoricalColouring, applyBinaryColouring } from './multivariate/EdgeTypes.js';
 
 //Build everything when called upon
 export function buildEverything() {
@@ -29,11 +29,11 @@ export function buildEverything() {
     // Reordering Phase
     const reorderedmatrixGroups = {};
     for (const [matrixId, nodesInMatrix] of Object.entries(matrixGroups)) {
-        const reorderedNodes = spectralReorderMatrix(nodesInMatrix);
+        const reorderedNodes = hierarchicalClustering(nodesInMatrix);
         reorderedmatrixGroups[matrixId] = reorderedNodes;
     }
 
-    // Optional: Save reordered groups back to appState if needed elsewhere
+    // Save reordered groups back to appState if needed elsewhere
     appState.matrixGroups = reorderedmatrixGroups;
 
     const { dummyNodes, dummyMap } = buildMatrix();
@@ -46,6 +46,10 @@ export function buildEverything() {
     if (document.getElementById("edge-binary-color-toggle").checked) {
         applyBinaryColouring();
     }
+
+    if (document.getElementById("edge-categorical-color-toggle").checked) {
+        applyCategoricalColouring();
+    }    
 }
 
 //Set simulation states
@@ -93,73 +97,51 @@ function dummyNodesToNL(nodes, links, dummyNodes){
     nodes.push(...dummyNodes);
 }
 
-import numeric from 'https://cdn.skypack.dev/numeric';
+import Clustering from 'https://cdn.skypack.dev/hdbscanjs';
 
-export function spectralReorderMatrix(nodesInMatrix) {
-    graph = appState.graph
+export function hierarchicalClustering(nodesInMatrix) {
+    const graph = appState.graph;
 
-    // Only reorder if the checkbox is checked
     const binaryReorderCheckbox = document.getElementById("reorder-matrices-checkbox");
-    let binaryReorder = false
-    if (binaryReorderCheckbox){
-        binaryReorder = binaryReorderCheckbox.checked;
-    }
+    const binaryReorder = binaryReorderCheckbox?.checked || false;
 
     const n = nodesInMatrix.length;
     const adjMatrix = Array.from({ length: n }, () => Array(n).fill(0));
     let hasEdges = false;
 
-    // Fill adjacency matrix with unweighted binary presence
-    if (binaryReorder){
-        nodesInMatrix.forEach((rowId, i) => {
-            nodesInMatrix.forEach((colId, j) => {
-                if (graph.hasEdge(rowId, colId) || graph.hasEdge(colId, rowId)) {
-                    let edgeWeight = 1;
-                    let attributes = null
-                    // Iterate over all edges between rowId and colId (in case of multi-edges)
+    // Build adjacency matrix
+    nodesInMatrix.forEach((rowId, i) => {
+        nodesInMatrix.forEach((colId, j) => {
+            //In order to give preference to the top-left, bottom-right diagonal we fill this one with 1s
+            if (rowId===colId){
+                adjMatrix[i][j] = 1
+            }
+            //Determine 
+            if (graph.hasEdge(rowId, colId)) {
+                let edgeWeight = 1;
+                if (binaryReorder) {
                     const entries = [...graph.edgeEntries(rowId, colId)];
-                    if (entries.length > 0) {
-                        attributes = entries[0].attributes;
-                        if (attributes.codeshare === "Y"){
-                            edgeWeight = 2                  
-                        }
+                    if (entries.length > 0 && entries[0].attributes.codeshare === "Y") {
+                        edgeWeight = 2;
                     }
-
-                    adjMatrix[i][j] = edgeWeight;
-                    adjMatrix[j][i] = edgeWeight;  // Ensure symmetry
-                    hasEdges = true;
-
                 }
-            });
+                adjMatrix[i][j] = edgeWeight;
+                adjMatrix[j][i] = edgeWeight;
+                hasEdges = true;
+            }
         });
-    }else{
-        nodesInMatrix.forEach((rowId, i) => {
-            nodesInMatrix.forEach((colId, j) => {
-                if (graph.hasEdge(rowId, colId) || graph.hasEdge(colId, rowId)) {
-                    adjMatrix[i][j] = 1;
-                    hasEdges = true;
-                }
-            });
-        });
-    }
-
-    if (!hasEdges) {
-        return [...nodesInMatrix]; // No edges = no reordering
-    }
-
-    // Degree matrix
-    const degreeMatrix = adjMatrix.map(row => {
-        const degree = row.reduce((acc, val) => acc + val, 0);
-        return row.map(() => degree);
     });
 
-    // Laplacian = Degree - Adjacency
-    const laplacian = numeric.add(degreeMatrix, numeric.neg(adjMatrix));
-    const eigen = numeric.eig(laplacian);
-    const fiedlerVector = eigen.E.x.map(row => row[1]);
+    if (!hasEdges) {
+        return [...nodesInMatrix];
+    }
 
-    return nodesInMatrix
-        .map((nodeId, idx) => ({ nodeId, value: fiedlerVector[idx] }))
-        .sort((a, b) => a.value - b.value)
-        .map(d => d.nodeId);
+    // Use adjacency rows as feature vectors
+    const dataset = adjMatrix.map((vec, i) => ({ data: vec, opt: i }));
+
+    // Perform clustering using Euclidean distance
+    const cluster = new Clustering(dataset, Clustering.distFunc.euclidean);
+    const tree = cluster.getTree();
+
+    return tree.opt.map(index => nodesInMatrix[index])
 }

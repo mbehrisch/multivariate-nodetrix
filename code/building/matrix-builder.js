@@ -46,21 +46,29 @@ export function buildMatrix() {
 
         rows.selectAll(".cell")
             .data(function(rowId) {
+                //This should be cleaner --> should more clearly define between multi-edged and directed data
                 return reorderedNodes.map(colId => {
                     let attributes = null;
-
-                    if (graph.hasEdge(rowId, colId)) {
-                        const entries = [...graph.edgeEntries(rowId, colId)];
-                        if (entries.length > 0) {
-                            attributes = entries[0].attributes;
+        
+                    // Check for the forward edge (rowId -> colId)
+                    const forwardEdges = [...graph.edgeEntries(rowId, colId)];
+                    
+                    // Check for the reverse edge (colId -> rowId)
+                    const backwardEdges = [...graph.edgeEntries(colId, rowId)];
+                    
+                    // Logic to decide which edge to pick based on the row and column ID
+                    if (colId >= rowId) {
+                        // For cells where colId >= rowId, use the reverse edge first
+                        if (backwardEdges.length > 0) {
+                            attributes = backwardEdges[0].attributes;
                         }
-                    } else if (graph.hasEdge(colId, rowId)) {
-                        const entries = [...graph.edgeEntries(rowId, colId)];
-                        if (entries.length > 0) {
-                            attributes = entries[0].attributes;
+                    } else {
+                        // Otherwise, use the forward edge
+                        if (forwardEdges.length > 0) {
+                            attributes = forwardEdges[0].attributes;
                         }
                     }
-
+                    
                     return { row: rowId, col: colId, attributes };
                 });
             })

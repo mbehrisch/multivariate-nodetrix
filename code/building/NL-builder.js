@@ -18,29 +18,20 @@ export function buildNL() {
     });
 
     // Find links between NL nodes
+    // Collect edges between node-link nodes
+    const nodeLinkSet = new Set(nodeLinkNodes);
     const nodeLinkEdges = [];
-    for (let i = 0; i < nodeLinkNodes.length; i++) {
-        for (let j = i + 1; j < nodeLinkNodes.length; j++) {
-            const source = nodeLinkNodes[i];
-            const target = nodeLinkNodes[j];
-    
-            // Use Graphology's hasEdge to check for edge existence
-            if (graph.hasEdge(source, target)) {
-                const edgeEntries = graph.edgeEntries(source, target);
-                for (const entry of edgeEntries) {
-                  const { key, attributes } = entry;
-                  nodeLinkEdges.push({
-                    source,
-                    target,
-                    key,
-                    ...attributes
-                  });
-                }
-            }
+    graph.forEachEdge((key, attributes, source, target) => {
+        if (nodeLinkSet.has(source) && nodeLinkSet.has(target)) {
+            nodeLinkEdges.push({
+                source,
+                target,
+                key,
+                ...attributes
+            });
         }
-    }
+    });
     
-
     // Place NL links and nodes
     const links = svg.selectAll(".NLlink")
         .data(nodeLinkEdges)
@@ -57,28 +48,29 @@ export function buildNL() {
 
     //matrixToNLLinks
     const matrixToNLLinks = [];
-
-    for (const [matrixId, matrixNodeIds] of Object.entries(reorderedMatrixGroups)) {
-        for (const matrixNodeId of matrixNodeIds) {
-            for (const nlNodeId of nodeLinkNodes) {
-                if (graph.hasEdge(matrixNodeId, nlNodeId)) {
-                    const edgeEntries = graph.edgeEntries(matrixNodeId, nlNodeId);
-                    for (const entry of edgeEntries) {
-                      const { key, attributes } = entry;
-                      matrixToNLLinks.push({
-                        source: matrixNodeId,
-                        target: nlNodeId,
-                        matrix: matrixId,
-                        key,
-                        ...attributes
-                      });
-                    }
-                  }
-                  
-            }
+    graph.forEachEdge((key, attributes, source, target) => {
+        if (nodeLinkSet.has(source) && !nodeLinkSet.has(target)) {
+        //force-layout only accepts matrixToNLLinks where source is the matrix and target is the node --> change later
+            const matrixId = Object.keys(reorderedMatrixGroups).find(k => reorderedMatrixGroups[k].includes(target))
+            matrixToNLLinks.push({
+                source: target,
+                target: source,
+                matrix: matrixId,
+                key,
+                ...attributes
+            });
+        }else if (!nodeLinkSet.has(source) && nodeLinkSet.has(target)){
+            const matrixId = Object.keys(reorderedMatrixGroups).find(k => reorderedMatrixGroups[k].includes(source))
+            matrixToNLLinks.push({
+                source: source,
+                target: target,
+                matrix: matrixId,
+                key: key,
+                ...attributes
+            })
         }
-    }       
-
+    });
+  
     // Place the links in the canvas, force-layout will properly update the position
     const matrixToNLLinkSelection = svg.selectAll(".matrix-NL-link")
         .data(matrixToNLLinks)

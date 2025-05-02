@@ -2,6 +2,7 @@
     "dependencies": {
         "graphology": "^0.26.0",
         "graphology-communities-louvain": "^2.0.2",
-        "graphology-utils": "^2.5.2"
+        "graphology-utils": "^2.5.2",
+        "hdbscanjs": "^1.0.12"
     }
 }

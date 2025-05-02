@@ -69,9 +69,9 @@ export function matrixDragEnded(event, draggedMatrixId) {
                 ...reorderedMatrixGroups[draggedMatrixId]
             ])
         ];
+        
         //Remove the dragged Matrix
         delete reorderedMatrixGroups[draggedMatrixId];
-        console.log(reorderedMatrixGroups)
 
         // Rebuild the full visualization
         buildEverything();

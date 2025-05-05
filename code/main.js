@@ -4,7 +4,7 @@ import louvain from 'https://cdn.skypack.dev/graphology-communities-louvain';
 import { buildEverything } from './utils.js';
 import { addCategoricalColourLegend, addBinaryColourLegend } from './pageInteraction/EdgeButtons.js';
 
-export const width = 1200, height = 800;
+export const width = 1200, height = 900;
 export const cellSize = 15;
 export const nodeSize = 10
 

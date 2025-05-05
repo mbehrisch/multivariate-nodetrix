@@ -3,8 +3,6 @@ import { cellSize } from '../main.js';
 import { width, height } from '../main.js';
 
 export function applyForceLayout(nodes, links, dummyMap) {
-    const graph = appState.graph;
-
     appState.sim = d3.forceSimulation(nodes)
         .force("link", d3.forceLink(links)
             .id(d => d.id)
@@ -94,60 +92,67 @@ export function applyForceLayout(nodes, links, dummyMap) {
     //Retrieves the position of a node in a matrix, considering which border of the matrix sohuld be connected to based on the other nodes position
     //sourceNode is always in a matrix, targetNode can be NL node (targetIsNode = true) or matrix node
     function NodeInMatrixPosition(sourceNode, targetNode, targetIsNode) {
-        const matrixGroups = appState.matrixGroups
-
-        //Find the dummy node of the matrix group that the sourceNode belongs to
-        const matrixId = Object.keys(matrixGroups).find(k => matrixGroups[k].includes(sourceNode));
-        const dummyNode = getNode(`dummy-${matrixId}`);
-
-        //Retrieve information about the matrix
-        const matrixX = dummyNode.x;
-        const matrixY = dummyNode.y;
-
-        const nodesInMatrix = matrixGroups[matrixId];
-        const rowIndex = nodesInMatrix.indexOf(sourceNode);
-        const matrixSize = nodesInMatrix.length;
-
-        //Find the center of the matrix
-        const centerX = matrixX + (matrixSize * cellSize) / 2;
-        const centerY = matrixY + (matrixSize * cellSize) / 2;
-
-        //Find the X, and Y position, one of which we will later link to --> middle of the cell
-        const cellY = matrixY + rowIndex * cellSize + cellSize / 2;
-        const cellX = matrixX + rowIndex * cellSize + cellSize / 2;
-
-        let dx, dy;
-
-        //Find the distance to the center of the targetNode, whether it is in matrix or NL node
+        const matrixGroups = appState.matrixGroups;
+    
+        // Local Helper to get matrix center and dimensions
+        function getMatrixInfo(node) {
+            const matrixId = Object.keys(matrixGroups).find(k => matrixGroups[k].includes(node));
+            const dummyNode = getNode(`dummy-${matrixId}`);
+            const nodesInMatrix = matrixGroups[matrixId];
+            const matrixSize = nodesInMatrix.length;
+            return {
+                dummyNode,
+                matrixId,
+                matrixX: dummyNode.x,
+                matrixY: dummyNode.y,
+                matrixSize,
+                rowIndex: nodesInMatrix.indexOf(node)
+            };
+        }
+        
+        
+        const sourceInfo = getMatrixInfo(sourceNode);
+    
+        let targetX, targetY;
+        
+        //Get targetNode location based on if it is a matrix or not
         if (!targetIsNode) {
-            const otherMatrixId = Object.keys(matrixGroups).find(k => matrixGroups[k].includes(targetNode));
-            const targetDummy = getNode(`dummy-${otherMatrixId}`);
-            const targetX = targetDummy.x + (matrixSize * cellSize) / 2;
-            const targetY = targetDummy.y + (matrixSize * cellSize) / 2;
-            dx = targetX - centerX;
-            dy = targetY - centerY;
+            const targetInfo = getMatrixInfo(targetNode);
+            targetX = targetInfo.dummyNode.x + (targetInfo.matrixSize * cellSize) / 2;
+            targetY = targetInfo.dummyNode.y + (targetInfo.matrixSize * cellSize) / 2;
         } else {
             const target = getNode(targetNode);
-            dx = target.x - centerX;
-            dy = target.y - centerY;
+            targetX = target.x;
+            targetY = target.y;
         }
-
+    
+        //Use the center of the matrix to determine which matrix side to link to
+        const centerX = sourceInfo.matrixX + (sourceInfo.matrixSize * cellSize) / 2;
+        const centerY = sourceInfo.matrixY + (sourceInfo.matrixSize * cellSize) / 2;
+    
+        const dx = targetX - centerX;
+        const dy = targetY - centerY;
         const absDx = Math.abs(dx);
         const absDy = Math.abs(dy);
-
-        //Define connecting point of link based on where the matrix node is position w.r.t. the targetNode
+    
+        //Calculate X and Y to use if that is where the link will be to
+        const cellX = sourceInfo.matrixX + sourceInfo.rowIndex * cellSize + cellSize / 2;
+        const cellY = sourceInfo.matrixY + sourceInfo.rowIndex * cellSize + cellSize / 2;
+    
+        // Choose link edge (top, bottom, left, right)
         if (absDx > absDy) {
             if (dx > 0) {
-                return { x: matrixX + matrixSize * cellSize, y: cellY };
+                return { x: sourceInfo.matrixX + sourceInfo.matrixSize * cellSize, y: cellY }; // right edge
             } else {
-                return { x: matrixX - cellSize, y: cellY };
+                return { x: sourceInfo.matrixX - cellSize, y: cellY }; // left edge
             }
         } else {
             if (dy > 0) {
-                return { x: cellX, y: matrixY + matrixSize * cellSize };
+                return { x: cellX, y: sourceInfo.matrixY + sourceInfo.matrixSize * cellSize }; // bottom edge
             } else {
-                return { x: cellX, y: matrixY - cellSize };
+                return { x: cellX, y: sourceInfo.matrixY - cellSize }; // top edge
             }
         }
     }
+    
 }

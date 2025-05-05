@@ -29,7 +29,7 @@ export function addBinaryColourLegend() {
 
     reorderItem.append("label")
         .attr("for", "reorder-matrices-checkbox")
-        .text("Reorder matrices");
+        .text("Sort based on Binary Variable");
 
     
     //Function that toggles the legend and applies/removes the colour when button is clicked
@@ -40,7 +40,6 @@ export function addBinaryColourLegend() {
         } else {
             resetBinaryColors();
             legendContainer.style("display", "none");
-            document.getElementById("reorder-matrices-checkbox").checked = false;
         }
     }
 

@@ -34,7 +34,7 @@ export function resetBinaryColors() {
 }
 
 
-import { appState, buttonState } from "../main.js";
+import { buttonState } from "../main.js";
 
 //Function to determine the mapping of category to colour --> same colour for mental model
 let categoricalColorScale;
@@ -109,7 +109,7 @@ export function defineCategoricalMapping(){
         .domain(categories)
         .range(colorScheme);
 
-    // Build color map
+    // Build color map for later reference
     categoricalColorMap = {};
     categories.forEach(category => {
         categoricalColorMap[category] = categoricalColorScale(category);

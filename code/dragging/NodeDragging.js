@@ -25,14 +25,11 @@ export function nodeDragStarted(event) {
 }
 
 export function nodeDragged(event) {
-    const sim = appState.sim;
-    const NLNodes = sim.nodes().filter(node => !node.id.startsWith("dummy-"))
-
     event.subject.fx = event.x;
     event.subject.fy = event.y;
 
     // Check for overlap with nodes and matrices for highlighting
-    getOverlappingNodes(event.subject, NLNodes);
+    getOverlappingNodes(event.subject);
     NodeMatrixOverlap(event.subject);
 }
 
@@ -80,30 +77,22 @@ export function nodeDragEnded(event) {
     }
 }
 
-function getOverlappingNodes(draggedNode, NLNodes) {
-    //An overlapping nodes is a different node that is in a radius of 10 <- magic variable
-    const overlappingNode = NLNodes.find(n =>
-        n.id !== draggedNode.id && Math.hypot(n.x - draggedNode.x, n.y - draggedNode.y) < 10
-    );
+function getOverlappingNodes(draggedNode) {
+    let overlappingNode = null;
 
-    //If there is an overlapping node that is different from the one were previously overlapping with
-    if (overlappingNode?.id !== previouslyOverlappingNodeId) {
-        //de-highlight the previously highlighted node
-        svg.selectAll(".node")
-            .filter(d => d.id === previouslyOverlappingNodeId)
-            .classed("highlighted", false);
+    svg.selectAll(".node")
+        .each(function (d) {
+            if (d.id!==draggedNode.id){
+                const isOverlapping = Math.hypot(d.x - draggedNode.x, d.y - draggedNode.y) < 10;
 
-        if (overlappingNode) {
-            svg.selectAll(".node")
-                .filter(d => d.id === overlappingNode.id)
-                .classed("highlighted", true);
-        }
+                d3.select(this).classed("highlighted", isOverlapping);
 
-        //Save the overlappingNode as previouslyOverlappingNode
-        previouslyOverlappingNodeId = overlappingNode?.id || null;
-    }
+                if (isOverlapping) {
+                    overlappingNode = d;
+                }
+            }
+        });
 
-    //Return the overlappingNode
     return overlappingNode;
 }
 
@@ -129,18 +118,18 @@ function NodeMatrixOverlap(node) {
         //Determine if the node is inside the matrix
         const isInside = node.x >= minX && node.x <= maxX && node.y >= minY && node.y <= maxY;
 
-        //For highlighting, retrieve the matrixgroup, if we are inside, return this info and highlighted 
-        const matrixGroup = svg.selectAll(".matrix")
+        //For highlighting, retrieve the matrixSvg, if we are inside, return this info and highlighted 
+        const matrixSvg = svg.selectAll(".matrix")
             .filter(function () {
-                return d3.select(this).attr("data-matrix-id") === matrixId;
+                return d3.select(this).attr("matrix-id") === matrixId;
             });
 
         if (isInside) {
-            matrixGroup.classed("matrixHighlighted", true);
+            matrixSvg.classed("matrixHighlighted", true);
             return { isInside, matrixId };
         //els de-highlight and return negative
         } else {
-            matrixGroup.classed("matrixHighlighted", false);
+            matrixSvg.classed("matrixHighlighted", false);
         }
     }
 

@@ -18,8 +18,8 @@ export function matrixDragStarted(event, draggedMatrixId) {
         });
     }
 
-    // Highlight the dragged matrix if overlapping
-    d3.select(`.matrix[data-matrix-id="${draggedMatrixId}"]`)
+    // Highlight the dragged matrix
+    d3.select(`.matrix[matrix-id="${draggedMatrixId}"]`)
         .classed("matrixHighlighted", true);
 }
 
@@ -28,7 +28,7 @@ export function matrixDragged(event, draggedMatrixId) {
     const sim = appState.sim;
     const dummyNode = sim.nodes().find(n => n.id === `dummy-${draggedMatrixId}`);
 
-    // Move the dummy node
+    // Move the dummy node based on dragged X or starting x
     dummyNode.fx = (dummyNode.fx ?? dummyNode.x) + event.dx;
     dummyNode.fy = (dummyNode.fy ?? dummyNode.y) + event.dy;
 
@@ -46,11 +46,11 @@ export function matrixDragEnded(event, draggedMatrixId) {
     //Find dummynode
     const sim = appState.sim;
     const nodes = sim.nodes();
-    const dummy = nodes.find(n => n.id === `dummy-${draggedMatrixId}`);
+    const dummyNode = nodes.find(n => n.id === `dummy-${draggedMatrixId}`);
 
     //Make matrix moveable by force-layout again
-    dummy.fx = null;
-    dummy.fy = null;
+    dummyNode.fx = null;
+    dummyNode.fy = null;
 
     //Remove all highlight of matrices
     d3.selectAll(".matrix").classed("matrixHighlighted", false);
@@ -106,31 +106,31 @@ function findOverlappingMatrices(draggedId) {
     let foundOverlapId = null;
     //Loop over all matrices
     d3.selectAll(".matrix").each(function () {
-        const matrix = d3.select(this);
-        const id = matrix.attr("data-matrix-id");
-        const dummy = nodes.find(n => n.id === `dummy-${id}`);
+        const otherMatrix = d3.select(this);
+        const id = otherMatrix.attr("matrix-id");
+        const otherDummyNode = nodes.find(n => n.id === `dummy-${id}`);
 
         //Skip draggedMatrix
-        if (!dummy || id === draggedId) return;
+        if (id === draggedId) return;
 
         //Find the size of the other matrix
-        const size = dummy.matrixSize * cellSize;
-        const matrixBox = {
-            minX: dummy.fx ?? dummy.x,
-            minY: dummy.fy ?? dummy.y,
-            maxX: (dummy.fx ?? dummy.x) + size,
-            maxY: (dummy.fy ?? dummy.y) + size
+        const otherSize = otherDummyNode.matrixSize * cellSize;
+        const otherMatrixBox = {
+            minX: otherDummyNode.fx ?? otherDummyNode.x,
+            minY: otherDummyNode.fy ?? otherDummyNode.y,
+            maxX: (otherDummyNode.fx ?? otherDummyNode.x) + otherSize,
+            maxY: (otherDummyNode.fy ?? otherDummyNode.y) + otherSize
         };
 
         //Determine if overlap
         const overlap =
-            draggedBox.minX < matrixBox.maxX &&
-            draggedBox.maxX > matrixBox.minX &&
-            draggedBox.minY < matrixBox.maxY &&
-            draggedBox.maxY > matrixBox.minY;
+            draggedBox.minX < otherMatrixBox.maxX &&
+            draggedBox.maxX > otherMatrixBox.minX &&
+            draggedBox.minY < otherMatrixBox.maxY &&
+            draggedBox.maxY > otherMatrixBox.minY;
         
         //Update matrixHighlight based on if there is overlap or not
-        matrix.classed("matrixHighlighted", overlap);
+        otherMatrix.classed("matrixHighlighted", overlap);
 
         //For merging purpose we only want two matrices to overlap simultaneously
         if (overlap && !foundOverlapId) {

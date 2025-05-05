@@ -17,7 +17,6 @@ export function buildNL() {
         x: 0, y: 0, vx: 0, vy: 0, r: 10
     });
 
-    // Find links between NL nodes
     // Collect edges between node-link nodes
     const nodeLinkSet = new Set(nodeLinkNodes);
     const nodeLinkEdges = [];
@@ -50,7 +49,7 @@ export function buildNL() {
     const matrixToNLLinks = [];
     graph.forEachEdge((key, attributes, source, target) => {
         if (nodeLinkSet.has(source) && !nodeLinkSet.has(target)) {
-        //force-layout only accepts matrixToNLLinks where source is the matrix and target is the node --> change later
+        //force-layout only accepts matrixToNLLinks where source is the matrix and target is the node --> might prove problematic later
             const matrixId = Object.keys(matrixGroups).find(k => matrixGroups[k].includes(target))
             matrixToNLLinks.push({
                 source: target,
@@ -71,7 +70,7 @@ export function buildNL() {
         }
     });
   
-    // Place the links in the canvas, force-layout will properly update the position
+    // Place the links in the canvas, force-layout will properly update the position later
     const matrixToNLLinkSelection = svg.selectAll(".matrix-NL-link")
         .data(matrixToNLLinks)
         .enter()
@@ -79,14 +78,14 @@ export function buildNL() {
         .attr("class", "link matrix-NL-link");
 
     const nodes = svg.selectAll(".node")
-    .data(Object.values(nodeLinkDict))
-    .enter().append("circle")
-    .attr("class", "node")
-    .attr("r", d => d.r)
-    .call(d3.drag()
-        .on("start", event => nodeDragStarted(event, matrixGroups))
-        .on("drag", event => nodeDragged(event, matrixGroups))
-        .on("end", event => nodeDragEnded(event, matrixGroups, graph)));
+        .data(Object.values(nodeLinkDict))
+        .enter().append("circle")
+        .attr("class", "node")
+        .attr("r", d => d.r)
+        .call(d3.drag()
+            .on("start", event => nodeDragStarted(event))
+            .on("drag", event => nodeDragged(event))
+            .on("end", event => nodeDragEnded(event)));
 
     // Update the nodes and links
     return {

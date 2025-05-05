@@ -11,26 +11,19 @@ export function buildMatrix() {
     const matrixDict = {};
     matrixNodes.forEach(k => matrixDict[k] = graph.getNodeAttributes(k));
 
-    const matrixPositions = {};
     const dummyNodes = [];
     const dummyMap = {};
 
     let i = 0;
-    const spacing = 100;
 
     // Build matrices (after reordering)
     for (const [matrixId, nodesInMatrix] of Object.entries(matrixGroups)) {
-        const size = nodesInMatrix.length;
-        const x = 20 + (i % 3) * (cellSize * size + spacing * 2);
-        const y = 20 + Math.floor(i / 3) * (cellSize * size + spacing * 2);
-        matrixPositions[matrixId] = { x, y };
-        const pos = matrixPositions[matrixId];
+        const matrixSize = nodesInMatrix.length;
 
         // SVG group for matrix
         const matrixSvg = svg.append("g")
-            .attr("transform", `translate(${pos.x},${pos.y})`)
             .attr("class", "matrix")
-            .attr("data-matrix-id", matrixId)
+            .attr("matrix-id", matrixId)
             .call(d3.drag()
                 .on("start", (event) => matrixDragStarted(event, matrixId))
                 .on("drag", (event) => matrixDragged(event, matrixId))
@@ -46,7 +39,7 @@ export function buildMatrix() {
 
         rows.selectAll(".cell")
             .data(function(rowId) {
-                //This should be cleaner --> should more clearly define between multi-edged and directed data
+                //Might be problematic if directed/multi-edge becomes important
                 return nodesInMatrix.map(colId => {
                     let attributes = null;
         
@@ -56,7 +49,7 @@ export function buildMatrix() {
                     // Check for the reverse edge (colId -> rowId)
                     const backwardEdges = [...graph.edgeEntries(colId, rowId)];
                     
-                    // Logic to decide which edge to pick based on the row and column ID
+                    //Ensure symmetry
                     if (colId >= rowId) {
                         // For cells where colId >= rowId, use the reverse edge first
                         if (backwardEdges.length > 0) {
@@ -137,7 +130,7 @@ export function buildMatrix() {
             .attr("x", cellSize / 2)
             .attr("y", cellSize / 2)
             .attr("dy", ".35em")
-            .text(d => graph.getNodeAttribute(d, 'IATA'));  // Should work since d is the node ID
+            .text(d => graph.getNodeAttribute(d, 'IATA'));
 
         // Top-left corner cell where row and column labels intersect
         matrixSvg.append("rect")
@@ -147,72 +140,67 @@ export function buildMatrix() {
             .attr("width", cellSize)
             .attr("height", cellSize);
 
-        //// Store matrix position for each node
-        nodesInMatrix.forEach((nodeId, rowIndex) => {
-            graph.setNodeAttribute(nodeId, "matrixPosNode", {
-                x: pos.x,
-                y: pos.y + rowIndex * cellSize + cellSize / 2
-            });
-            graph.setNodeAttribute(nodeId, "matrixSize", size);
-        });
-
         // Add dummy node
         const dummyId = `dummy-${matrixId}`;
         dummyNodes.push({
             id: dummyId,
             matrixId,
-            x: pos.x + (cellSize * size) / 2,
-            y: pos.y + (cellSize * size) / 2,
-            matrixSize: size
+            x: (cellSize * matrixSize) / 2,
+            y: (cellSize * matrixSize) / 2,
+            matrixSize: matrixSize
         });
 
         dummyMap[dummyId] = matrixSvg;
         i++;
     }
 
-    // Build matrix-to-matrix links AFTER dummy nodes are available
-    const interMatrixLinks = [];
-
-    graph.forEachEdge((edgeKey, attributes, source, target) => {
-        const sourceMatrix = Object.keys(matrixGroups).find(k => matrixGroups[k].includes(source));
-        const targetMatrix = Object.keys(matrixGroups).find(k => matrixGroups[k].includes(target));
-      
-        const isInDifferentMatrices = sourceMatrix && targetMatrix && sourceMatrix !== targetMatrix;
-      
-        if (isInDifferentMatrices) {
-          interMatrixLinks.push({
-            source,
-            target,
-            sourceMatrix,
-            targetMatrix,
-            ...attributes // Include all edge attributes like `relation`, `codeshare`, etc.
-          });
-        }
-      });
-      
-
-    // Draw placeholder SVG paths for matrix-to-matrix links (to be positioned in ticked)
-    svg.selectAll(".matrix-matrix-link")
-        .data(interMatrixLinks)
-        .enter()
-        .append("path")
-        .attr("class", "link matrix-matrix-link");
+    buildInterMatrixLinks();
 
     return { dummyNodes, dummyMap };
+}
+
+function buildInterMatrixLinks(){
+        const graph = appState.graph
+        const matrixGroups = appState.matrixGroups
+       // Build matrix-to-matrix links AFTER dummy nodes are available
+       const interMatrixLinks = [];
+
+       graph.forEachEdge((edgeKey, attributes, source, target) => {
+           const sourceMatrix = Object.keys(matrixGroups).find(k => matrixGroups[k].includes(source));
+           const targetMatrix = Object.keys(matrixGroups).find(k => matrixGroups[k].includes(target));
+         
+           const isInDifferentMatrices = sourceMatrix !== targetMatrix;
+         
+           if (isInDifferentMatrices) {
+             interMatrixLinks.push({
+               source,
+               target,
+               sourceMatrix,
+               targetMatrix,
+               ...attributes
+             });
+           }
+         });
+         
+       // Draw SVG paths for matrix-to-matrix links (to be positioned in force-layout)
+       svg.selectAll(".matrix-matrix-link")
+           .data(interMatrixLinks)
+           .enter()
+           .append("path")
+           .attr("class", "link matrix-matrix-link");
 }
 
 import { buildEverything } from '../utils.js';
 //Function to remove NodeFromMatrix when row or column is control-clicked
 function removeNodeFromMatrix (event, nodeId){
-    graph = appState.graph
     const matrixGroups = appState.matrixGroups
-    for (const [matrixId, nodes] of Object.entries(matrixGroups)) {
-        const nodeIdStr = String(nodeId);
-        const index = nodes.indexOf(nodeIdStr);
+    
+    for (const [matrixId, nodesInMatrix] of Object.entries(matrixGroups)) {
+        const index = nodesInMatrix.indexOf(nodeId);
         if (index !== -1) {
-            nodes.splice(index, 1); // Remove node from array
-            // If the matrix is now empty, optionally delete it:
-            if (nodes.length === 1) {
+            nodesInMatrix.splice(index, 1); // Remove node from array
+            // If the matrix is now 1 node,  delete it:
+            if (nodesInMatrix.length === 1) {
                 delete matrixGroups[matrixId];
             }
         }

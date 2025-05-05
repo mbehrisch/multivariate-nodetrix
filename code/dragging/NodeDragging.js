@@ -1,5 +1,5 @@
 import { buildEverything } from '../utils.js';
-import { svg, cellSize, appState } from '../main.js';
+import { svg, cellSize, appState, nodeSize } from '../main.js';
 import { setSimulationState } from '../utils.js';
 
 let previouslyOverlappingNodeId = null;
@@ -83,7 +83,7 @@ function getOverlappingNodes(draggedNode) {
     svg.selectAll(".node")
         .each(function (d) {
             if (d.id!==draggedNode.id){
-                const isOverlapping = Math.hypot(d.x - draggedNode.x, d.y - draggedNode.y) < 10;
+                const isOverlapping = Math.hypot(d.x - draggedNode.x, d.y - draggedNode.y) < nodeSize;
 
                 d3.select(this).classed("highlighted", isOverlapping);
 

@@ -1,18 +1,22 @@
 //Function to provide colours to links and matrix cells for binary variables
 export function applyBinaryColouring() {
     d3.selectAll(".cellPositive")
-        .classed("CellBinaryYes", d => d.attributes.codeshare === 'Y')
-        .classed("CellBinaryNo", d => d.attributes.codeshare !== 'Y');
+        .style("fill", null)
+        .style("stroke", null);
+
+    d3.selectAll(".cellPositive")
+        .classed("CellBinaryYes", d => d.attributes[datasetSpec.binaryVar] === true)
+        .classed("CellBinaryNo", d => d.attributes[datasetSpec.binaryVar] !== true);
 
     d3.selectAll(".link")
         .each(function(d) {
             d3.select(this)
-                .classed("linkBinaryYes", d.codeshare === 'Y')
-                .classed("linkBinaryNo", d.codeshare !== 'Y');
+                .classed("linkBinaryYes", d[datasetSpec.binaryVar] === true)
+                .classed("linkBinaryNo", d[datasetSpec.binaryVar] !== true);
         });
     
     //Switch button state
-    buttonState.binaryVariable = true
+    buttonState.binaryVariableActivated = true
 }
 
 //Reset colours
@@ -29,12 +33,12 @@ export function resetBinaryColors() {
         });
     
     //Switch button state and sorted button state
-    buttonState.binaryVariable = false
+    buttonState.binaryVariableActivated = false
     buttonState.binarySorted = false
 }
 
 
-import { buttonState } from "../main.js";
+import { buttonState, datasetSpec } from "../main.js";
 
 //Function to determine the mapping of category to colour --> same colour for mental model
 let categoricalColorScale;
@@ -49,7 +53,7 @@ export function applyCategoricalColouring() {
 
     // Apply colors to links
     d3.selectAll(".link").each(function(d) {
-        const color = categoricalColorMap[d.airline];
+        const color = categoricalColorMap[d[datasetSpec.categoricalVar]];
 
         d3.select(this)
             .style("stroke", color)
@@ -57,17 +61,13 @@ export function applyCategoricalColouring() {
     });
 
     d3.selectAll(".cellPositive").each(function(d) {
-        const color = categoricalColorMap[d.attributes.airline];
+        const color = categoricalColorMap[d.attributes[datasetSpec.categoricalVar]];
         d3.select(this)
             .style("fill", color)
             .style("stroke", color)
     });
 
-    //Currently gray is used in scale --> when proper categories this is obsolete
-    d3.selectAll(".cellDiagonal")
-        .style("fill", "black")
-
-    buttonState.categoricalVariable = true
+    buttonState.categoricalVariableActivated = true
 }
 
 //Function to reset back to categorical colours
@@ -80,24 +80,23 @@ export function resetCategoricalColours() {
         .style("fill", "black")
         .style("stroke", "gray")
 
-    d3.selectAll(".cellDiagonal")
-        .style("fill", "#ccc")
-        .style("stroke", "gray")
-
-    buttonState.categoricalVariable = false
+    buttonState.categoricalVariableActivated = false
 }
 
 export function defineCategoricalMapping(){
     //Find the categories that are actually being visualized
-    const linkCategoricals = d3.selectAll(".link").data().map(d => d.airline);
-    const matrixCategoricals = d3.selectAll(".cellPositive").data().map(d => d.attributes.airline);
+    const linkCategoricals = d3.selectAll(".link").data().map(d => d[datasetSpec.categoricalVar]);
+    const matrixCategoricals = d3.selectAll(".cellPositive").data().map(d => d.attributes[datasetSpec.categoricalVar]);
 
     // Combine the two arrays and get unique categories
     const categories = Array.from(new Set([...linkCategoricals, ...matrixCategoricals]));
 
     // Use appropriate color scale, when proper categories are defined this will be obsolete
     let colorScheme;
-    if (categories.length <= 21) {
+    if(categories.length <= 10){
+        colorScheme = d3.schemeCategory10
+    }
+    else if (categories.length <= 21) {
         colorScheme = d3.schemeCategory10.concat(d3.schemeSet3);  // 22 colors max
     } else {
         // Use a continuous scale if you have more than 22 categories

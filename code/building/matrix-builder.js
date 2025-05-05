@@ -1,4 +1,4 @@
-import { svg , appState} from '../main.js';
+import { svg , appState, datasetSpec} from '../main.js';
 import { cellSize } from '../main.js'; 
 import { matrixDragStarted, matrixDragged, matrixDragEnded } from '../dragging/MatrixDragging.js';
 
@@ -101,7 +101,7 @@ export function buildMatrix() {
             .attr("x", cellSize / 2)
             .attr("y", cellSize / 2)
             .attr("dy", ".35em")
-            .text(d => graph.getNodeAttribute(d, 'IATA'));  // Get IATA code here for the label text
+            .text(d => graph.getNodeAttribute(d, datasetSpec.label));  // Get IATA code here for the label text
 
         //// Column labels (for matrix)
         const labelColumn = matrixSvg.append("g")
@@ -130,7 +130,7 @@ export function buildMatrix() {
             .attr("x", cellSize / 2)
             .attr("y", cellSize / 2)
             .attr("dy", ".35em")
-            .text(d => graph.getNodeAttribute(d, 'IATA'));
+            .text(d => graph.getNodeAttribute(d, datasetSpec.label));
 
         // Top-left corner cell where row and column labels intersect
         matrixSvg.append("rect")
@@ -162,14 +162,15 @@ export function buildMatrix() {
 function buildInterMatrixLinks(){
         const graph = appState.graph
         const matrixGroups = appState.matrixGroups
-       // Build matrix-to-matrix links AFTER dummy nodes are available
+        // Build matrix-to-matrix links AFTER dummy nodes are available
        const interMatrixLinks = [];
 
        graph.forEachEdge((edgeKey, attributes, source, target) => {
            const sourceMatrix = Object.keys(matrixGroups).find(k => matrixGroups[k].includes(source));
            const targetMatrix = Object.keys(matrixGroups).find(k => matrixGroups[k].includes(target));
          
-           const isInDifferentMatrices = sourceMatrix !== targetMatrix;
+           //If there are matrices for both, and they are different
+           const isInDifferentMatrices = sourceMatrix && targetMatrix && sourceMatrix !== targetMatrix;
          
            if (isInDifferentMatrices) {
              interMatrixLinks.push({
@@ -193,6 +194,7 @@ function buildInterMatrixLinks(){
 import { buildEverything } from '../utils.js';
 //Function to remove NodeFromMatrix when row or column is control-clicked
 function removeNodeFromMatrix (event, nodeId){
+    graph=appState.graph
     const matrixGroups = appState.matrixGroups
     
     for (const [matrixId, nodesInMatrix] of Object.entries(matrixGroups)) {

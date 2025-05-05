@@ -4,12 +4,20 @@ import louvain from 'https://cdn.skypack.dev/graphology-communities-louvain';
 import { buildEverything } from './utils.js';
 import { addCategoricalColourLegend, addBinaryColourLegend } from './pageInteraction/EdgeButtons.js';
 
-export const width = 800, height = 600;
+export const width = 1200, height = 800;
 export const cellSize = 15;
+export const nodeSize = 10
 
 export const svg = d3.select("#graph").append("svg")
     .attr("width", width)
     .attr("height", height);
+
+//Define specifications of the dataset. These are to be attributes of nodes and edges as depicted below
+export const datasetSpec = {
+    label: "IATA",  //For the flight data the IATA attribute is the label
+    binaryVar: "codeshare", //Codeshare is my binary value: expects true, false
+    categoricalVar: "airlinecountry" //Airline operator is my categorical value
+}
 
 export const appState = {
     graph: null,              // Holds the graph data
@@ -19,9 +27,9 @@ export const appState = {
 
 //State of buttons
 export const buttonState = {
-    binaryVariable: false,
+    binaryVariableActivated: false,
     binarySorted: false,
-    categoricalVariable: false
+    categoricalVariableActivated: false
 }
 
 let graph = new Graph({ multi: true });
@@ -52,7 +60,8 @@ fetch("data/sampled_data.json")
                 airline_id: edge.attributes.airline_id,
                 codeshare: edge.attributes.codeshare,
                 stops: edge.attributes.stops,
-                equipment: edge.attributes.equipment
+                equipment: edge.attributes.equipment,
+                airlinecountry:edge.attributes.airlinecountry
             });
         });
 

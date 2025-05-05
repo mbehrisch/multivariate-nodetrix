@@ -1,4 +1,4 @@
-import { appState, svg } from '../main.js';
+import { appState, datasetSpec, svg, nodeSize} from '../main.js';
 import { nodeDragStarted, nodeDragged, nodeDragEnded } from '../dragging/NodeDragging.js';
 
 // Builds nodes, establishes node-node paths and node-matrix paths
@@ -14,7 +14,7 @@ export function buildNL() {
     nodeLinkNodes.forEach(k => nodeLinkDict[k] = {
         id: k,
         ...graph.getNodeAttributes(k),
-        x: 0, y: 0, vx: 0, vy: 0, r: 10
+        x: 0, y: 0, vx: 0, vy: 0, r: nodeSize
     });
 
     // Collect edges between node-link nodes
@@ -42,8 +42,8 @@ export function buildNL() {
         .data(Object.values(nodeLinkDict))
         .enter().append("text")
         .attr("class", "label NLlabel")
-        .attr("dy", -10)
-        .text(d => graph.getNodeAttribute(d.id, 'IATA'));
+        .attr("dy", -nodeSize)
+        .text(d => graph.getNodeAttribute(d.id, datasetSpec.label));
 
     //matrixToNLLinks
     const matrixToNLLinks = [];

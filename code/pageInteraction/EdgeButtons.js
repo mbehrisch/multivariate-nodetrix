@@ -29,12 +29,21 @@ export function addBinaryColourLegend() {
 
     reorderItem.append("label")
         .attr("for", "reorder-matrices-checkbox")
-        .text("Sort based on Binary Variable");
+        .text("Sort matrices based on Binary Variable");
 
     
     //Function that toggles the legend and applies/removes the colour when button is clicked
     function toggleBinaryEdgeColoring() {
+        const categoricalToggle = document.getElementById("edge-categorical-color-toggle");
+        
         if (edgeTypeBinaryToggle.checked) {
+            // Uncheck categorical if it's on, necessary for now --> prob redundant later
+            if (categoricalToggle.checked) {
+                categoricalToggle.checked = false;
+                resetCategoricalColours();
+                d3.select("#categorical-variable-legend-container").style("display", "none");
+            }
+    
             applyBinaryColouring();
             legendContainer.style("display", "block");
         } else {
@@ -65,7 +74,16 @@ export function addCategoricalColourLegend() {
 
     //Define function to trigger upon toggling to create te legend or to reset upon toggling
     function toggleCategoricalColoring() {
+        const binaryToggle = document.getElementById("edge-binary-color-toggle");
+    
         if (categoricalToggle.checked) {
+            // Uncheck binary if it's on
+            if (binaryToggle.checked) {
+                binaryToggle.checked = false;
+                resetBinaryColors();
+                d3.select("#binary-variable-legend-container").style("display", "none");
+            }
+    
             applyCategoricalColouring();
             renderCategoricalLegend();
             legendContainer.style("display", "block");

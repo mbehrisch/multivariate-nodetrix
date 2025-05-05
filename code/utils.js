@@ -1,7 +1,7 @@
 import { buildMatrix } from './building/matrix-builder.js';
 import { buildNL } from './building/NL-builder.js';
 import { applyForceLayout } from './building/force-layout.js';
-import { svg, appState, buttonState } from './main.js';
+import { svg, appState, buttonState, datasetSpec } from './main.js';
 import { applyCategoricalColouring, applyBinaryColouring } from './multivariate/EdgeTypes.js';
 
 //Build everything when called upon
@@ -38,11 +38,11 @@ export function buildEverything() {
 
     applyForceLayout(nodes, links, dummyMap);
 
-    if (buttonState.binaryVariable) {
+    if (buttonState.binaryVariableActivated) {
         applyBinaryColouring();
     }
 
-    if (buttonState.categoricalVariable) {
+    if (buttonState.categoricalVariableActivated) {
         applyCategoricalColouring();
     }    
 }
@@ -109,7 +109,7 @@ export function buildAdjacencyMatrix(nodesInMatrix) {
 
                 if (buttonState.binarySorted) {
                     const entries = [...graph.edgeEntries(rowId, colId)];
-                    if (entries.length > 0 && entries[0].attributes.codeshare === "Y") {
+                    if (entries.length > 0 && entries[0].attributes[datasetSpec.binaryVar] === true) {
                         edgeWeight = 2;
                     }
                 }

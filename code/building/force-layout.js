@@ -1,10 +1,10 @@
-import { appState, svg } from '../main.js';
+import { appState, buttonState, svg } from '../main.js';
 import { cellSize } from '../main.js';
 import { width, height } from '../main.js';
 
 export function applyForceLayout(nodes, links, dummyMap) {
     const graph = appState.graph;
-    const reorderedMatrixGroups = appState.matrixGroups;
+    const matrixGroups = appState.matrixGroups;
 
     appState.sim = d3.forceSimulation(nodes)
         .force("link", d3.forceLink(links)
@@ -28,17 +28,15 @@ export function applyForceLayout(nodes, links, dummyMap) {
 
         svg.selectAll(".NLlabel")
             .attr("x", d => d.x)
-            .attr("y", d => d.y)
-            .style("pointer-events", "none");
+            .attr("y", d => d.y);
 
         Object.entries(dummyMap).forEach(([dummyId, matrixGroup]) => {
             const dummyNode = getNode(dummyId);
             const matrixSize = dummyNode.matrixSize;
             const matrixWidth = matrixSize * cellSize;
-            const matrixHeight = matrixSize * cellSize;
 
             dummyNode.x = Math.max(20, Math.min(800 - matrixWidth, dummyNode.x));
-            dummyNode.y = Math.max(20, Math.min(600 - matrixHeight, dummyNode.y));
+            dummyNode.y = Math.max(20, Math.min(600 - matrixWidth, dummyNode.y));
 
             matrixGroup.attr("transform", `translate(${dummyNode.x}, ${dummyNode.y})`);
         });
@@ -52,15 +50,15 @@ export function applyForceLayout(nodes, links, dummyMap) {
 
         svg.selectAll(".matrix-NL-link")
             .attr("d", d => {
-                const sourcePos = MatrixNodeLinkPositions(d.source, d.target, true, reorderedMatrixGroups);
+                const sourcePos = NodeInMatrixPosition(d.source, d.target, true);
                 const targetPos = getNode(d.target);
                 return getBezierPath(sourcePos, targetPos, d);
             });
 
         svg.selectAll(".matrix-matrix-link")
             .attr("d", d => {
-                const sourcePos = MatrixNodeLinkPositions(d.source, d.target, false, reorderedMatrixGroups);
-                const targetPos = MatrixNodeLinkPositions(d.target, d.source, false, reorderedMatrixGroups);
+                const sourcePos = NodeInMatrixPosition(d.source, d.target, false);
+                const targetPos = NodeInMatrixPosition(d.target, d.source, false);
                 return getBezierPath(sourcePos, targetPos, d);
             });
     }
@@ -85,8 +83,7 @@ export function applyForceLayout(nodes, links, dummyMap) {
         const dy = targetPos.y - sourcePos.y;
         let midX = sourcePos.x + dx / 2;
 
-        const edgeTypeBinaryToggle = document.getElementById("edge-binary-color-toggle");
-        if (edgeTypeBinaryToggle?.checked) {
+        if (buttonState.binaryVariable) {
             const srcId = typeof d.source === "object" ? d.source.id : d.source;
             const tgtId = typeof d.target === "object" ? d.target.id : d.target;
             const entries = [...graph.edgeEntries(srcId, tgtId)];
@@ -98,7 +95,7 @@ export function applyForceLayout(nodes, links, dummyMap) {
                     //midX = sourcePos.x + dx * 0.75;
                 } else {
                     verticalOffset = 10;
-                    midX = sourcePos.x + dx * 0.75;
+                    //midX = sourcePos.x + dx * 0.75;
                 }
             }
         }
@@ -112,35 +109,51 @@ export function applyForceLayout(nodes, links, dummyMap) {
                 ${targetPos.x},${targetPos.y}`;
     }
 
-    //Only accepts M-NL links where source is the matrixNode
-    function MatrixNodeLinkPositions(sourceNode, targetNode, targetIsNode, reorderedMatrixGroups) {
-        const matrixId = Object.keys(reorderedMatrixGroups).find(k => reorderedMatrixGroups[k].includes(sourceNode));
+    //Retrieves the position of a node in a matrix, considering which border of the matrix sohuld be connected to based on the other nodes position
+    //sourceNode is always in a matrix, targetNode can be NL node (targetIsNode = true) or matrix node
+    function NodeInMatrixPosition(sourceNode, targetNode, targetIsNode) {
+        const matrixGroups = appState.matrixGroups
+
+        //Find the dummy node of the matrix group
+        const matrixId = Object.keys(matrixGroups).find(k => matrixGroups[k].includes(sourceNode));
         const dummy = getNode(`dummy-${matrixId}`);
+
+        //Retrieve information about the matrix
         const matrixX = dummy.x;
         const matrixY = dummy.y;
 
-        const matrixNodeIds = reorderedMatrixGroups[matrixId];
-        const rowIndex = matrixNodeIds.indexOf(sourceNode);
-        const matrixSize = matrixNodeIds.length;
+        const nodesInMatrix = matrixGroups[matrixId];
+        const rowIndex = nodesInMatrix.indexOf(sourceNode);
+        const matrixSize = nodesInMatrix.length;
 
+        //Find the center of the matrix
+        const centerX = matrixX + (matrixSize * cellSize) / 2;
+        const centerY = matrixY + (matrixSize * cellSize) / 2;
+
+        //Find the X, and Y position, one of which we will later link to --> middle of the cell
         const cellY = matrixY + rowIndex * cellSize + cellSize / 2;
-        const colX = matrixX + rowIndex * cellSize + cellSize / 2;
+        const cellX = matrixX + rowIndex * cellSize + cellSize / 2;
 
         let dx, dy;
 
+        //Find the distance to the center of a matrix or node
         if (!targetIsNode) {
-            const otherMatrixId = Object.keys(reorderedMatrixGroups).find(k => reorderedMatrixGroups[k].includes(targetNode));
-            const otherDummy = getNode(`dummy-${otherMatrixId}`);
-            dx = otherDummy.x - dummy.x;
-            dy = otherDummy.y - dummy.y;
+            const otherMatrixId = Object.keys(matrixGroups).find(k => matrixGroups[k].includes(targetNode));
+            const targetDummy = getNode(`dummy-${otherMatrixId}`);
+            const targetX = targetDummy.x + (matrixSize * cellSize) / 2;
+            const targetY = targetDummy.y + (matrixSize * cellSize) / 2;
+            dx = targetX - centerX;
+            dy = targetY - centerY;
         } else {
-            dx = getNode(targetNode).x - dummy.x;
-            dy = getNode(targetNode).y - dummy.y;
+            const target = getNode(targetNode);
+            dx = target.x - centerX;
+            dy = target.y - centerY;
         }
 
         const absDx = Math.abs(dx);
         const absDy = Math.abs(dy);
 
+        //Define connecting point of link based on where the matrix node is position w.r.t. the targetNode
         if (absDx > absDy) {
             if (dx > 0) {
                 return { x: matrixX + matrixSize * cellSize, y: cellY };
@@ -149,9 +162,9 @@ export function applyForceLayout(nodes, links, dummyMap) {
             }
         } else {
             if (dy > 0) {
-                return { x: colX, y: matrixY + matrixSize * cellSize };
+                return { x: cellX, y: matrixY + matrixSize * cellSize };
             } else {
-                return { x: colX, y: matrixY - cellSize };
+                return { x: cellX, y: matrixY - cellSize };
             }
         }
     }

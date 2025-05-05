@@ -26,6 +26,7 @@
 
       <!-- Right: Instructions and Multivariate Options -->
       <div class="col-md-4">
+        <!-- Instructions -->
         <div id="instructions" class="mb-4">
           <h4>How to use:</h4>
           <ul>
@@ -35,6 +36,7 @@
           </ul>
         </div>
 
+        <!-- Headers-->
         <div id="multivariate-options" class="card p-3">
           <h4 class="mb-2">Multivariate options</h4>
           <h5 class="mt-3">Edges</h5>
@@ -48,22 +50,23 @@
           </div>
 
           <!-- Binary variable legend -->
-          <div id="binary-variable-legend-container" style="display: none;"></div>
+          <div id="binary-variable-legend-container" style="display: none;">
+            <ul id="binary-legend-list"></ul>
+          </div>
 
           <!-- Nominal variable checkbox -->
           <div class="form-check">
             <input class="form-check-input" type="checkbox" id="edge-categorical-color-toggle">
             <label class="form-check-label" for="edge-categorical-color-toggle">
-              Nominal variable: Airlines
+              Categorical variable: Airlines
             </label>
           </div>
 
           <!-- Nominal variable legend -->
           <div id="categorical-variable-legend-container" style="display: none;">
-            <ul id="categorical-legend-list">
-              <!-- categorical colors will be dynamically generated here -->
-            </ul>
+            <ul id="categorical-legend-list"></ul>
           </div>
+
         </div>
       </div>
     </div>

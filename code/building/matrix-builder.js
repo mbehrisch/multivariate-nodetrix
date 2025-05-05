@@ -1,13 +1,13 @@
 import { svg , appState} from '../main.js';
 import { cellSize } from '../main.js'; 
-import { matrixDragStarted, matrixDragged, matrixDragEnded, removeNodeFromMatrix } from '../dragging/MatrixDragging.js';
+import { matrixDragStarted, matrixDragged, matrixDragEnded } from '../dragging/MatrixDragging.js';
 
 // Builds matrices and establishes paths for matrix-to-matrix edges
 export function buildMatrix() {
     const graph = appState.graph;
-    const reorderedMatrixGroups = appState.matrixGroups;
+    const matrixGroups = appState.matrixGroups;
 
-    const matrixNodes = Object.values(reorderedMatrixGroups).flat();
+    const matrixNodes = Object.values(matrixGroups).flat();
     const matrixDict = {};
     matrixNodes.forEach(k => matrixDict[k] = graph.getNodeAttributes(k));
 
@@ -19,8 +19,8 @@ export function buildMatrix() {
     const spacing = 100;
 
     // Build matrices (after reordering)
-    for (const [matrixId, reorderedNodes] of Object.entries(reorderedMatrixGroups)) {
-        const size = reorderedNodes.length;
+    for (const [matrixId, nodesInMatrix] of Object.entries(matrixGroups)) {
+        const size = nodesInMatrix.length;
         const x = 20 + (i % 3) * (cellSize * size + spacing * 2);
         const y = 20 + Math.floor(i / 3) * (cellSize * size + spacing * 2);
         matrixPositions[matrixId] = { x, y };
@@ -39,7 +39,7 @@ export function buildMatrix() {
 
         //// Build actual matrix (Cells)
         const rows = matrixSvg.selectAll(".matrix-row")
-            .data(reorderedNodes)
+            .data(nodesInMatrix)
             .enter().append("g")
             .attr("class", "matrix-row")
             .attr("transform", (d, j) => `translate(0, ${j * cellSize})`);
@@ -47,7 +47,7 @@ export function buildMatrix() {
         rows.selectAll(".cell")
             .data(function(rowId) {
                 //This should be cleaner --> should more clearly define between multi-edged and directed data
-                return reorderedNodes.map(colId => {
+                return nodesInMatrix.map(colId => {
                     let attributes = null;
         
                     // Check for the forward edge (rowId -> colId)
@@ -87,7 +87,7 @@ export function buildMatrix() {
             .attr("transform", `translate(0, ${-cellSize})`);
 
         const colLabelGroups = labelRow.selectAll(".label-group")
-            .data(reorderedNodes)
+            .data(nodesInMatrix)
             .enter()
             .append("g")
             .attr("class", "label-group")
@@ -116,7 +116,7 @@ export function buildMatrix() {
             .attr("transform", `translate(${-cellSize}, 0)`);
 
         const labelGroups = labelColumn.selectAll(".label-group")
-            .data(reorderedNodes)
+            .data(nodesInMatrix)
             .enter()
             .append("g")
             .attr("class", "label-group")
@@ -148,7 +148,7 @@ export function buildMatrix() {
             .attr("height", cellSize);
 
         //// Store matrix position for each node
-        reorderedNodes.forEach((nodeId, rowIndex) => {
+        nodesInMatrix.forEach((nodeId, rowIndex) => {
             graph.setNodeAttribute(nodeId, "matrixPosNode", {
                 x: pos.x,
                 y: pos.y + rowIndex * cellSize + cellSize / 2
@@ -174,8 +174,8 @@ export function buildMatrix() {
     const interMatrixLinks = [];
 
     graph.forEachEdge((edgeKey, attributes, source, target) => {
-        const sourceMatrix = Object.keys(reorderedMatrixGroups).find(k => reorderedMatrixGroups[k].includes(source));
-        const targetMatrix = Object.keys(reorderedMatrixGroups).find(k => reorderedMatrixGroups[k].includes(target));
+        const sourceMatrix = Object.keys(matrixGroups).find(k => matrixGroups[k].includes(source));
+        const targetMatrix = Object.keys(matrixGroups).find(k => matrixGroups[k].includes(target));
       
         const isInDifferentMatrices = sourceMatrix && targetMatrix && sourceMatrix !== targetMatrix;
       
@@ -199,4 +199,24 @@ export function buildMatrix() {
         .attr("class", "link matrix-matrix-link");
 
     return { dummyNodes, dummyMap };
+}
+
+import { buildEverything } from '../utils.js';
+//Function to remove NodeFromMatrix when row or column is control-clicked
+function removeNodeFromMatrix (event, nodeId){
+    graph = appState.graph
+    const matrixGroups = appState.matrixGroups
+    for (const [matrixId, nodes] of Object.entries(matrixGroups)) {
+        const nodeIdStr = String(nodeId);
+        const index = nodes.indexOf(nodeIdStr);
+        if (index !== -1) {
+            nodes.splice(index, 1); // Remove node from array
+            // If the matrix is now empty, optionally delete it:
+            if (nodes.length === 1) {
+                delete matrixGroups[matrixId];
+            }
+        }
+    }
+    appState.matrixGroups = matrixGroups;
+    buildEverything()
 }

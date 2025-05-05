@@ -1,18 +1,13 @@
 import { buildMatrix } from './building/matrix-builder.js';
 import { buildNL } from './building/NL-builder.js';
 import { applyForceLayout } from './building/force-layout.js';
-import { svg, appState } from './main.js';
+import { svg, appState, buttonState } from './main.js';
 import { applyCategoricalColouring, applyBinaryColouring } from './multivariate/EdgeTypes.js';
 
 //Build everything when called upon
 export function buildEverything() {
     const graph = appState.graph;
     const matrixGroups = appState.matrixGroups;
-
-    if (!graph || !matrixGroups) {
-        console.warn("Graph or matrixGroups not initialized in appState.");
-        return;
-    }
 
     svg.selectAll("*").remove();
 
@@ -39,15 +34,17 @@ export function buildEverything() {
     const { dummyNodes, dummyMap } = buildMatrix();
     const { nodes, links } = buildNL();
 
+    console.log(dummyNodes, dummyMap)
+
     dummyNodesToNL(nodes, links, dummyNodes);
 
     applyForceLayout(nodes, links, dummyMap);
 
-    if (document.getElementById("edge-binary-color-toggle").checked) {
+    if (buttonState.binaryVariable) {
         applyBinaryColouring();
     }
 
-    if (document.getElementById("edge-categorical-color-toggle").checked) {
+    if (buttonState.categoricalVariable) {
         applyCategoricalColouring();
     }    
 }
@@ -73,11 +70,11 @@ export function setSimulationState({ alphaTarget, velocityDecay, chargeStrength,
 //Local helper function to add dummyNodes to the force-layout
 function dummyNodesToNL(nodes, links, dummyNodes){
     graph = appState.graph
-    const reorderedMatrixGroups = appState.matrixGroups
+    const matrixGroups = appState.matrixGroups
 
     dummyNodes.forEach(dummy => {
         const matrixId = dummy.matrixId;
-        const matrixNodeIds = reorderedMatrixGroups[matrixId];
+        const matrixNodeIds = matrixGroups[matrixId];
     
         for (const nlNode of nodes) {
             for (const matrixNodeId of matrixNodeIds) {
@@ -102,9 +99,6 @@ import Clustering from 'https://cdn.skypack.dev/hdbscanjs';
 export function hierarchicalClustering(nodesInMatrix) {
     const graph = appState.graph;
 
-    const binaryReorderCheckbox = document.getElementById("reorder-matrices-checkbox");
-    const binaryReorder = binaryReorderCheckbox?.checked || false;
-
     const n = nodesInMatrix.length;
     const adjMatrix = Array.from({ length: n }, () => Array(n).fill(0));
     let hasEdges = false;
@@ -119,7 +113,7 @@ export function hierarchicalClustering(nodesInMatrix) {
             //Determine 
             if (graph.hasEdge(rowId, colId)) {
                 let edgeWeight = 1;
-                if (binaryReorder) {
+                if (buttonState.binarySorted) {
                     const entries = [...graph.edgeEntries(rowId, colId)];
                     if (entries.length > 0 && entries[0].attributes.codeshare === "Y") {
                         edgeWeight = 2;
@@ -132,6 +126,7 @@ export function hierarchicalClustering(nodesInMatrix) {
         });
     });
 
+    //If there are no edges in matrix, no sorting is needed
     if (!hasEdges) {
         return [...nodesInMatrix];
     }
@@ -143,6 +138,7 @@ export function hierarchicalClustering(nodesInMatrix) {
     const cluster = new Clustering(dataset, Clustering.distFunc.euclidean);
     const tree = cluster.getTree();
 
+    //Opt has the sorted row indices, reorder according to matrix
     return tree.opt.map(index => nodesInMatrix[index])
 }
 

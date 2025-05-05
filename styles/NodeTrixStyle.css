@@ -23,6 +23,10 @@
     text-overflow: ellipsis; /* Adds ellipsis for overflowed text */
 }
 
+.NL-label {
+    pointer-events: none
+}
+
 
 /* Style for the matrix cells */
 .cell {

@@ -6,7 +6,7 @@ body {
   padding: 0;
 }
 
-/* Graph and text layout spacing */
+/* Main container */
 #main-container {
   padding: 20px;
 }
@@ -19,14 +19,12 @@ body {
   max-width: 850px;
 }
 
-/* SVG container styling */
+/* SVG area */
 #graph {
   border: 1px solid #ccc;
   background-color: #fff;
   overflow: hidden;
 }
-
-/* Optional SVG specific styling */
 #graph svg {
   width: 100%;
   height: 100%;
@@ -42,11 +40,9 @@ body {
   font-size: 14px;
   line-height: 1.5;
 }
-
 #instructions h4 {
   margin-top: 0;
 }
-
 #instructions kbd {
   background-color: #333;
   color: #fff;
@@ -57,31 +53,63 @@ body {
   font-size: 13px;
 }
 
-/* Multivariate card spacing */
+/* Multivariate options card */
 #multivariate-options {
   margin-top: 20px;
 }
 
-/* Responsive behavior: stack vertically on smaller screens */
+/* Responsive layout for small screens */
 @media (max-width: 768px) {
   #graph {
-    height: 400px; /* Reduce height on small screens */
+    height: 400px;
   }
 }
 
+/* Legend containers (binary + categorical) */
+#binary-legend-list,
+#categorical-legend-list {
+  list-style: none;
+  padding: 0;
+  margin: 4px 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+/* Legend item layout */
+.legend-item,
+.categorical-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  line-height: 1.2;
+}
+
+/* Legend color swatches */
 .legend-color {
-  display: inline-block;
   width: 15px;
   height: 15px;
-  margin-right: 10px;
+  display: inline-block;
+  margin-right: 6px;
+  border-radius: 2px;
 }
 
+/* Binary-specific legend coloring */
+.legend-color.yes,
 .binary-yes {
-  background-color: green;  /* Green for Codeshare Yes */
+  background-color: green;
 }
-
+.legend-color.no,
 .binary-no {
-  background-color: red;    /* Red for Codeshare No */
+  background-color: red;
 }
 
-
+/* Checkbox + label container (e.g., "Reorder matrices") */
+.legend-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}

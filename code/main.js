@@ -14,12 +14,17 @@ export const svg = d3.select("#graph").append("svg")
 export const appState = {
     graph: null,              // Holds the graph data
     sim: null,                // Holds the simulation state
-    matrixGroups: {},          // Stores matrix groups (merged matrixGroups + reorderedMatrixGroups),
-    CategoricalDefined: false
+    matrixGroups: {},          // Stores matrices and their nodes (),
 };
 
-let graph = new Graph({ multi: true });
+//State of buttons
+export const buttonState = {
+    binaryVariable: false,
+    binarySorted: false,
+    categoricalVariable: false
+}
 
+let graph = new Graph({ multi: true });
 
 //Fetch data and initialise graph
 fetch("data/sampled_data.json")
@@ -54,19 +59,10 @@ fetch("data/sampled_data.json")
         // Louvain community detection
         const communities = louvain(graph);
 
-        // Count sizes of communities
-        const communitySizes = {};
-        Object.values(communities).forEach(c => {
-            communitySizes[c] = (communitySizes[c] || 0) + 1;
-        });
-
-        // Group large communities (5+ nodes) into matrices
         const matrixGroups = {};
         Object.entries(communities).forEach(([node, comm]) => {
-            if (communitySizes[comm] >= 5) {
-                if (!matrixGroups[comm]) matrixGroups[comm] = [];
-                matrixGroups[comm].push(node);
-            }
+            if (!matrixGroups[comm]) matrixGroups[comm] = [];
+            matrixGroups[comm].push(node);
         });
 
         appState.graph = graph;

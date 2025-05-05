@@ -2,36 +2,33 @@
 
 import { cellSize, appState } from '../main.js';
 import { buildEverything } from '../utils.js';
+import { setSimulationState } from '../utils.js';
 
 export function matrixDragStarted(event, draggedMatrixId) {
     d3.select(this).raise(); // bring to front
     const sim = appState.sim;
 
     //As the simulation places nodes and links we need it alive, just very slowly to make it easier
-    if (!event.active && sim){
-        sim.alphaTarget(0.005);           // Keep simulation technically "alive"
-        sim.velocityDecay(0.99);          // Heavy damping, almost no movement
-    
-        const chargeForce = sim.force("charge");
-        if (chargeForce) chargeForce.strength(-1); // Barely any repulsion
-    
-        const linkForce = sim.force("link");
-        if (linkForce) linkForce.distance(500);    // Reduce pull strength
-        sim.restart()
+    if (!event.active && sim) {
+        setSimulationState({
+            alphaTarget: 0.005,
+            velocityDecay: 0.99,
+            chargeStrength: -1,
+            linkDistance: 500,
+        });
     }
 
-    // Always highlight the dragged matrix if overlapping
+    // Highlight the dragged matrix if overlapping
     d3.select(`.matrix[data-matrix-id="${draggedMatrixId}"]`)
-    .classed("matrixHighlighted", true);
+        .classed("matrixHighlighted", true);
 }
 
 export function matrixDragged(event, draggedMatrixId) {
     //Find dummyNode
     const sim = appState.sim;
     const dummyNode = sim.nodes().find(n => n.id === `dummy-${draggedMatrixId}`);
-    if (!dummyNode) return;
 
-    // Move the dummy node (the true position of the matrix)
+    // Move the dummy node
     dummyNode.fx = (dummyNode.fx ?? dummyNode.x) + event.dx;
     dummyNode.fy = (dummyNode.fy ?? dummyNode.y) + event.dy;
 
@@ -45,12 +42,11 @@ export function matrixDragged(event, draggedMatrixId) {
 
 export function matrixDragEnded(event, draggedMatrixId) {
     graph=appState.graph
-    const reorderedMatrixGroups = appState.matrixGroups
+    const matrixGroups = appState.matrixGroups
     //Find dummynode
     const sim = appState.sim;
     const nodes = sim.nodes();
     const dummy = nodes.find(n => n.id === `dummy-${draggedMatrixId}`);
-    if (!dummy) return;
 
     //Make matrix moveable by force-layout again
     dummy.fx = null;
@@ -59,19 +55,19 @@ export function matrixDragEnded(event, draggedMatrixId) {
     //Remove all highlight of matrices
     d3.selectAll(".matrix").classed("matrixHighlighted", false);
 
-    //Find the overlapping matrix there
+    //Find the overlapping matrix
     const overlappedMatrixId = findOverlappingMatrices(draggedMatrixId)
     if (overlappedMatrixId) {
         // Merge the matrices at the id of the overlapped matrix
-        reorderedMatrixGroups[overlappedMatrixId] = [
+        matrixGroups[overlappedMatrixId] = [
             ...new Set([
-                ...reorderedMatrixGroups[overlappedMatrixId],
-                ...reorderedMatrixGroups[draggedMatrixId]
+                ...matrixGroups[overlappedMatrixId],
+                ...matrixGroups[draggedMatrixId]
             ])
         ];
         
-        //Remove the dragged Matrix
-        delete reorderedMatrixGroups[draggedMatrixId];
+        //Remove the dragged Matrix from matrixGroups
+        delete matrixGroups[draggedMatrixId];
 
         // Rebuild the full visualization
         buildEverything();
@@ -79,26 +75,24 @@ export function matrixDragEnded(event, draggedMatrixId) {
     }
 
     // Normal simulation intensity when dragging is over, with cooldown to no movement
-    if (!event.active && sim){      
-        sim.velocityDecay(0.4);       
+    if (!event.active && sim) {
+        setSimulationState({
+            alphaTarget: 0.3,
+            velocityDecay: 0.4,
+            chargeStrength: -50,
+            linkDistance: 100,
+        });
     
-        const chargeForce = sim.force("charge");
-        if (chargeForce) chargeForce.strength(-50);
-    
-        const linkForce = sim.force("link");
-        if (linkForce) linkForce.distance(100);
-        sim.alphaTarget(0.3).restart();
         setTimeout(() => sim.alphaTarget(0), 500);
     }
 };
 
-//Local helper function that finds any overlapping matrices
+//Local helper function that finds any overlapping matrices and colours accordingly
 function findOverlappingMatrices(draggedId) {
     //Find dummyNode
     const sim = appState.sim;
     const nodes = sim.nodes();
     const draggedDummy = nodes.find(n => n.id === `dummy-${draggedId}`);
-    if (!draggedDummy) return null;
 
     //Establish borders of matrix
     const draggedSize = draggedDummy.matrixSize * cellSize;
@@ -109,16 +103,14 @@ function findOverlappingMatrices(draggedId) {
         maxY: (draggedDummy.fy ?? draggedDummy.y) + draggedSize
     };
 
-    //Initialise
     let foundOverlapId = null;
-
     //Loop over all matrices
     d3.selectAll(".matrix").each(function () {
         const matrix = d3.select(this);
         const id = matrix.attr("data-matrix-id");
         const dummy = nodes.find(n => n.id === `dummy-${id}`);
 
-        //Skip draggedMatri
+        //Skip draggedMatrix
         if (!dummy || id === draggedId) return;
 
         //Find the size of the other matrix
@@ -140,6 +132,7 @@ function findOverlappingMatrices(draggedId) {
         //Update matrixHighlight based on if there is overlap or not
         matrix.classed("matrixHighlighted", overlap);
 
+        //For merging purpose we only want two matrices to overlap simultaneously
         if (overlap && !foundOverlapId) {
             foundOverlapId = id;
         }
@@ -147,24 +140,5 @@ function findOverlappingMatrices(draggedId) {
 
     //Return the id of the overlapping matrix
     return foundOverlapId;
-}
-
-//Function to remove NodeFromMatrix when row or column is control-clicked
-export function removeNodeFromMatrix (event, nodeId){
-    graph = appState.graph
-    const reorderedMatrixGroups = appState.matrixGroups
-    for (const [matrixId, nodes] of Object.entries(reorderedMatrixGroups)) {
-        const nodeIdStr = String(nodeId);
-        const index = nodes.indexOf(nodeIdStr);
-        if (index !== -1) {
-            nodes.splice(index, 1); // Remove node from array
-            // If the matrix is now empty, optionally delete it:
-            if (nodes.length === 1) {
-                delete reorderedMatrixGroups[matrixId];
-            }
-        }
-    }
-    appState.matrixGroups = reorderedMatrixGroups;
-    buildEverything()
 }
 

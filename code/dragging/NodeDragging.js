@@ -1,19 +1,19 @@
 import { buildEverything } from '../utils.js';
 import { svg, cellSize, appState } from '../main.js';
+import { setSimulationState } from '../utils.js';
 
 let previouslyOverlappingNodeId = null;
 
 export function nodeDragStarted(event) {
-    const sim = appState.sim;  // Access simulation from appState
-
     // Ensure simulation is slow and active
     if (!event.active) {
-        sim.alphaTarget(0.005)
-            .velocityDecay(0.99)
-            .force("charge", d3.forceManyBody().strength(-1)) // Configure charge force
-            .force("link", d3.forceLink().distance(500))  // Configure link force
-            .restart();
-    }
+        setSimulationState({
+            alphaTarget: 0.005,
+            velocityDecay: 0.99,
+            chargeStrength: -1,
+            linkDistance: 500
+        });
+    }    
 
     // Move with mouse
     event.subject.fx = event.subject.x;
@@ -25,14 +25,14 @@ export function nodeDragStarted(event) {
 }
 
 export function nodeDragged(event) {
-    const sim = appState.sim;  // Access simulation from appState
-    const allNodes = sim.nodes();
+    const sim = appState.sim;
+    const NLNodes = sim.nodes().filter(node => !node.id.startsWith("dummy-"))
 
     event.subject.fx = event.x;
     event.subject.fy = event.y;
 
-    // Check for overlap with nodes and matrices
-    getOverlappingNodes(event.subject, allNodes);
+    // Check for overlap with nodes and matrices for highlighting
+    getOverlappingNodes(event.subject, NLNodes);
     NodeMatrixOverlap(event.subject);
 }
 
@@ -40,11 +40,13 @@ export function nodeDragEnded(event) {
     const sim = appState.sim;  // Access simulation from appState
 
     if (!event.active) {
-        sim.velocityDecay(0.4)
-            .force("charge", d3.forceManyBody().strength(-50))  // Apply charge force to repel nodes
-            .force("link", d3.forceLink().distance(100))  // Set link distance
-            .alphaTarget(0.3)  // Set alpha target to simulate temperature decrease
-            .restart();
+        setSimulationState({
+            alphaTarget: 0.3,
+            velocityDecay: 0.4,
+            chargeStrength: -50,
+            linkDistance: 100,
+        });
+    
         setTimeout(() => sim.alphaTarget(0), 500);
     }
 
@@ -56,28 +58,37 @@ export function nodeDragEnded(event) {
     svg.selectAll(".node").classed("highlighted", false);
     svg.selectAll(".matrix").classed("matrixHighlighted", false);
 
+    //Find if there is an overlapping node upon release
     const overlappingNode = getOverlappingNodes(event.subject, sim.nodes());
     if (overlappingNode) {
+        //Create a new matrixId that is one bigger than the previous max
         const newMatrixId = Math.max(0, ...Object.keys(appState.matrixGroups).map(id => +id || 0)) + 1;
+        //Add the nodes to the new matrix and rebuild
         appState.matrixGroups[newMatrixId] = [event.subject.id, overlappingNode.id];
         buildEverything();
+        //Exit the function
         return;
     }
 
+    //Find if there is an overlap with a matrix and with which matrix
     const { isInside, matrixId } = NodeMatrixOverlap(event.subject);
     if (isInside) {
+        //Add node to matrix, rebuild and exit
         appState.matrixGroups[matrixId].push(event.subject.id);
         buildEverything();
         return;
     }
 }
 
-function getOverlappingNodes(draggedNode, allNodes) {
-    const overlappingNode = allNodes.find(n =>
+function getOverlappingNodes(draggedNode, NLNodes) {
+    //An overlapping nodes is a different node that is in a radius of 10 <- magic variable
+    const overlappingNode = NLNodes.find(n =>
         n.id !== draggedNode.id && Math.hypot(n.x - draggedNode.x, n.y - draggedNode.y) < 10
     );
 
+    //If there is an overlapping node that is different from the one were previously overlapping with
     if (overlappingNode?.id !== previouslyOverlappingNodeId) {
+        //de-highlight the previously highlighted node
         svg.selectAll(".node")
             .filter(d => d.id === previouslyOverlappingNodeId)
             .classed("highlighted", false);
@@ -88,18 +99,24 @@ function getOverlappingNodes(draggedNode, allNodes) {
                 .classed("highlighted", true);
         }
 
+        //Save the overlappingNode as previouslyOverlappingNode
         previouslyOverlappingNodeId = overlappingNode?.id || null;
     }
 
+    //Return the overlappingNode
     return overlappingNode;
 }
 
+//Given a node, find if overlaps with a matrix
 function NodeMatrixOverlap(node) {
     const sim = appState.sim;
     const nodes = sim.nodes();
 
+    //For each matrix, find if the node is within its bounds
     for (const [matrixId, matrixNodeIds] of Object.entries(appState.matrixGroups)) {
+        //Find its dummy
         const dummyNode = nodes.find(n => n.id === `dummy-${matrixId}`);
+        //Determine the edges of the matrix
         const size = matrixNodeIds.length;
         const width = size * cellSize;
         const height = size * cellSize;
@@ -109,8 +126,10 @@ function NodeMatrixOverlap(node) {
         const minY = dummyNode.y;
         const maxY = dummyNode.y + height;
 
+        //Determine if the node is inside the matrix
         const isInside = node.x >= minX && node.x <= maxX && node.y >= minY && node.y <= maxY;
 
+        //For highlighting, retrieve the matrixgroup, if we are inside, return this info and highlighted 
         const matrixGroup = svg.selectAll(".matrix")
             .filter(function () {
                 return d3.select(this).attr("data-matrix-id") === matrixId;
@@ -119,6 +138,7 @@ function NodeMatrixOverlap(node) {
         if (isInside) {
             matrixGroup.classed("matrixHighlighted", true);
             return { isInside, matrixId };
+        //els de-highlight and return negative
         } else {
             matrixGroup.classed("matrixHighlighted", false);
         }

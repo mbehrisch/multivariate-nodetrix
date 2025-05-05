@@ -1,27 +1,27 @@
-import { applyBinaryColouring, resetEdgeColors } from "../multivariate/EdgeTypes.js";
+import { applyBinaryColouring, resetBinaryColors } from "../multivariate/EdgeTypes.js";
 import { buildEverything } from "../utils.js";
 
+//Function to make the BinaryColour Legend togglable
 export function addBinaryColourLegend() {
     const edgeTypeBinaryToggle = document.getElementById("edge-binary-color-toggle");
     edgeTypeBinaryToggle.checked = false;
 
+    //Select containers
     const legendContainer = d3.select("#binary-variable-legend-container");
-    const legend = legendContainer.append("ul");
+    const legend = d3.select("#binary-legend-list")
+
+    //Append list items for Yes and No
+    legend.append("li")
+        .attr("class", "legend-item")
+        .html('<span class="legend-color yes"></span>Yes');
 
     legend.append("li")
-        .style("display", "flex")
-        .style("align-items", "center")
-        .html('<span style="width: 20px; height: 20px; background-color: green; margin-right: 10px;"></span>Yes');
+        .attr("class", "legend-item")
+        .html('<span class="legend-color no"></span>No');
 
-    legend.append("li")
-        .style("display", "flex")
-        .style("align-items", "center")
-        .html('<span style="width: 20px; height: 20px; background-color: red; margin-right: 10px;"></span>No');
-
+    //Append button for the Binary Reordering of matrices
     const reorderItem = legend.append("li")
-        .style("display", "flex")
-        .style("align-items", "center")
-        .style("gap", "10px");
+        .attr("class", "legend-item legend-option");
 
     reorderItem.append("input")
         .attr("type", "checkbox")
@@ -31,35 +31,42 @@ export function addBinaryColourLegend() {
         .attr("for", "reorder-matrices-checkbox")
         .text("Reorder matrices");
 
+    
+    //Function that toggles the legend and applies/removes the colour when button is clicked
     function toggleBinaryEdgeColoring() {
         if (edgeTypeBinaryToggle.checked) {
             applyBinaryColouring();
             legendContainer.style("display", "block");
         } else {
-            resetEdgeColors();
+            resetBinaryColors();
             legendContainer.style("display", "none");
             document.getElementById("reorder-matrices-checkbox").checked = false;
         }
     }
 
+    //Add the function to the button
     edgeTypeBinaryToggle.addEventListener("change", toggleBinaryEdgeColoring);
-    edgeTypeBinaryToggle.addEventListener("change", buildEverything);
 
+    //Add a listener to the binary reorder button when needed
     document.getElementById("reorder-matrices-checkbox").addEventListener("change", buildEverything);
 
+    //Toggle once at start up to reset the visualisation from previous states
     toggleBinaryEdgeColoring();
 }
 
 import { applyCategoricalColouring, resetCategoricalColours } from "../multivariate/EdgeTypes.js";
 
+//Function to add the CategoricalColour legend to the page, triggered upon start up
 export function addCategoricalColourLegend() {
-    const toggle = document.getElementById("edge-categorical-color-toggle");
-    toggle.checked = false;
-
+    //Find the toggle and set to false
+    const categoricalToggle = document.getElementById("edge-categorical-color-toggle");
+    categoricalToggle.checked = false;
+    //Define container
     const legendContainer = d3.select("#categorical-variable-legend-container");
 
+    //Define function to trigger upon toggling to create te legend or to reset upon toggling
     function toggleCategoricalColoring() {
-        if (toggle.checked) {
+        if (categoricalToggle.checked) {
             applyCategoricalColouring();
             renderCategoricalLegend();
             legendContainer.style("display", "block");
@@ -69,29 +76,28 @@ export function addCategoricalColourLegend() {
         }
     }
 
-    toggle.addEventListener("change", toggleCategoricalColoring);
-    toggle.addEventListener("change", buildEverything);
+    //Add listeners
+    categoricalToggle.addEventListener("change", toggleCategoricalColoring);
 
-    toggleCategoricalColoring(); // Call once on load
+    //Toggle once at start up to reset the visualisation from previous states
+    toggleCategoricalColoring();
 }
 
+//Import the mapping of colour to category to dynamically create the categorical mapping
 import { categoricalColorMap } from "../multivariate/EdgeTypes.js";
 function renderCategoricalLegend() {
     const container = d3.select("#categorical-legend-list");
-    container.selectAll("*").remove(); // clear existing legend
+    // clear existing legend
+    container.selectAll("*").remove()
 
+    //For each pairing, add an appropraite item to the list
     Object.entries(categoricalColorMap).forEach(([category, color]) => {
         const li = container.append("li")
-            .style("display", "flex")
-            .style("align-items", "center")
-            .style("margin-bottom", "4px");
+            .attr("class", "legend-item categorical-legend-item");
 
         li.append("span")
-            .style("width", "15px")
-            .style("height", "15px")
-            .style("background-color", color)
-            .style("margin-right", "10px")
-            .style("display", "inline-block");
+            .attr("class", "legend-color")
+            .style("background-color", color);  // This remains dynamic
 
         li.append("span").text(category);
     });

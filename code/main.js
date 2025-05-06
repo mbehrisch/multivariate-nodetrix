@@ -2,7 +2,7 @@ import Graph from 'https://cdn.skypack.dev/graphology';
 
 import { buildEverything, louvainMatrices } from './utils.js';
 //import { addCategoricalColourLegend, addBinaryColourLegend } from './pageInteraction/EdgeButtons.js';
-import { addBinaryColourLegend } from './pageInteraction/BinaryButtons.js';
+import { addBinaryColourLegend, addButtonFunctions } from './pageInteraction/BinaryButtons.js';
 import { addCategoricalColourLegend } from './pageInteraction/CategoricalButtons.js';
 
 export const width = 1200, height = 900;
@@ -68,11 +68,9 @@ fetch("data/sampled_data.json")
         });
 
         appState.graph = graph;
-
         appState.matrixGroups = louvainMatrices();
 
-        console.log(appState.matrixGroups);
-
+        addButtonFunctions();
         addBinaryColourLegend();
         addCategoricalColourLegend();
         

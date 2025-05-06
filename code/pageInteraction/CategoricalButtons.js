@@ -15,33 +15,14 @@ export function addCategoricalColourLegend() {
     const reorderItem = legend.append("li")
         .attr("class", "legend-item legend-option");
 
-    reorderItem.append("input")
-        .attr("type", "checkbox")
-        .attr("id", "reorder-categorical-matrices-checkbox");
-
-    reorderItem.append("label")
-        .attr("for", "reorder-categorical-matrices-checkbox")
-        .text("Matrices by most common Airline Country");
-
-    // Attach change listener    
-    const categoricalMatricesToggle = document.getElementById("reorder-categorical-matrices-checkbox")
     categoricalToggle.addEventListener("change", toggleCategoricalColoring);
-
-    //Add listener for matrix regrouping
-    categoricalMatricesToggle.addEventListener("change", toggleCategoricalMatrices);
 
     toggleCategoricalColoring(); // Reset visual state on load
 }
 
-function toggleCategoricalMatrices(){
-    const categoricalMatricesToggle = document.getElementById("reorder-categorical-matrices-checkbox")
-    if (categoricalMatricesToggle.checked){
-        appState.matrixGroups = CategoricalMatrices();
-        buildEverything();
-    } else {
-        appState.matrixGroups = louvainMatrices();
-        buildEverything();
-    }
+export function buttonCategoricalMatrices(){
+    appState.matrixGroups = CategoricalMatrices();
+    buildEverything();
 }
 
 // Define toggle logic

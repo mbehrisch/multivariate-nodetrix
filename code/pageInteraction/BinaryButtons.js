@@ -2,8 +2,27 @@ import { applyBinaryColouring, resetBinaryColors, BinaryMatrices } from "../mult
 import { buildEverything, louvainMatrices } from "../utils.js";
 import { appState, buttonState } from "../main.js";
 import { resetCategoricalColours } from "../multivariate/CategoricalEdge.js";
+import { buttonCategoricalMatrices } from "./CategoricalButtons.js";
 
 const edgeTypeBinaryToggle = document.getElementById("edge-binary-color-toggle")
+
+export function addButtonFunctions(){
+    document.getElementById("louvain-matrices-button").addEventListener("click", buttonLouvainMatrices)
+    document.getElementById("binary-matrices-button").addEventListener("click", buttonBinaryMatrices)
+    document.getElementById("categorical-matrices-button").addEventListener("click", buttonCategoricalMatrices)
+}
+
+//Function that handles the toggling of the binatrMatrixToggle
+function buttonLouvainMatrices(){
+    appState.matrixGroups = louvainMatrices();
+    buildEverything();
+}
+
+//Function that handles the toggling of the binatrMatrixToggle
+function buttonBinaryMatrices(){
+    appState.matrixGroups = BinaryMatrices();
+    buildEverything();
+}
 
 //Function to make the BinaryColour Legend togglable
 export function addBinaryColourLegend() {
@@ -33,49 +52,16 @@ export function addBinaryColourLegend() {
         .attr("for", "reorder-matrices-checkbox")
         .text("Sort matrices based on Binary Variable");
 
-    //Append button for the Binary Matrices
-    const binaryMatrixItem = legend.append("li")
-        .attr("class", "legend-item legend-option");
-
-    binaryMatrixItem.append("input")
-        .attr("type", "checkbox")
-        .attr("id", "binary-matrices-checkbox");
-
-    binaryMatrixItem.append("label")
-        .attr("for", "binary-matrices-checkbox")
-        .text("Create Binary Matrices");
-
     //Add the function to the button
     edgeTypeBinaryToggle.addEventListener("change", toggleBinaryEdgeColoring);
-    document.getElementById("binary-matrices-checkbox").addEventListener("change", toggleBinaryMatrices); 
 
     //Add a listener to the binary reorder button when needed
     document.getElementById("reorder-matrices-checkbox").addEventListener("change", toggleBinaryReorder);
 
+    //Add a listener to the Binary Matrices Button
+
     //Toggle once at start up to reset the visualisation from previous states
     toggleBinaryEdgeColoring();
-}
-
-function toggleBinaryReorder(){
-    const binaryReorderToggle = document.getElementById("reorder-matrices-checkbox")
-    if (binaryReorderToggle.checked){
-        buttonState.binarySorted = true
-    }else{
-        buttonState.binarySorted = false
-    }
-    buildEverything();
-}
-
-//Function that handles the toggling of the binatrMatrixToggle
-function toggleBinaryMatrices(){
-    const binaryMatrixToggle = document.getElementById("binary-matrices-checkbox")
-    if (binaryMatrixToggle.checked){
-        appState.matrixGroups = BinaryMatrices();
-        buildEverything();
-    } else{
-        appState.matrixGroups = louvainMatrices();
-        buildEverything();
-    }
 }
 
 //Function that toggles the legend and applies/removes the colour when button is clicked
@@ -98,4 +84,14 @@ function toggleBinaryEdgeColoring() {
         legendContainer.style("display", "none");
     }
     
+}
+
+function toggleBinaryReorder(){
+    const binaryReorderToggle = document.getElementById("reorder-matrices-checkbox")
+    if (binaryReorderToggle.checked){
+        buttonState.binarySorted = true
+    }else{
+        buttonState.binarySorted = false
+    }
+    buildEverything();
 }

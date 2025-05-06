@@ -6,13 +6,13 @@ export function applyForceLayout(nodes, links, dummyMap) {
     appState.sim = d3.forceSimulation(nodes)
         .force("link", d3.forceLink(links)
             .id(d => d.id)
-            .distance(100)
+            .distance(20)
         )
         .force("charge", d3.forceManyBody().strength(-50))
         .force("center", d3.forceCenter(width / 2, height / 2))
         .force("collide", d3.forceCollide().radius(d => {
             if (d.id && d.id.startsWith("dummy-")) {
-                return d.matrixSize * cellSize * 1.5;
+                return (d.matrixSize+1) * cellSize * 1.5;
             }
             return d.r + nodeSize;
         }))

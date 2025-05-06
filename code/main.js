@@ -1,8 +1,9 @@
 import Graph from 'https://cdn.skypack.dev/graphology';
-import louvain from 'https://cdn.skypack.dev/graphology-communities-louvain';
 
-import { buildEverything } from './utils.js';
-import { addCategoricalColourLegend, addBinaryColourLegend } from './pageInteraction/EdgeButtons.js';
+import { buildEverything, louvainMatrices } from './utils.js';
+//import { addCategoricalColourLegend, addBinaryColourLegend } from './pageInteraction/EdgeButtons.js';
+import { addBinaryColourLegend } from './pageInteraction/BinaryButtons.js';
+import { addCategoricalColourLegend } from './pageInteraction/CategoricalButtons.js';
 
 export const width = 1200, height = 900;
 export const cellSize = 15;
@@ -29,7 +30,8 @@ export const appState = {
 export const buttonState = {
     binaryVariableActivated: false,
     binarySorted: false,
-    categoricalVariableActivated: false
+//    binaryMatrices: false,
+    categoricalVariableActivated: false,
 }
 
 let graph = new Graph({ multi: true });
@@ -65,17 +67,9 @@ fetch("data/sampled_data.json")
             });
         });
 
-        // Louvain community detection
-        const communities = louvain(graph);
-
-        const matrixGroups = {};
-        Object.entries(communities).forEach(([node, comm]) => {
-            if (!matrixGroups[comm]) matrixGroups[comm] = [];
-            matrixGroups[comm].push(node);
-        });
-
         appState.graph = graph;
-        appState.matrixGroups = matrixGroups;
+
+        appState.matrixGroups = louvainMatrices();
 
         console.log(appState.matrixGroups);
 

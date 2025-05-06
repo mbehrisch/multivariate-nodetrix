@@ -38,18 +38,18 @@ export function nodeDragEnded(event) {
 
     if (!event.active) {
         setSimulationState({
-            alphaTarget: 0.3,
-            velocityDecay: 0.4,
+            alphaTarget: 0.1,
+            velocityDecay: 0.6,
             chargeStrength: -50,
-            linkDistance: 100,
+            linkDistance: 20,
         });
     
         setTimeout(() => sim.alphaTarget(0), 500);
     }
 
     // Reset dragged node position
-    event.subject.fx = null;
-    event.subject.fy = null;
+    event.subject.fx = event.subject.x;
+    event.subject.fy = event.subject.y;
 
     // Reset highlighting
     svg.selectAll(".node").classed("highlighted", false);

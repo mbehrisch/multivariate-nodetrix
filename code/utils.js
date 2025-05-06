@@ -2,7 +2,8 @@ import { buildMatrix } from './building/matrix-builder.js';
 import { buildNL } from './building/NL-builder.js';
 import { applyForceLayout } from './building/force-layout.js';
 import { svg, appState, buttonState, datasetSpec } from './main.js';
-import { applyCategoricalColouring, applyBinaryColouring } from './multivariate/EdgeTypes.js';
+import { applyBinaryColouring } from './multivariate/BinaryEdge.js';
+import { applyCategoricalColouring } from './multivariate/CategoricalEdge.js';
 
 //Build everything when called upon
 export function buildEverything() {
@@ -44,7 +45,14 @@ export function buildEverything() {
 
     if (buttonState.categoricalVariableActivated) {
         applyCategoricalColouring();
-    }    
+    }
+    
+    setSimulationState({
+        alphaTarget: 0.001,
+        velocityDecay: 0.6,
+        chargeStrength: -50,
+        linkDistance: 20,
+    });
 }
 
 //Set simulation states
@@ -142,4 +150,20 @@ export function hierarchicalClustering(adjMatrix, hasEdges, nodesInMatrix) {
 
     //Opt has the sorted row indices, reorder according to matrix
     return tree.opt.map(index => nodesInMatrix[index])
+}
+
+
+import louvain from 'https://cdn.skypack.dev/graphology-communities-louvain';
+export function louvainMatrices(){
+    graph=appState.graph
+    // Louvain community detection
+    const communities = louvain(graph);
+
+    const matrixGroups = {};
+    Object.entries(communities).forEach(([node, comm]) => {
+        if (!matrixGroups[comm]) matrixGroups[comm] = [];
+        matrixGroups[comm].push(node);
+    });
+
+    return matrixGroups
 }

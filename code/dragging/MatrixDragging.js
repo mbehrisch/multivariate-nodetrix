@@ -48,9 +48,9 @@ export function matrixDragEnded(event, draggedMatrixId) {
     const nodes = sim.nodes();
     const dummyNode = nodes.find(n => n.id === `dummy-${draggedMatrixId}`);
 
-    //Make matrix moveable by force-layout again
-    dummyNode.fx = null;
-    dummyNode.fy = null;
+    //Anchor matrices
+    dummyNode.fx = dummyNode.x;
+    dummyNode.fy = dummyNode.y;
 
     //Remove all highlight of matrices
     d3.selectAll(".matrix").classed("matrixHighlighted", false);
@@ -77,10 +77,10 @@ export function matrixDragEnded(event, draggedMatrixId) {
     // Normal simulation intensity when dragging is over, with cooldown to no movement
     if (!event.active && sim) {
         setSimulationState({
-            alphaTarget: 0.3,
-            velocityDecay: 0.4,
+            alphaTarget: 0.1,
+            velocityDecay: 0.6,
             chargeStrength: -50,
-            linkDistance: 100,
+            linkDistance: 20,
         });
     
         setTimeout(() => sim.alphaTarget(0), 500);

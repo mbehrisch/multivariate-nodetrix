@@ -1,44 +1,4 @@
-//Function to provide colours to links and matrix cells for binary variables
-export function applyBinaryColouring() {
-    d3.selectAll(".cellPositive")
-        .style("fill", null)
-        .style("stroke", null);
-
-    d3.selectAll(".cellPositive")
-        .classed("CellBinaryYes", d => d.attributes[datasetSpec.binaryVar] === true)
-        .classed("CellBinaryNo", d => d.attributes[datasetSpec.binaryVar] !== true);
-
-    d3.selectAll(".link")
-        .each(function(d) {
-            d3.select(this)
-                .classed("linkBinaryYes", d[datasetSpec.binaryVar] === true)
-                .classed("linkBinaryNo", d[datasetSpec.binaryVar] !== true);
-        });
-    
-    //Switch button state
-    buttonState.binaryVariableActivated = true
-}
-
-//Reset colours
-export function resetBinaryColors() {
-    d3.selectAll(".cellPositive")
-        .classed("CellBinaryYes", false)
-        .classed("CellBinaryNo", false);
-
-    d3.selectAll(".link")
-        .each(function(d) {
-            d3.select(this)
-                .classed("linkBinaryYes", false)
-                .classed("linkBinaryNo", false);
-        });
-    
-    //Switch button state and sorted button state
-    buttonState.binaryVariableActivated = false
-    buttonState.binarySorted = false
-}
-
-
-import { buttonState, datasetSpec } from "../main.js";
+import { appState, buttonState, datasetSpec } from "../main.js";
 
 //Function to determine the mapping of category to colour --> same colour for mental model
 let categoricalColorScale;
@@ -116,4 +76,46 @@ export function defineCategoricalMapping(){
 
     //Flip switch
     categoricalDefined = true
+}
+
+export function CategoricalMatrices() {
+    const graph = appState.graph;
+    const categoricalVar = datasetSpec.categoricalVar;
+
+    const matrixGroups = {};
+
+    graph.forEachNode((nodeKey) => {
+        const connectedEdges = graph.edges(nodeKey); // Gets edge keys connected to this node
+        const categoryCounts = {};
+
+        connectedEdges.forEach(edgeKey => {
+            const attributes = graph.getEdgeAttributes(edgeKey);
+            const category = attributes[categoricalVar];
+
+            categoryCounts[category] = (categoryCounts[category] || 0) + 1;
+        });
+
+        // Find the category with the highest count
+        let maxCategory = null;
+        let maxCount = 0;
+        for (const [category, count] of Object.entries(categoryCounts)) {
+            if (count > maxCount) {
+                maxCategory = category;
+                maxCount = count;
+            }
+        }
+
+        if (maxCategory) {
+            if (!matrixGroups[maxCategory]) matrixGroups[maxCategory] = [];
+            matrixGroups[maxCategory].push(nodeKey);
+        }
+    });
+
+    Object.entries(matrixGroups).forEach(([category, nodesInMatrix]) =>{
+        if (nodesInMatrix.length < 2){
+            delete matrixGroups[category]
+        }
+    })
+
+    return matrixGroups;
 }

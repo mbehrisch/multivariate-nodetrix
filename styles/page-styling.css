@@ -66,7 +66,8 @@ body {
 
 /* Legend containers (binary + categorical) */
 #binary-legend-list,
-#categorical-legend-list {
+#categorical-legend-list,
+#categorical-legend-colors {
   list-style: none;
   padding: 0;
   margin: 4px 0;

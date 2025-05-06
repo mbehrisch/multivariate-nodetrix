@@ -74,6 +74,8 @@ export function matrixDragEnded(event, draggedMatrixId) {
         return;
     }
 
+    unanchorOverlappedNodes(draggedMatrixId);
+
     // Normal simulation intensity when dragging is over, with cooldown to no movement
     if (!event.active && sim) {
         setSimulationState({
@@ -142,3 +144,35 @@ function findOverlappingMatrices(draggedId) {
     return foundOverlapId;
 }
 
+//Helper function thats releases the anchor on a node if there is potential overlap on the release of matrix
+function unanchorOverlappedNodes(matrixId) {
+    const sim = appState.sim;
+    const dummy = sim.nodes().find(n => n.id === `dummy-${matrixId}`);
+    if (!dummy) return;
+
+    const dummyX = dummy.fx ?? dummy.x;
+    const dummyY = dummy.fy ?? dummy.y;
+    const matrixSize = dummy.matrixSize * cellSize;
+
+    const dummyBox = {
+        minX: dummyX,
+        maxX: dummyX + matrixSize,
+        minY: dummyY,
+        maxY: dummyY + matrixSize
+    };
+
+    sim.nodes().forEach(n => {
+        if (!n.id.startsWith("dummy-"));
+
+        if (
+            n.fx != null && n.fy != null &&
+            n.fx > dummyBox.minX &&
+            n.fx < dummyBox.maxX &&
+            n.fy > dummyBox.minY &&
+            n.fy < dummyBox.maxY
+        ) {
+            n.fx = null;
+            n.fy = null;
+        }
+    });
+}

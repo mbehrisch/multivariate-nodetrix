@@ -110,9 +110,9 @@ function NodeMatrixOverlap(node) {
         const width = size * cellSize;
         const height = size * cellSize;
 
-        const minX = dummyNode.x;
+        const minX = dummyNode.x-cellSize;
         const maxX = dummyNode.x + width;
-        const minY = dummyNode.y;
+        const minY = dummyNode.y-cellSize;
         const maxY = dummyNode.y + height;
 
         //Determine if the node is inside the matrix

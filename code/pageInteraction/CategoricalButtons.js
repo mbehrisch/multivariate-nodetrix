@@ -1,4 +1,4 @@
-import { appState, buttonState } from "../main.js";
+import { appState } from "../main.js";
 import { buildEverything, louvainMatrices } from "../utils.js";
 import { resetBinaryColors } from "../multivariate/BinaryEdge.js";
 import { applyCategoricalColouring, resetCategoricalColours, CategoricalMatrices, categoricalColorMap } from "../multivariate/CategoricalEdge.js";
@@ -42,7 +42,6 @@ function toggleCategoricalMatrices(){
         appState.matrixGroups = louvainMatrices();
         buildEverything();
     }
-    console.log(buttonState)
 }
 
 // Define toggle logic

@@ -28,7 +28,8 @@ export function buildMatrix() {
                 .on("start", (event) => matrixDragStarted(event, matrixId))
                 .on("drag", (event) => matrixDragged(event, matrixId))
                 .on("end", (event) => matrixDragEnded(event, matrixId))
-            );
+            )
+            .on("click", (event) => unanchorMatrix(event, matrixId))
 
         //// Build actual matrix (Cells)
         const rows = matrixSvg.selectAll(".matrix-row")
@@ -147,7 +148,8 @@ export function buildMatrix() {
             matrixId,
             x: (cellSize * matrixSize) / 2,
             y: (cellSize * matrixSize) / 2,
-            matrixSize: matrixSize
+            //Plus one for the labels
+            matrixSize: matrixSize +1
         });
 
         dummyMap[dummyId] = matrixSvg;
@@ -209,4 +211,15 @@ function removeNodeFromMatrix (event, nodeId){
     }
     appState.matrixGroups = matrixGroups;
     buildEverything()
+}
+
+//Helper function that makes the matrix movable by force-layout if shift-clicked
+function unanchorMatrix (event,matrixId)  {
+    if (event.shiftKey) {
+        const dummyNode = appState.sim.nodes().find(n => n.id === `dummy-${matrixId}`);
+        if (dummyNode) {
+            dummyNode.fx = null;
+            dummyNode.fy = null;
+        }
+    }
 }

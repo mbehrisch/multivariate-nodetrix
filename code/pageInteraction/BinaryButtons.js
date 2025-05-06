@@ -76,7 +76,6 @@ function toggleBinaryMatrices(){
         appState.matrixGroups = louvainMatrices();
         buildEverything();
     }
-    console.log(buttonState)
 }
 
 //Function that toggles the legend and applies/removes the colour when button is clicked
@@ -98,6 +97,5 @@ function toggleBinaryEdgeColoring() {
         resetBinaryColors();
         legendContainer.style("display", "none");
     }
-
-    console.log(buttonState)
+    
 }

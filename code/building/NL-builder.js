@@ -85,11 +85,25 @@ export function buildNL() {
         .call(d3.drag()
             .on("start", event => nodeDragStarted(event))
             .on("drag", event => nodeDragged(event))
-            .on("end", event => nodeDragEnded(event)));
+            .on("end", event => nodeDragEnded(event)))
+        .on("click", (event, d) => unanchorNode(event, d.id));
 
     // Update the nodes and links
     return {
         nodes: Object.values(nodeLinkDict),
         links: nodeLinkEdges,
     };
+}
+
+function unanchorNode(event, nodeId){    
+    if (event.shiftKey) {
+        const node = appState.sim.nodes().find(n => n.id === nodeId);
+        if (node) {
+            node.fx = null;
+            node.fy = null;
+
+            // Optional: visual cue
+            d3.select(event.currentTarget).classed("nodeAnchored", false);
+        }
+    }
 }

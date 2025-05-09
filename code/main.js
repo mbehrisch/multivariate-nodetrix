@@ -5,7 +5,10 @@ import { buildEverything, louvainMatrices } from './utils.js';
 import { addBinaryColourLegend, addButtonFunctions } from './pageInteraction/BinaryButtons.js';
 import { addCategoricalColourLegend } from './pageInteraction/CategoricalButtons.js';
 
-export const width = 1200, height = 900;
+const graphDiv = document.getElementById('graph');
+export const width = graphDiv.clientWidth;
+export const height = graphDiv.clientHeight;
+
 export const cellSize = 15;
 export const nodeSize = 10
 

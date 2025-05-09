@@ -34,8 +34,8 @@ export function applyForceLayout(nodes, links, dummyMap) {
             const matrixSize = dummyNode.matrixSize;
             const matrixWidth = matrixSize * cellSize;
 
-            dummyNode.x = Math.max(20, Math.min(width - matrixWidth, dummyNode.x));
-            dummyNode.y = Math.max(20, Math.min(height - matrixWidth, dummyNode.y));
+            dummyNode.x = Math.max(cellSize, Math.min(width - matrixWidth+cellSize, dummyNode.x));
+            dummyNode.y = Math.max(cellSize, Math.min(height - matrixWidth + cellSize, dummyNode.y));
 
             matrixSvg.attr("transform", `translate(${dummyNode.x}, ${dummyNode.y})`);
         });

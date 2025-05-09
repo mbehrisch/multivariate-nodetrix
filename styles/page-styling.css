@@ -4,30 +4,49 @@ body {
   background-color: #fcfcfc;
   margin: 0;
   padding: 0;
+  height: 100vh;
+  overflow: hidden;
 }
 
-/* Main container */
-#main-container {
-  padding: 20px;
+/* Ensure full height for container and rows */
+html, body, .container-fluid {
+  height: 100%;
 }
 
-/* Graph container */
+/* Graph container column */
 #graph-container {
+  height: calc((100vh - 100px)); /* Adjust height to leave space for title */
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  padding-right: 20px;
+  box-sizing: border-box;
 }
 
-/* SVG area */
+/* The graph area */
 #graph {
+  width: 100%;
+  flex: 1;
   border: 1px solid #ccc;
   background-color: #fff;
   overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
+
+/* The SVG scales to fill the #graph container */
 #graph svg {
-  width: 100%;
-  height: 100%;
   display: block;
+  overflow: hidden;
+}
+
+/* Sidebar column */
+#sidebar {
+  height: calc(100vh - 100px); /* Adjust height to match graph */
+  overflow-y: auto;
+  padding-left: 20px;
+  padding-right: 20px;
+  box-sizing: border-box;
 }
 
 /* Instructions box */
@@ -39,9 +58,11 @@ body {
   font-size: 14px;
   line-height: 1.5;
 }
+
 #instructions h4 {
   margin-top: 0;
 }
+
 #instructions kbd {
   background-color: #333;
   color: #fff;
@@ -57,14 +78,7 @@ body {
   margin-top: 20px;
 }
 
-/* Responsive layout for small screens */
-@media (max-width: 768px) {
-  #graph {
-    height: 400px;
-  }
-}
-
-/* Legend containers (binary + categorical) */
+/* Legend containers */
 #binary-legend-list,
 #categorical-legend-list,
 #categorical-legend-colors {
@@ -97,17 +111,17 @@ body {
   border-radius: 2px;
 }
 
-/* Binary-specific legend coloring */
 .legend-color.yes,
 .binary-yes {
   background-color: green;
 }
+
 .legend-color.no,
 .binary-no {
   background-color: red;
 }
 
-/* Checkbox + label container (e.g., "Reorder matrices") */
+/* Checkbox + label layout */
 .legend-option {
   display: flex;
   align-items: center;

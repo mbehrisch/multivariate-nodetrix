@@ -662,7 +662,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "SF3"
+        "equipment": "SF3",
+        "distance_km": 285.15
       }
     },
     {
@@ -674,7 +675,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "SF3"
+        "equipment": "SF3",
+        "distance_km": 285.15
       }
     },
     {
@@ -686,7 +688,8 @@
         "airlinecountry": "China",
         "codeshare": false,
         "stops": 0,
-        "equipment": "321 320 330"
+        "equipment": "321 320 330",
+        "distance_km": 1222.07
       }
     },
     {
@@ -698,7 +701,8 @@
         "airlinecountry": "China",
         "codeshare": false,
         "stops": 0,
-        "equipment": "321 320 330"
+        "equipment": "321 320 330",
+        "distance_km": 1222.07
       }
     },
     {
@@ -710,7 +714,8 @@
         "airlinecountry": "China",
         "codeshare": false,
         "stops": 0,
-        "equipment": "330 321 320"
+        "equipment": "330 321 320",
+        "distance_km": 1556.35
       }
     },
     {
@@ -722,7 +727,8 @@
         "airlinecountry": "China",
         "codeshare": false,
         "stops": 0,
-        "equipment": "321 330"
+        "equipment": "321 330",
+        "distance_km": 1707.29
       }
     },
     {
@@ -734,7 +740,8 @@
         "airlinecountry": "China",
         "codeshare": false,
         "stops": 0,
-        "equipment": "321 320 330"
+        "equipment": "321 320 330",
+        "distance_km": 1556.35
       }
     },
     {
@@ -746,7 +753,8 @@
         "airlinecountry": "China",
         "codeshare": false,
         "stops": 0,
-        "equipment": "330 321"
+        "equipment": "330 321",
+        "distance_km": 1707.29
       }
     },
     {
@@ -758,7 +766,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "PL2"
+        "equipment": "PL2",
+        "distance_km": 380.17
       }
     },
     {
@@ -770,7 +779,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "PL2"
+        "equipment": "PL2",
+        "distance_km": 380.17
       }
     },
     {
@@ -782,7 +792,8 @@
         "airlinecountry": "Germany",
         "codeshare": false,
         "stops": 0,
-        "equipment": "CRJ"
+        "equipment": "CRJ",
+        "distance_km": 415.14
       }
     },
     {
@@ -794,7 +805,8 @@
         "airlinecountry": "Germany",
         "codeshare": false,
         "stops": 0,
-        "equipment": "CRJ"
+        "equipment": "CRJ",
+        "distance_km": 415.14
       }
     },
     {
@@ -806,7 +818,8 @@
         "airlinecountry": "China",
         "codeshare": false,
         "stops": 0,
-        "equipment": "320"
+        "equipment": "320",
+        "distance_km": 3793.92
       }
     },
     {
@@ -818,7 +831,8 @@
         "airlinecountry": "China",
         "codeshare": false,
         "stops": 0,
-        "equipment": "320"
+        "equipment": "320",
+        "distance_km": 3793.92
       }
     },
     {
@@ -830,7 +844,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": null
+        "equipment": null,
+        "distance_km": 1459.0
       }
     },
     {
@@ -842,7 +857,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": null
+        "equipment": null,
+        "distance_km": 1459.0
       }
     },
     {
@@ -854,7 +870,8 @@
         "airlinecountry": "India",
         "codeshare": false,
         "stops": 0,
-        "equipment": "333"
+        "equipment": "333",
+        "distance_km": 5923.2
       }
     },
     {
@@ -866,7 +883,8 @@
         "airlinecountry": "India",
         "codeshare": false,
         "stops": 0,
-        "equipment": "332 333"
+        "equipment": "332 333",
+        "distance_km": 6061.68
       }
     },
     {
@@ -878,7 +896,8 @@
         "airlinecountry": "India",
         "codeshare": false,
         "stops": 0,
-        "equipment": "333"
+        "equipment": "333",
+        "distance_km": 5923.2
       }
     },
     {
@@ -890,7 +909,8 @@
         "airlinecountry": "India",
         "codeshare": false,
         "stops": 0,
-        "equipment": "332 333"
+        "equipment": "332 333",
+        "distance_km": 6061.68
       }
     },
     {
@@ -902,7 +922,8 @@
         "airlinecountry": "United States",
         "codeshare": true,
         "stops": 0,
-        "equipment": "319 320 CR9 321"
+        "equipment": "319 320 CR9 321",
+        "distance_km": 364.98
       }
     },
     {
@@ -914,7 +935,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "M80 319 M83"
+        "equipment": "M80 319 M83",
+        "distance_km": 1177.01
       }
     },
     {
@@ -926,7 +948,8 @@
         "airlinecountry": "United States",
         "codeshare": true,
         "stops": 0,
-        "equipment": "777"
+        "equipment": "777",
+        "distance_km": 6776.33
       }
     },
     {
@@ -938,7 +961,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "738"
+        "equipment": "738",
+        "distance_km": 956.92
       }
     },
     {
@@ -950,7 +974,8 @@
         "airlinecountry": "United States",
         "codeshare": true,
         "stops": 0,
-        "equipment": "CR7 E75"
+        "equipment": "CR7 E75",
+        "distance_km": 974.96
       }
     },
     {
@@ -962,7 +987,8 @@
         "airlinecountry": "United States",
         "codeshare": true,
         "stops": 0,
-        "equipment": "E75 E90 319 CRJ E70"
+        "equipment": "E75 E90 319 CRJ E70",
+        "distance_km": 1072.15
       }
     },
     {
@@ -974,7 +1000,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "319 321 320 E90"
+        "equipment": "319 321 320 E90",
+        "distance_km": 1171.32
       }
     },
     {
@@ -986,7 +1013,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "738 757"
+        "equipment": "738 757",
+        "distance_km": 2513.35
       }
     },
     {
@@ -998,7 +1026,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "738"
+        "equipment": "738",
+        "distance_km": 300.49
       }
     },
     {
@@ -1010,7 +1039,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "738 757"
+        "equipment": "738 757",
+        "distance_km": 4202.21
       }
     },
     {
@@ -1022,7 +1052,8 @@
         "airlinecountry": "United States",
         "codeshare": true,
         "stops": 0,
-        "equipment": "777 744"
+        "equipment": "777 744",
+        "distance_km": 5254.21
       }
     },
     {
@@ -1034,7 +1065,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "757 738"
+        "equipment": "757 738",
+        "distance_km": 2025.02
       }
     },
     {
@@ -1046,7 +1078,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "738"
+        "equipment": "738",
+        "distance_km": 1394.74
       }
     },
     {
@@ -1058,7 +1091,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "E90 319 321 320"
+        "equipment": "E90 319 321 320",
+        "distance_km": 450.65
       }
     },
     {
@@ -1070,7 +1104,8 @@
         "airlinecountry": "United States",
         "codeshare": true,
         "stops": 0,
-        "equipment": "319 320 321"
+        "equipment": "319 320 321",
+        "distance_km": 351.51
       }
     },
     {
@@ -1082,7 +1117,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "767"
+        "equipment": "767",
+        "distance_km": 6051.58
       }
     },
     {
@@ -1094,7 +1130,8 @@
         "airlinecountry": "United States",
         "codeshare": true,
         "stops": 0,
-        "equipment": "319 320"
+        "equipment": "319 320",
+        "distance_km": 721.08
       }
     },
     {
@@ -1106,7 +1143,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "333"
+        "equipment": "333",
+        "distance_km": 6717.2
       }
     },
     {
@@ -1118,7 +1156,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "763 777"
+        "equipment": "763 777",
+        "distance_km": 7962.43
       }
     },
     {
@@ -1130,7 +1169,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "763 757"
+        "equipment": "763 757",
+        "distance_km": 5849.32
       }
     },
     {
@@ -1142,7 +1182,8 @@
         "airlinecountry": "United States",
         "codeshare": true,
         "stops": 0,
-        "equipment": "319 320 321"
+        "equipment": "319 320 321",
+        "distance_km": 347.65
       }
     },
     {
@@ -1154,7 +1195,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "763"
+        "equipment": "763",
+        "distance_km": 7384.75
       }
     },
     {
@@ -1166,7 +1208,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "763"
+        "equipment": "763",
+        "distance_km": 6682.59
       }
     },
     {
@@ -1178,7 +1221,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "332"
+        "equipment": "332",
+        "distance_km": 5999.98
       }
     },
     {
@@ -1190,7 +1234,8 @@
         "airlinecountry": "United States",
         "codeshare": true,
         "stops": 0,
-        "equipment": "320 CR9 321 319"
+        "equipment": "320 CR9 321 319",
+        "distance_km": 364.98
       }
     },
     {
@@ -1202,7 +1247,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "321 319 320"
+        "equipment": "321 319 320",
+        "distance_km": 1171.32
       }
     },
     {
@@ -1214,7 +1260,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "333"
+        "equipment": "333",
+        "distance_km": 6717.2
       }
     },
     {
@@ -1226,7 +1273,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "321 320"
+        "equipment": "321 320",
+        "distance_km": 2152.76
       }
     },
     {
@@ -1238,7 +1286,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "M80 321 319 M83 320 737 757"
+        "equipment": "M80 321 319 M83 320 737 757",
+        "distance_km": 1506.27
       }
     },
     {
@@ -1250,7 +1299,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "319 321 320"
+        "equipment": "319 321 320",
+        "distance_km": 804.58
       }
     },
     {
@@ -1262,7 +1312,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "321 320 737 319"
+        "equipment": "321 320 737 319",
+        "distance_km": 850.5
       }
     },
     {
@@ -1274,7 +1325,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "738 M83 M80"
+        "equipment": "738 M83 M80",
+        "distance_km": 1031.94
       }
     },
     {
@@ -1286,7 +1338,8 @@
         "airlinecountry": "United States",
         "codeshare": true,
         "stops": 0,
-        "equipment": "CR7"
+        "equipment": "CR7",
+        "distance_km": 1387.02
       }
     },
     {
@@ -1298,7 +1351,8 @@
         "airlinecountry": "United States",
         "codeshare": true,
         "stops": 0,
-        "equipment": "777"
+        "equipment": "777",
+        "distance_km": 7516.66
       }
     },
     {
@@ -1310,7 +1364,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "738"
+        "equipment": "738",
+        "distance_km": 2750.28
       }
     },
     {
@@ -1322,7 +1377,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "M80 M83"
+        "equipment": "M80 M83",
+        "distance_km": 1429.52
       }
     },
     {
@@ -1334,7 +1390,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "320 321"
+        "equipment": "320 321",
+        "distance_km": 2506.64
       }
     },
     {
@@ -1346,7 +1403,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "M83 M80 319"
+        "equipment": "M83 M80 319",
+        "distance_km": 1177.01
       }
     },
     {
@@ -1358,7 +1416,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "738 757"
+        "equipment": "738 757",
+        "distance_km": 2513.35
       }
     },
     {
@@ -1370,7 +1429,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "763 777"
+        "equipment": "763 777",
+        "distance_km": 7962.43
       }
     },
     {
@@ -1382,7 +1442,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "738 M80 M83"
+        "equipment": "738 M80 M83",
+        "distance_km": 1031.94
       }
     },
     {
@@ -1394,7 +1455,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "738 M83 M80"
+        "equipment": "738 M83 M80",
+        "distance_km": 1587.32
       }
     },
     {
@@ -1406,7 +1468,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "738"
+        "equipment": "738",
+        "distance_km": 1842.8
       }
     },
     {
@@ -1418,7 +1481,8 @@
         "airlinecountry": "United States",
         "codeshare": true,
         "stops": 0,
-        "equipment": "E75 ERD ER4 CR7"
+        "equipment": "E75 ERD ER4 CR7",
+        "distance_km": 377.37
       }
     },
     {
@@ -1430,7 +1494,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "320 E90 319"
+        "equipment": "320 E90 319",
+        "distance_km": 729.57
       }
     },
     {
@@ -1442,7 +1507,8 @@
         "airlinecountry": "United States",
         "codeshare": true,
         "stops": 0,
-        "equipment": "330"
+        "equipment": "330",
+        "distance_km": 6033.51
       }
     },
     {
@@ -1454,7 +1520,8 @@
         "airlinecountry": "United States",
         "codeshare": true,
         "stops": 0,
-        "equipment": "330"
+        "equipment": "330",
+        "distance_km": 9154.97
       }
     },
     {
@@ -1466,7 +1533,8 @@
         "airlinecountry": "United States",
         "codeshare": true,
         "stops": 0,
-        "equipment": "319 320"
+        "equipment": "319 320",
+        "distance_km": 503.48
       }
     },
     {
@@ -1478,7 +1546,8 @@
         "airlinecountry": "United States",
         "codeshare": true,
         "stops": 0,
-        "equipment": "330"
+        "equipment": "330",
+        "distance_km": 7617.28
       }
     },
     {
@@ -1490,7 +1559,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "763"
+        "equipment": "763",
+        "distance_km": 6807.34
       }
     },
     {
@@ -1502,7 +1572,8 @@
         "airlinecountry": "United States",
         "codeshare": true,
         "stops": 0,
-        "equipment": "767 320 321"
+        "equipment": "767 320 321",
+        "distance_km": 534.19
       }
     },
     {
@@ -1514,7 +1585,8 @@
         "airlinecountry": "United States",
         "codeshare": true,
         "stops": 0,
-        "equipment": "777 787"
+        "equipment": "777 787",
+        "distance_km": 5576.63
       }
     },
     {
@@ -1526,7 +1598,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "757 738"
+        "equipment": "757 738",
+        "distance_km": 1746.99
       }
     },
     {
@@ -1538,7 +1611,8 @@
         "airlinecountry": "United States",
         "codeshare": true,
         "stops": 0,
-        "equipment": "E75 CR7"
+        "equipment": "E75 CR7",
+        "distance_km": 1157.37
       }
     },
     {
@@ -1550,7 +1624,8 @@
         "airlinecountry": "United States",
         "codeshare": true,
         "stops": 0,
-        "equipment": "757"
+        "equipment": "757",
+        "distance_km": 5872.75
       }
     },
     {
@@ -1562,7 +1637,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "DH3"
+        "equipment": "DH3",
+        "distance_km": 128.92
       }
     },
     {
@@ -1574,7 +1650,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "738"
+        "equipment": "738",
+        "distance_km": 1901.99
       }
     },
     {
@@ -1586,7 +1663,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "320 319 737"
+        "equipment": "320 319 737",
+        "distance_km": 1597.08
       }
     },
     {
@@ -1598,7 +1676,8 @@
         "airlinecountry": "United States",
         "codeshare": true,
         "stops": 0,
-        "equipment": "320 767 319"
+        "equipment": "320 767 319",
+        "distance_km": 656.71
       }
     },
     {
@@ -1610,7 +1689,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "332 767"
+        "equipment": "332 767",
+        "distance_km": 6356.27
       }
     },
     {
@@ -1622,7 +1702,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "738"
+        "equipment": "738",
+        "distance_km": 3682.13
       }
     },
     {
@@ -1634,7 +1715,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "738"
+        "equipment": "738",
+        "distance_km": 1482.39
       }
     },
     {
@@ -1646,7 +1728,8 @@
         "airlinecountry": "United States",
         "codeshare": true,
         "stops": 0,
-        "equipment": "CR7"
+        "equipment": "CR7",
+        "distance_km": 2219.22
       }
     },
     {
@@ -1658,7 +1741,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "738"
+        "equipment": "738",
+        "distance_km": 1551.55
       }
     },
     {
@@ -1670,7 +1754,8 @@
         "airlinecountry": "United States",
         "codeshare": true,
         "stops": 0,
-        "equipment": "CR7"
+        "equipment": "CR7",
+        "distance_km": 1488.81
       }
     },
     {
@@ -1682,7 +1767,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "E90"
+        "equipment": "E90",
+        "distance_km": 2131.65
       }
     },
     {
@@ -1694,7 +1780,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "763 757"
+        "equipment": "763 757",
+        "distance_km": 5849.32
       }
     },
     {
@@ -1706,7 +1793,8 @@
         "airlinecountry": "United States",
         "codeshare": true,
         "stops": 0,
-        "equipment": "330"
+        "equipment": "330",
+        "distance_km": 6033.51
       }
     },
     {
@@ -1718,7 +1806,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "738"
+        "equipment": "738",
+        "distance_km": 3617.69
       }
     },
     {
@@ -1730,7 +1819,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "32B 762"
+        "equipment": "32B 762",
+        "distance_km": 3982.94
       }
     },
     {
@@ -1742,7 +1832,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "757"
+        "equipment": "757",
+        "distance_km": 5376.39
       }
     },
     {
@@ -1754,7 +1845,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "763 757"
+        "equipment": "763 757",
+        "distance_km": 1519.22
       }
     },
     {
@@ -1766,7 +1858,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "757 763 738"
+        "equipment": "757 763 738",
+        "distance_km": 1753.6
       }
     },
     {
@@ -1778,7 +1871,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "738"
+        "equipment": "738",
+        "distance_km": 380.17
       }
     },
     {
@@ -1790,7 +1884,8 @@
         "airlinecountry": "United States",
         "codeshare": true,
         "stops": 0,
-        "equipment": "777"
+        "equipment": "777",
+        "distance_km": 8453.84
       }
     },
     {
@@ -1802,7 +1897,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "M83 738"
+        "equipment": "M83 738",
+        "distance_km": 2436.93
       }
     },
     {
@@ -1814,7 +1910,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "737"
+        "equipment": "737",
+        "distance_km": 3127.2
       }
     },
     {
@@ -1826,7 +1923,8 @@
         "airlinecountry": "United States",
         "codeshare": true,
         "stops": 0,
-        "equipment": "CR7"
+        "equipment": "CR7",
+        "distance_km": 1387.02
       }
     },
     {
@@ -1838,7 +1936,8 @@
         "airlinecountry": "United States",
         "codeshare": true,
         "stops": 0,
-        "equipment": "777"
+        "equipment": "777",
+        "distance_km": 8453.84
       }
     },
     {
@@ -1850,7 +1949,8 @@
         "airlinecountry": "United States",
         "codeshare": true,
         "stops": 0,
-        "equipment": "777"
+        "equipment": "777",
+        "distance_km": 7004.99
       }
     },
     {
@@ -1862,7 +1962,8 @@
         "airlinecountry": "United States",
         "codeshare": true,
         "stops": 0,
-        "equipment": "777"
+        "equipment": "777",
+        "distance_km": 7004.99
       }
     },
     {
@@ -1874,7 +1975,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "737"
+        "equipment": "737",
+        "distance_km": 1698.57
       }
     },
     {
@@ -1886,7 +1988,8 @@
         "airlinecountry": "United States",
         "codeshare": true,
         "stops": 0,
-        "equipment": "757"
+        "equipment": "757",
+        "distance_km": 5872.75
       }
     },
     {
@@ -1898,7 +2001,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "737"
+        "equipment": "737",
+        "distance_km": 3127.2
       }
     },
     {
@@ -1910,7 +2014,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "737"
+        "equipment": "737",
+        "distance_km": 1698.57
       }
     },
     {
@@ -1922,7 +2027,8 @@
         "airlinecountry": "Germany",
         "codeshare": false,
         "stops": 0,
-        "equipment": "320 738 319 321 DH4"
+        "equipment": "320 738 319 321 DH4",
+        "distance_km": 486.7
       }
     },
     {
@@ -1934,7 +2040,8 @@
         "airlinecountry": "Germany",
         "codeshare": false,
         "stops": 0,
-        "equipment": "738 320 319 321 DH4"
+        "equipment": "738 320 319 321 DH4",
+        "distance_km": 486.7
       }
     },
     {
@@ -1946,7 +2053,8 @@
         "airlinecountry": "Canada",
         "codeshare": false,
         "stops": 1,
-        "equipment": "333"
+        "equipment": "333",
+        "distance_km": 5119.64
       }
     },
     {
@@ -1958,7 +2066,8 @@
         "airlinecountry": "Canada",
         "codeshare": true,
         "stops": 0,
-        "equipment": "332"
+        "equipment": "332",
+        "distance_km": 828.04
       }
     },
     {
@@ -1970,7 +2079,8 @@
         "airlinecountry": "Canada",
         "codeshare": true,
         "stops": 0,
-        "equipment": "332"
+        "equipment": "332",
+        "distance_km": 4941.99
       }
     },
     {
@@ -1982,7 +2092,8 @@
         "airlinecountry": "Canada",
         "codeshare": true,
         "stops": 0,
-        "equipment": "333"
+        "equipment": "333",
+        "distance_km": 4470.21
       }
     },
     {
@@ -1994,7 +2105,8 @@
         "airlinecountry": "Canada",
         "codeshare": true,
         "stops": 0,
-        "equipment": "333"
+        "equipment": "333",
+        "distance_km": 4309.54
       }
     },
     {
@@ -2006,7 +2118,8 @@
         "airlinecountry": "Canada",
         "codeshare": true,
         "stops": 0,
-        "equipment": "332"
+        "equipment": "332",
+        "distance_km": 709.33
       }
     },
     {
@@ -2018,7 +2131,8 @@
         "airlinecountry": "Canada",
         "codeshare": false,
         "stops": 0,
-        "equipment": "E90"
+        "equipment": "E90",
+        "distance_km": 2116.38
       }
     },
     {
@@ -2030,7 +2144,8 @@
         "airlinecountry": "Canada",
         "codeshare": true,
         "stops": 0,
-        "equipment": "CRJ BEH"
+        "equipment": "CRJ BEH",
+        "distance_km": 344.62
       }
     },
     {
@@ -2042,7 +2157,8 @@
         "airlinecountry": "Canada",
         "codeshare": false,
         "stops": 0,
-        "equipment": "E75 E90"
+        "equipment": "E75 E90",
+        "distance_km": 559.71
       }
     },
     {
@@ -2054,7 +2170,8 @@
         "airlinecountry": "Canada",
         "codeshare": false,
         "stops": 0,
-        "equipment": "320"
+        "equipment": "320",
+        "distance_km": 1953.65
       }
     },
     {
@@ -2066,7 +2183,8 @@
         "airlinecountry": "Canada",
         "codeshare": true,
         "stops": 0,
-        "equipment": "333"
+        "equipment": "333",
+        "distance_km": 828.04
       }
     },
     {
@@ -2078,7 +2196,8 @@
         "airlinecountry": "France",
         "codeshare": true,
         "stops": 0,
-        "equipment": "320"
+        "equipment": "320",
+        "distance_km": 2637.56
       }
     },
     {
@@ -2090,7 +2209,8 @@
         "airlinecountry": "France",
         "codeshare": true,
         "stops": 0,
-        "equipment": "764"
+        "equipment": "764",
+        "distance_km": 6697.87
       }
     },
     {
@@ -2102,7 +2222,8 @@
         "airlinecountry": "France",
         "codeshare": true,
         "stops": 0,
-        "equipment": "764"
+        "equipment": "764",
+        "distance_km": 6697.87
       }
     },
     {
@@ -2114,7 +2235,8 @@
         "airlinecountry": "France",
         "codeshare": false,
         "stops": 0,
-        "equipment": "320 321 319"
+        "equipment": "320 321 319",
+        "distance_km": 627.01
       }
     },
     {
@@ -2126,7 +2248,8 @@
         "airlinecountry": "France",
         "codeshare": true,
         "stops": 0,
-        "equipment": "753"
+        "equipment": "753",
+        "distance_km": 2556.99
       }
     },
     {
@@ -2138,7 +2261,8 @@
         "airlinecountry": "France",
         "codeshare": false,
         "stops": 0,
-        "equipment": "332"
+        "equipment": "332",
+        "distance_km": 420.06
       }
     },
     {
@@ -2150,7 +2274,8 @@
         "airlinecountry": "France",
         "codeshare": false,
         "stops": 0,
-        "equipment": "321 320 319"
+        "equipment": "321 320 319",
+        "distance_km": 627.01
       }
     },
     {
@@ -2162,7 +2287,8 @@
         "airlinecountry": "France",
         "codeshare": false,
         "stops": 0,
-        "equipment": "332"
+        "equipment": "332",
+        "distance_km": 420.06
       }
     },
     {
@@ -2174,7 +2300,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "320"
+        "equipment": "320",
+        "distance_km": 4157.43
       }
     },
     {
@@ -2186,7 +2313,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "320"
+        "equipment": "320",
+        "distance_km": 4157.43
       }
     },
     {
@@ -2198,7 +2326,8 @@
         "airlinecountry": "United Kingdom",
         "codeshare": false,
         "stops": 0,
-        "equipment": "734 319"
+        "equipment": "734 319",
+        "distance_km": 574.4
       }
     },
     {
@@ -2210,7 +2339,8 @@
         "airlinecountry": "United Kingdom",
         "codeshare": false,
         "stops": 0,
-        "equipment": "777"
+        "equipment": "777",
+        "distance_km": 8453.84
       }
     },
     {
@@ -2222,7 +2352,8 @@
         "airlinecountry": "United Kingdom",
         "codeshare": false,
         "stops": 0,
-        "equipment": "734 319"
+        "equipment": "734 319",
+        "distance_km": 574.4
       }
     },
     {
@@ -2234,7 +2365,8 @@
         "airlinecountry": "United Kingdom",
         "codeshare": false,
         "stops": 0,
-        "equipment": "777"
+        "equipment": "777",
+        "distance_km": 7004.99
       }
     },
     {
@@ -2246,7 +2378,8 @@
         "airlinecountry": "United Kingdom",
         "codeshare": false,
         "stops": 0,
-        "equipment": "777"
+        "equipment": "777",
+        "distance_km": 7004.99
       }
     },
     {
@@ -2258,7 +2391,8 @@
         "airlinecountry": "United Kingdom",
         "codeshare": false,
         "stops": 0,
-        "equipment": "DH4 E75"
+        "equipment": "DH4 E75",
+        "distance_km": 297.56
       }
     },
     {
@@ -2270,7 +2404,8 @@
         "airlinecountry": "United Kingdom",
         "codeshare": false,
         "stops": 0,
-        "equipment": "DH4 E75"
+        "equipment": "DH4 E75",
+        "distance_km": 297.56
       }
     },
     {
@@ -2282,7 +2417,8 @@
         "airlinecountry": "United Kingdom",
         "codeshare": false,
         "stops": 0,
-        "equipment": "32S"
+        "equipment": "32S",
+        "distance_km": 627.01
       }
     },
     {
@@ -2294,7 +2430,8 @@
         "airlinecountry": "China",
         "codeshare": false,
         "stops": 0,
-        "equipment": "321 319 320"
+        "equipment": "321 319 320",
+        "distance_km": 1222.07
       }
     },
     {
@@ -2306,7 +2443,8 @@
         "airlinecountry": "China",
         "codeshare": false,
         "stops": 0,
-        "equipment": "333 773 321 777 772 738 744"
+        "equipment": "333 773 321 777 772 738 744",
+        "distance_km": 1876.05
       }
     },
     {
@@ -2318,7 +2456,8 @@
         "airlinecountry": "China",
         "codeshare": false,
         "stops": 0,
-        "equipment": "340 330 321"
+        "equipment": "340 330 321",
+        "distance_km": 1202.02
       }
     },
     {
@@ -2330,7 +2469,8 @@
         "airlinecountry": "China",
         "codeshare": false,
         "stops": 0,
-        "equipment": "321 319 320"
+        "equipment": "321 319 320",
+        "distance_km": 1222.07
       }
     },
     {
@@ -2342,7 +2482,8 @@
         "airlinecountry": "China",
         "codeshare": false,
         "stops": 0,
-        "equipment": "330"
+        "equipment": "330",
+        "distance_km": 7827.34
       }
     },
     {
@@ -2354,7 +2495,8 @@
         "airlinecountry": "China",
         "codeshare": false,
         "stops": 0,
-        "equipment": "321 333 330 320 777 738"
+        "equipment": "321 333 330 320 777 738",
+        "distance_km": 1556.35
       }
     },
     {
@@ -2366,7 +2508,8 @@
         "airlinecountry": "China",
         "codeshare": false,
         "stops": 0,
-        "equipment": "773"
+        "equipment": "773",
+        "distance_km": 7808.28
       }
     },
     {
@@ -2378,7 +2521,8 @@
         "airlinecountry": "China",
         "codeshare": false,
         "stops": 0,
-        "equipment": "330"
+        "equipment": "330",
+        "distance_km": 8877.55
       }
     },
     {
@@ -2390,7 +2534,8 @@
         "airlinecountry": "China",
         "codeshare": true,
         "stops": 0,
-        "equipment": "777"
+        "equipment": "777",
+        "distance_km": 11137.87
       }
     },
     {
@@ -2402,7 +2547,8 @@
         "airlinecountry": "China",
         "codeshare": false,
         "stops": 0,
-        "equipment": "773"
+        "equipment": "773",
+        "distance_km": 11578.93
       }
     },
     {
@@ -2414,7 +2560,8 @@
         "airlinecountry": "China",
         "codeshare": false,
         "stops": 0,
-        "equipment": "330"
+        "equipment": "330",
+        "distance_km": 8187.04
       }
     },
     {
@@ -2426,7 +2573,8 @@
         "airlinecountry": "China",
         "codeshare": false,
         "stops": 0,
-        "equipment": "330"
+        "equipment": "330",
+        "distance_km": 7741.44
       }
     },
     {
@@ -2438,7 +2586,8 @@
         "airlinecountry": "China",
         "codeshare": true,
         "stops": 0,
-        "equipment": "346"
+        "equipment": "346",
+        "distance_km": 8797.73
       }
     },
     {
@@ -2450,7 +2599,8 @@
         "airlinecountry": "China",
         "codeshare": false,
         "stops": 0,
-        "equipment": "321 777 772 738 773 744 333"
+        "equipment": "321 777 772 738 773 744 333",
+        "distance_km": 1876.05
       }
     },
     {
@@ -2462,7 +2612,8 @@
         "airlinecountry": "China",
         "codeshare": false,
         "stops": 0,
-        "equipment": "340 330 321"
+        "equipment": "340 330 321",
+        "distance_km": 1202.02
       }
     },
     {
@@ -2474,7 +2625,8 @@
         "airlinecountry": "China",
         "codeshare": false,
         "stops": 0,
-        "equipment": "330"
+        "equipment": "330",
+        "distance_km": 8877.55
       }
     },
     {
@@ -2486,7 +2638,8 @@
         "airlinecountry": "China",
         "codeshare": true,
         "stops": 0,
-        "equipment": "346"
+        "equipment": "346",
+        "distance_km": 8797.73
       }
     },
     {
@@ -2498,7 +2651,8 @@
         "airlinecountry": "China",
         "codeshare": false,
         "stops": 0,
-        "equipment": "319 320"
+        "equipment": "319 320",
+        "distance_km": 2637.56
       }
     },
     {
@@ -2510,7 +2664,8 @@
         "airlinecountry": "Germany",
         "codeshare": true,
         "stops": 0,
-        "equipment": "330"
+        "equipment": "330",
+        "distance_km": 6817.41
       }
     },
     {
@@ -2522,7 +2677,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "757 M88 739 738"
+        "equipment": "757 M88 739 738",
+        "distance_km": 1814.14
       }
     },
     {
@@ -2534,7 +2690,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "764"
+        "equipment": "764",
+        "distance_km": 6697.87
       }
     },
     {
@@ -2546,7 +2703,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "757"
+        "equipment": "757",
+        "distance_km": 2393.32
       }
     },
     {
@@ -2558,7 +2716,8 @@
         "airlinecountry": "United States",
         "codeshare": true,
         "stops": 0,
-        "equipment": "CR9 CR7"
+        "equipment": "CR9 CR7",
+        "distance_km": 1461.41
       }
     },
     {
@@ -2570,7 +2729,8 @@
         "airlinecountry": "United States",
         "codeshare": true,
         "stops": 0,
-        "equipment": "CR7 E70 E75 CR9"
+        "equipment": "CR7 E70 E75 CR9",
+        "distance_km": 1663.89
       }
     },
     {
@@ -2582,7 +2742,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "319"
+        "equipment": "319",
+        "distance_km": 1923.32
       }
     },
     {
@@ -2594,7 +2755,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "757"
+        "equipment": "757",
+        "distance_km": 2393.32
       }
     },
     {
@@ -2606,7 +2768,8 @@
         "airlinecountry": "United States",
         "codeshare": true,
         "stops": 0,
-        "equipment": "CR9 CR7"
+        "equipment": "CR9 CR7",
+        "distance_km": 1461.41
       }
     },
     {
@@ -2618,7 +2781,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "319 E70"
+        "equipment": "319 E70",
+        "distance_km": 1663.89
       }
     },
     {
@@ -2630,7 +2794,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "320 753 M90 757 738"
+        "equipment": "320 753 M90 757 738",
+        "distance_km": 2556.99
       }
     },
     {
@@ -2642,7 +2807,8 @@
         "airlinecountry": "United States",
         "codeshare": true,
         "stops": 0,
-        "equipment": "332"
+        "equipment": "332",
+        "distance_km": 420.06
       }
     },
     {
@@ -2654,7 +2820,8 @@
         "airlinecountry": "United States",
         "codeshare": true,
         "stops": 0,
-        "equipment": "332"
+        "equipment": "332",
+        "distance_km": 420.06
       }
     },
     {
@@ -2666,7 +2833,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "320"
+        "equipment": "320",
+        "distance_km": 963.76
       }
     },
     {
@@ -2678,7 +2846,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "319"
+        "equipment": "319",
+        "distance_km": 1923.32
       }
     },
     {
@@ -2690,7 +2859,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "320"
+        "equipment": "320",
+        "distance_km": 963.76
       }
     },
     {
@@ -2702,7 +2872,8 @@
         "airlinecountry": "Germany",
         "codeshare": false,
         "stops": 0,
-        "equipment": "319"
+        "equipment": "319",
+        "distance_km": 1817.94
       }
     },
     {
@@ -2714,7 +2885,8 @@
         "airlinecountry": "Germany",
         "codeshare": false,
         "stops": 0,
-        "equipment": "E70"
+        "equipment": "E70",
+        "distance_km": 828.04
       }
     },
     {
@@ -2726,7 +2898,8 @@
         "airlinecountry": "Germany",
         "codeshare": false,
         "stops": 0,
-        "equipment": "E70"
+        "equipment": "E70",
+        "distance_km": 709.33
       }
     },
     {
@@ -2738,7 +2911,8 @@
         "airlinecountry": "Germany",
         "codeshare": false,
         "stops": 0,
-        "equipment": "319"
+        "equipment": "319",
+        "distance_km": 1817.94
       }
     },
     {
@@ -2750,7 +2924,8 @@
         "airlinecountry": "Germany",
         "codeshare": false,
         "stops": 0,
-        "equipment": "E70"
+        "equipment": "E70",
+        "distance_km": 828.04
       }
     },
     {
@@ -2762,7 +2937,8 @@
         "airlinecountry": "Canada",
         "codeshare": false,
         "stops": 0,
-        "equipment": "SWM"
+        "equipment": "SWM",
+        "distance_km": 419.35
       }
     },
     {
@@ -2774,7 +2950,8 @@
         "airlinecountry": "Canada",
         "codeshare": false,
         "stops": 0,
-        "equipment": "SWM"
+        "equipment": "SWM",
+        "distance_km": 284.94
       }
     },
     {
@@ -2786,7 +2963,8 @@
         "airlinecountry": "Canada",
         "codeshare": false,
         "stops": 0,
-        "equipment": "SWM"
+        "equipment": "SWM",
+        "distance_km": 419.35
       }
     },
     {
@@ -2798,7 +2976,8 @@
         "airlinecountry": "Canada",
         "codeshare": false,
         "stops": 0,
-        "equipment": "SWM"
+        "equipment": "SWM",
+        "distance_km": 284.94
       }
     },
     {
@@ -2810,7 +2989,8 @@
         "airlinecountry": "Canada",
         "codeshare": false,
         "stops": 0,
-        "equipment": "SWM"
+        "equipment": "SWM",
+        "distance_km": 670.63
       }
     },
     {
@@ -2822,7 +3002,8 @@
         "airlinecountry": "Germany",
         "codeshare": true,
         "stops": 0,
-        "equipment": "333"
+        "equipment": "333",
+        "distance_km": 828.04
       }
     },
     {
@@ -2834,7 +3015,8 @@
         "airlinecountry": "Germany",
         "codeshare": false,
         "stops": 0,
-        "equipment": "CR7"
+        "equipment": "CR7",
+        "distance_km": 282.27
       }
     },
     {
@@ -2846,7 +3028,8 @@
         "airlinecountry": "Germany",
         "codeshare": true,
         "stops": 0,
-        "equipment": "CR7 CR9"
+        "equipment": "CR7 CR9",
+        "distance_km": 328.95
       }
     },
     {
@@ -2858,7 +3041,8 @@
         "airlinecountry": "Germany",
         "codeshare": false,
         "stops": 0,
-        "equipment": "333"
+        "equipment": "333",
+        "distance_km": 6860.8
       }
     },
     {
@@ -2870,7 +3054,8 @@
         "airlinecountry": "Germany",
         "codeshare": false,
         "stops": 0,
-        "equipment": "320 319"
+        "equipment": "320 319",
+        "distance_km": 1132.86
       }
     },
     {
@@ -2882,7 +3067,8 @@
         "airlinecountry": "Germany",
         "codeshare": true,
         "stops": 0,
-        "equipment": "E95 CR9"
+        "equipment": "E95 CR9",
+        "distance_km": 746.41
       }
     },
     {
@@ -2894,7 +3080,8 @@
         "airlinecountry": "Germany",
         "codeshare": true,
         "stops": 0,
-        "equipment": "CR9 CR7"
+        "equipment": "CR9 CR7",
+        "distance_km": 328.95
       }
     },
     {
@@ -2906,7 +3093,8 @@
         "airlinecountry": "Canada",
         "codeshare": false,
         "stops": 0,
-        "equipment": "DH4"
+        "equipment": "DH4",
+        "distance_km": 544.86
       }
     },
     {
@@ -2918,7 +3106,8 @@
         "airlinecountry": "Canada",
         "codeshare": false,
         "stops": 0,
-        "equipment": "DH4"
+        "equipment": "DH4",
+        "distance_km": 512.71
       }
     },
     {
@@ -2930,7 +3119,8 @@
         "airlinecountry": "Canada",
         "codeshare": false,
         "stops": 0,
-        "equipment": "DH4"
+        "equipment": "DH4",
+        "distance_km": 931.3
       }
     },
     {
@@ -2942,7 +3132,8 @@
         "airlinecountry": "Canada",
         "codeshare": false,
         "stops": 0,
-        "equipment": "DH4"
+        "equipment": "DH4",
+        "distance_km": 350.91
       }
     },
     {
@@ -2954,7 +3145,8 @@
         "airlinecountry": "Canada",
         "codeshare": false,
         "stops": 0,
-        "equipment": "DH4"
+        "equipment": "DH4",
+        "distance_km": 544.86
       }
     },
     {
@@ -2966,7 +3158,8 @@
         "airlinecountry": "Canada",
         "codeshare": false,
         "stops": 0,
-        "equipment": "DH4"
+        "equipment": "DH4",
+        "distance_km": 512.71
       }
     },
     {
@@ -2978,7 +3171,8 @@
         "airlinecountry": "Canada",
         "codeshare": false,
         "stops": 0,
-        "equipment": "DH4"
+        "equipment": "DH4",
+        "distance_km": 931.3
       }
     },
     {
@@ -2990,7 +3184,8 @@
         "airlinecountry": "Canada",
         "codeshare": false,
         "stops": 0,
-        "equipment": "DH4"
+        "equipment": "DH4",
+        "distance_km": 350.91
       }
     },
     {
@@ -3002,7 +3197,8 @@
         "airlinecountry": "France",
         "codeshare": false,
         "stops": 0,
-        "equipment": "333 330"
+        "equipment": "333 330",
+        "distance_km": 4184.59
       }
     },
     {
@@ -3014,7 +3210,8 @@
         "airlinecountry": "France",
         "codeshare": false,
         "stops": 0,
-        "equipment": "333 330"
+        "equipment": "333 330",
+        "distance_km": 4184.59
       }
     },
     {
@@ -3026,7 +3223,8 @@
         "airlinecountry": "United Kingdom",
         "codeshare": false,
         "stops": 0,
-        "equipment": "320 319"
+        "equipment": "320 319",
+        "distance_km": 1193.55
       }
     },
     {
@@ -3038,7 +3236,8 @@
         "airlinecountry": "United Kingdom",
         "codeshare": false,
         "stops": 0,
-        "equipment": "320"
+        "equipment": "320",
+        "distance_km": 2582.08
       }
     },
     {
@@ -3050,7 +3249,8 @@
         "airlinecountry": "United Kingdom",
         "codeshare": false,
         "stops": 0,
-        "equipment": "320 319"
+        "equipment": "320 319",
+        "distance_km": 944.76
       }
     },
     {
@@ -3062,7 +3262,8 @@
         "airlinecountry": "United Kingdom",
         "codeshare": false,
         "stops": 0,
-        "equipment": "320 319"
+        "equipment": "320 319",
+        "distance_km": 1193.55
       }
     },
     {
@@ -3074,7 +3275,8 @@
         "airlinecountry": "United Kingdom",
         "codeshare": false,
         "stops": 0,
-        "equipment": "319"
+        "equipment": "319",
+        "distance_km": 1388.68
       }
     },
     {
@@ -3086,7 +3288,8 @@
         "airlinecountry": "United Kingdom",
         "codeshare": false,
         "stops": 0,
-        "equipment": "319"
+        "equipment": "319",
+        "distance_km": 1388.68
       }
     },
     {
@@ -3098,7 +3301,8 @@
         "airlinecountry": "United Kingdom",
         "codeshare": false,
         "stops": 0,
-        "equipment": "320 319"
+        "equipment": "320 319",
+        "distance_km": 1657.43
       }
     },
     {
@@ -3110,7 +3314,8 @@
         "airlinecountry": "United Kingdom",
         "codeshare": false,
         "stops": 0,
-        "equipment": "320 319"
+        "equipment": "320 319",
+        "distance_km": 1657.43
       }
     },
     {
@@ -3122,7 +3327,8 @@
         "airlinecountry": "United States",
         "codeshare": true,
         "stops": 0,
-        "equipment": "343"
+        "equipment": "343",
+        "distance_km": 6406.14
       }
     },
     {
@@ -3134,7 +3340,8 @@
         "airlinecountry": "United States",
         "codeshare": true,
         "stops": 0,
-        "equipment": "343"
+        "equipment": "343",
+        "distance_km": 6406.14
       }
     },
     {
@@ -3146,7 +3353,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "788"
+        "equipment": "788",
+        "distance_km": 10480.15
       }
     },
     {
@@ -3158,7 +3366,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "738 320 319"
+        "equipment": "738 320 319",
+        "distance_km": 963.76
       }
     },
     {
@@ -3170,7 +3379,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "738 320 319"
+        "equipment": "738 320 319",
+        "distance_km": 963.76
       }
     },
     {
@@ -3182,7 +3392,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "73G CR9"
+        "equipment": "73G CR9",
+        "distance_km": 2362.34
       }
     },
     {
@@ -3194,7 +3405,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "CR9 73G"
+        "equipment": "CR9 73G",
+        "distance_km": 106.45
       }
     },
     {
@@ -3206,7 +3418,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "CR9 73G"
+        "equipment": "CR9 73G",
+        "distance_km": 2362.34
       }
     },
     {
@@ -3218,7 +3431,8 @@
         "airlinecountry": "United States",
         "codeshare": false,
         "stops": 0,
-        "equipment": "CR9 73G"
+        "equipment": "CR9 73G",
+        "distance_km": 106.45
       }
     },
     {
@@ -3230,7 +3444,8 @@
         "airlinecountry": "France",
         "codeshare": false,
         "stops": 0,
-        "equipment": "320"
+        "equipment": "320",
+        "distance_km": 747.08
       }
     },
     {
@@ -3242,7 +3457,8 @@
         "airlinecountry": "France",
         "codeshare": false,
         "stops": 0,
-        "equipment": "320 319"
+        "equipment": "320 319",
+        "distance_km": 1352.15
       }
     },
     {
@@ -3254,7 +3470,8 @@
         "airlinecountry": "France",
         "codeshare": false,
         "stops": 0,
-        "equipment": "320"
+        "equipment": "320",
+        "distance_km": 747.08
       }
     },
     {
@@ -3266,7 +3483,8 @@
         "airlinecountry": "France",
         "codeshare": false,
         "stops": 0,
-        "equipment": "320 319"
+        "equipment": "320 319",
+        "distance_km": 1352.15
       }
     }
   ]

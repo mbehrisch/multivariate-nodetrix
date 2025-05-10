@@ -4,6 +4,7 @@ import { buildEverything, louvainMatrices } from './utils.js';
 //import { addCategoricalColourLegend, addBinaryColourLegend } from './pageInteraction/EdgeButtons.js';
 import { addBinaryColourLegend, addButtonFunctions } from './pageInteraction/BinaryButtons.js';
 import { addCategoricalColourLegend } from './pageInteraction/CategoricalButtons.js';
+import { addNumericalColourLegend } from './pageInteraction/NumericalButton.js';
 
 const graphDiv = document.getElementById('graph');
 export const width = graphDiv.clientWidth;
@@ -20,7 +21,8 @@ export const svg = d3.select("#graph").append("svg")
 export const datasetSpec = {
     label: "IATA",  //For the flight data the IATA attribute is the label
     binaryVar: "codeshare", //Codeshare is my binary value: expects true, false
-    categoricalVar: "airlinecountry" //Airline operator is my categorical value
+    categoricalVar: "airlinecountry", //Airline operator is my categorical value
+    numericalVar: "distance_km"
 }
 
 export const appState = {
@@ -35,6 +37,7 @@ export const buttonState = {
     binarySorted: false,
 //    binaryMatrices: false,
     categoricalVariableActivated: false,
+    numericalVariableActivated: false
 }
 
 let graph = new Graph({ multi: true });
@@ -66,7 +69,8 @@ fetch("data/sampled_data.json")
                 codeshare: edge.attributes.codeshare,
                 stops: edge.attributes.stops,
                 equipment: edge.attributes.equipment,
-                airlinecountry:edge.attributes.airlinecountry
+                airlinecountry:edge.attributes.airlinecountry,
+                distance_km: edge.attributes.distance_km
             });
         });
 
@@ -76,6 +80,7 @@ fetch("data/sampled_data.json")
         addButtonFunctions();
         addBinaryColourLegend();
         addCategoricalColourLegend();
+        addNumericalColourLegend();
         
         buildEverything();
     });

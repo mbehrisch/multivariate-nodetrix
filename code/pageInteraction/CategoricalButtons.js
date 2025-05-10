@@ -2,6 +2,7 @@ import { appState } from "../main.js";
 import { buildEverything, louvainMatrices } from "../utils.js";
 import { resetBinaryColors } from "../multivariate/BinaryEdge.js";
 import { applyCategoricalColouring, resetCategoricalColours, CategoricalMatrices, categoricalColorMap } from "../multivariate/CategoricalEdge.js";
+import { resetNumericalColours } from "../multivariate/NumericalEdge.js";
 
 
 const categoricalToggle = document.getElementById("edge-categorical-color-toggle");
@@ -28,6 +29,7 @@ export function buttonCategoricalMatrices(){
 // Define toggle logic
 function toggleCategoricalColoring() {
     const binaryToggle = document.getElementById("edge-binary-color-toggle");
+    const numericalToggle = document.getElementById("edge-numerical-color-toggle")
     const legendContainer = d3.select("#categorical-variable-legend-container");
 
     //If checked
@@ -37,6 +39,12 @@ function toggleCategoricalColoring() {
             binaryToggle.checked = false;
             resetBinaryColors();
             d3.select("#binary-variable-legend-container").style("display", "none");
+        }
+
+        if (numericalToggle.checked) {
+            numericalToggle.checked = false;
+            resetNumericalColours();
+            d3.select("#numerical-variable-legend-container").style("display", "none");
         }
         //Apply Categorical Colouring, render the legend
         applyCategoricalColouring();

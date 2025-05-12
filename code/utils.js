@@ -53,11 +53,14 @@ export function buildEverything() {
     }
     
     setSimulationState({
-        alphaTarget: 0.001,
-        velocityDecay: 0.6,
+        alphaTarget: 0.01,
+        velocityDecay: 0.3,
         chargeStrength: -50,
-        linkDistance: 20,
+        linkDistance: 30,
     });
+
+    setTimeout(() => {
+        appState.sim.alphaTarget(0);}, 1000);
 }
 
 //Set simulation states
@@ -74,7 +77,7 @@ export function setSimulationState({ alphaTarget, velocityDecay, chargeStrength,
     const link = sim.force("link");
     if (link) link.distance(linkDistance);
 
-    sim.restart();
+    sim.alpha(1).restart();
 }
 
 

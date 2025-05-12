@@ -53,7 +53,54 @@
             <button id="louvain-matrices-button" class="btn btn-primary">Communities: Louvain algorithm</button>
             <button id="binary-matrices-button" class="btn btn-primary">Binary Variable: Codeshare</button>
             <button id="categorical-matrices-button" class="btn btn-primary">Categorical Variable: Airline Country of Origin</button>
+            <button id="numerical-matrices-button" class = "btn btn-primary">Numerical variable: Distance</button>
           </div>
+        </div>
+
+        <div id="numerical-category-editor">
+          <h4>Custom Numerical Categories</h4>
+          <table id="numerical-category-table">
+              <thead>
+                  <tr>
+                      <th>Label</th>
+                      <th>Min</th>
+                      <th>Max</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  <tr>
+                      <td><input type="text" value="Very Short" /></td>
+                      <td><input type="number" value="0" /></td>
+                      <td><input type="number" value="500" /></td>
+                      <td><button class="remove-row">✖</button></td>
+                  </tr>
+                  <tr>
+                      <td><input type="text" value="Short" /></td>
+                      <td><input type="number" value="500" /></td>
+                      <td><input type="number" value="1200" /></td>
+                      <td><button class="remove-row">✖</button></td>
+                  </tr>
+                  <tr>
+                      <td><input type="text" value="Medium" /></td>
+                      <td><input type="number" value="1500" /></td>
+                      <td><input type="number" value="3000" /></td>
+                      <td><button class="remove-row">✖</button></td>
+                  </tr>
+                  <tr>
+                      <td><input type="text" value="Long" /></td>
+                      <td><input type="number" value="3000" /></td>
+                      <td><input type="number" value="5000" /></td>
+                      <td><button class="remove-row">✖</button></td>
+                  </tr>
+                  <tr>
+                      <td><input type="text" value="Very Long" /></td>
+                      <td><input type="number" value="5000" /></td>
+                      <td><input type="number" value="99999" /></td>
+                      <td><button class="remove-row">✖</button></td>
+                  </tr>
+              </tbody>
+          </table>
+          <button id="add-category-row">Add Row</button>
         </div>
 
         <!-- Multivariate Options -->

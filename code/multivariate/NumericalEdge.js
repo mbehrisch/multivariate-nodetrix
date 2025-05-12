@@ -1,6 +1,6 @@
-import { buttonState, datasetSpec } from "../main.js";
+import { appState, buttonState, datasetSpec } from "../main.js";
 
-let numericalColorScale;
+export let numericalColorScale;
 let numericalDefined = false;
 export let numericalColorMap = new Map();
 
@@ -50,14 +50,70 @@ export function defineNumericalMapping() {
     const allValues = [...linkValues, ...matrixValues].filter(v => v != null && !isNaN(v));
 
     const minValue = d3.min(allValues);
-    const maxValue = d3.max(allValues);
+    let maxValue = d3.max(allValues);
 
     // You can change d3.interpolateViridis to any other sequential interpolator
-    numericalColorScale = d3.scaleSequential()
+    numericalColorScale = d3.scaleSequentialLog()
         .domain([minValue, maxValue])
         //Start a little darker due to visibility
-        .interpolator(t => d3.interpolateGreens(0.2 + 0.8 * t));
-        //.interpolator(t => d3.interpolateYlOrRd(0.2+0.8*t)) 
+        //.interpolator(t => d3.interpolateGreens(0.2 + 0.8 * t));
+        .interpolator(t => d3.interpolateYlGnBu(t)) 
 
     numericalDefined = true;
+}
+
+import { getCustomNumericalCategories } from "../pageInteraction/NumericalCatTable.js";
+let customNumericalCategories=[]
+
+export function NumericalMatrices() {
+    const graph = appState.graph;
+    const numericalVar = datasetSpec.numericalVar;
+
+    //Retrieve custom Numerical Categories from Page
+    customNumericalCategories.length = 0; // Clear existing
+    getCustomNumericalCategories().forEach(cat => customNumericalCategories.push(cat));
+
+    const matrixGroups = {};
+
+    graph.forEachNode((nodeKey) => {
+        const connectedEdges = graph.edges(nodeKey);
+        const categoryCounts = {};
+
+        connectedEdges.forEach(edgeKey => {
+            const val = graph.getEdgeAttribute(edgeKey, numericalVar);
+
+            const matchedCategory = customNumericalCategories.find(cat =>
+                val >= cat.range[0] && val < cat.range[1]
+            );
+
+            if (matchedCategory) {
+                const label = matchedCategory.label;
+                categoryCounts[label] = (categoryCounts[label] || 0) + 1;
+            }
+        });
+
+        let maxCategory = null;
+        let maxCount = 0;
+        for (const [category, count] of Object.entries(categoryCounts)) {
+            if (count > maxCount) {
+                maxCategory = category;
+                maxCount = count;
+            }
+        }
+
+        if (maxCategory) {
+            if (!matrixGroups[maxCategory]) matrixGroups[maxCategory] = [];
+            matrixGroups[maxCategory].push(nodeKey);
+        }
+    });
+
+    Object.entries(matrixGroups).forEach(([label, nodes]) => {
+        if (nodes.length < 2) delete matrixGroups[label];
+    });
+
+    // Object.entries(matrixGroups).forEach(([category, nodes]) => {
+    //     console.log(`Category: ${category}, Number of nodes: ${nodes.length}`);
+    // });
+
+    return matrixGroups;
 }

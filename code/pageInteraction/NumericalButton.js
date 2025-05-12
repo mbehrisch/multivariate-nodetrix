@@ -1,8 +1,8 @@
-import { appState, datasetSpec } from "../main.js";
-import { buildEverything, louvainMatrices } from "../utils.js";
+import { appState } from "../main.js";
+import { buildEverything } from "../utils.js";
 import { resetBinaryColors } from "../multivariate/BinaryEdge.js";
 import { resetCategoricalColours } from "../multivariate/CategoricalEdge.js";
-import { applyNumericalColouring, resetNumericalColours, defineNumericalMapping } from "../multivariate/NumericalEdge.js";
+import { applyNumericalColouring, resetNumericalColours, defineNumericalMapping, NumericalMatrices } from "../multivariate/NumericalEdge.js";
 
 // Grab toggle elements
 const numericalToggle = document.getElementById("edge-numerical-color-toggle");
@@ -21,10 +21,11 @@ export function addNumericalColourLegend() {
     toggleNumericalColoring(); // Reset state on load
 }
 
-// export function buttonNumericalMatrices() {
-//     // You can optionally define a matrix grouping logic for numerical values
-//     buildEverything();
-// }
+export function buttonNumericalMatrices() {
+    // You can optionally define a matrix grouping logic for numerical values
+    appState.matrixGroups = NumericalMatrices();
+    buildEverything();
+}
 
 // Toggle logic
 function toggleNumericalColoring() {
@@ -56,60 +57,62 @@ function toggleNumericalColoring() {
     }
 }
 
+import { numericalColorScale } from "../multivariate/NumericalEdge.js";
 // Gradient legend
 function renderNumericalLegend() {
     const container = d3.select("#numerical-legend-colors");
     container.selectAll("*").remove();
 
-    // Assumes defineNumericalMapping() has run and numericalColorScale is available
-    defineNumericalMapping(); // Ensure the color scale is up to date
+    defineNumericalMapping(); // Ensure scale is set
 
     const gradientId = "numerical-gradient-scale";
+    const min = numericalColorScale.domain()[0];
+    const max = numericalColorScale.domain()[1];
 
-    // Create SVG for gradient legend
+    const svgWidth = 250;
     const svg = container.append("svg")
-        .attr("width", 200)
-        .attr("height", 40);
+        .attr("width", svgWidth+15)
+        .attr("height", 50);
 
     const defs = svg.append("defs");
-
     const gradient = defs.append("linearGradient")
         .attr("id", gradientId)
         .attr("x1", "0%")
         .attr("x2", "100%");
 
-    // Generate color stops across 10 steps for smoothness
     const steps = 10;
     for (let i = 0; i <= steps; i++) {
         const t = i / steps;
         gradient.append("stop")
             .attr("offset", `${t * 100}%`)
-            .attr("stop-color", d3.interpolateGreens(0.2+0.8*t));
+            .attr("stop-color", d3.interpolateYlGnBu(t));
     }
 
     svg.append("rect")
         .attr("x", 0)
         .attr("y", 5)
-        .attr("width", 180)
+        .attr("width", svgWidth+15)
         .attr("height", 15)
         .style("fill", `url(#${gradientId})`);
 
-    // Axis labels
-    const [minValue, maxValue] = d3.extent(
-        d3.selectAll(".link").data().map(d => d[datasetSpec.numericalVar])
-            .concat(d3.selectAll(".cellPositive").data().map(d => d.attributes[datasetSpec.numericalVar]))
-    );
+    // Add log ticks with spacing
+    const logScale = d3.scaleLog().domain([min, max]).range([0, svgWidth]);
+    const tickCount = 8;
+    const logMin = Math.log10(min);
+    const logMax = Math.log10(max);
+    const ticks = d3.range(tickCount).map(i =>{
+        const rawTick = Math.pow(10, logMin + (i * (logMax - logMin) / (tickCount - 1)));
+        return Math.round(rawTick / 100) * 100; // round to nearest 100
+    });
 
-    svg.append("text")
-        .attr("x", 0)
-        .attr("y", 35)
-        .attr("font-size", "10px")
-        .text(minValue.toFixed(2));
+    const formatTick = d3.format("~s");
 
-    svg.append("text")
-        .attr("x", 180)
-        .attr("y", 35)
-        .attr("font-size", "10px")
-        .attr("text-anchor", "end")
-        .text(maxValue.toFixed(2));
+    ticks.forEach(tick => {
+        svg.append("text")
+            .attr("x", logScale(tick))
+            .attr("y", 38)
+            .attr("font-size", "10px")
+            .attr("text-anchor", "middle")
+            .text(formatTick(tick));
+    });
 }

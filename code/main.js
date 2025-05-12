@@ -5,6 +5,7 @@ import { buildEverything, louvainMatrices } from './utils.js';
 import { addBinaryColourLegend, addButtonFunctions } from './pageInteraction/BinaryButtons.js';
 import { addCategoricalColourLegend } from './pageInteraction/CategoricalButtons.js';
 import { addNumericalColourLegend } from './pageInteraction/NumericalButton.js';
+import { customNumericalCategoriesFunction } from './pageInteraction/NumericalCatTable.js';
 
 const graphDiv = document.getElementById('graph');
 export const width = graphDiv.clientWidth;
@@ -70,7 +71,7 @@ fetch("data/sampled_data.json")
                 stops: edge.attributes.stops,
                 equipment: edge.attributes.equipment,
                 airlinecountry:edge.attributes.airlinecountry,
-                distance_km: edge.attributes.distance_km
+                distance_km: edge.attributes.distance_km,
             });
         });
 
@@ -81,6 +82,8 @@ fetch("data/sampled_data.json")
         addBinaryColourLegend();
         addCategoricalColourLegend();
         addNumericalColourLegend();
+
+        customNumericalCategoriesFunction();
         
         buildEverything();
     });

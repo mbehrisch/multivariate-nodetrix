@@ -4,6 +4,7 @@ import { appState, buttonState } from "../main.js";
 import { resetCategoricalColours } from "../multivariate/CategoricalEdge.js";
 import { buttonCategoricalMatrices } from "./CategoricalButtons.js";
 import { resetNumericalColours } from "../multivariate/NumericalEdge.js";
+import { buttonNumericalMatrices } from "./NumericalButton.js"
 
 const edgeTypeBinaryToggle = document.getElementById("edge-binary-color-toggle")
 
@@ -11,6 +12,7 @@ export function addButtonFunctions(){
     document.getElementById("louvain-matrices-button").addEventListener("click", buttonLouvainMatrices)
     document.getElementById("binary-matrices-button").addEventListener("click", buttonBinaryMatrices)
     document.getElementById("categorical-matrices-button").addEventListener("click", buttonCategoricalMatrices)
+    document.getElementById("numerical-matrices-button").addEventListener("click", buttonNumericalMatrices)
 }
 
 //Function that handles the toggling of the binatrMatrixToggle

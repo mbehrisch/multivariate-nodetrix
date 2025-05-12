@@ -14,8 +14,8 @@ export function applyForceLayout(nodes, links, dummyMap) {
             if (d.id && d.id.startsWith("dummy-")) {
                 return (d.matrixSize+1) * cellSize * 1.5;
             }
-            return d.r + nodeSize;
-        }))
+            return d.r + nodeSize*2;
+        }).strength(1))
         .on("tick", ticked);
 
     function ticked() {

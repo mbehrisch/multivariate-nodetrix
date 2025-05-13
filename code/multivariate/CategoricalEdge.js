@@ -2,18 +2,18 @@ import { appState, buttonState, datasetSpec } from "../main.js";
 
 //Function to determine the mapping of category to colour --> same colour for mental model
 let categoricalColorScale;
-let categoricalDefined = false
+let categoricalDefined = []
 export let categoricalColorMap = {};
 
-export function applyCategoricalColouring() {
+export function applyCategoricalColouring(categoricalVar) {
     //If we have not yet defined a categorical mapping yet, do this
-    if(categoricalDefined === false){
-        defineCategoricalMapping();
+    if(categoricalDefined.categoricalVar !== true){
+        defineCategoricalMapping(categoricalVar);
     }
 
     // Apply colors to links
     d3.selectAll(".link").each(function(d) {
-        const color = categoricalColorMap[d[datasetSpec.categoricalVar]];
+        const color = categoricalColorMap[d[categoricalVar]];
 
         d3.select(this)
             .style("stroke", color)
@@ -21,7 +21,7 @@ export function applyCategoricalColouring() {
     });
 
     d3.selectAll(".cellPositive").each(function(d) {
-        const color = categoricalColorMap[d.attributes[datasetSpec.categoricalVar]];
+        const color = categoricalColorMap[d.attributes[categoricalVar]];
         d3.select(this)
             .style("fill", color)
             .style("stroke", color)
@@ -43,10 +43,10 @@ export function resetCategoricalColours() {
     buttonState.categoricalVariableActivated = false
 }
 
-export function defineCategoricalMapping(){
+export function defineCategoricalMapping(categoricalVar){
     //Find the categories that are actually being visualized
-    const linkCategoricals = d3.selectAll(".link").data().map(d => d[datasetSpec.categoricalVar]);
-    const matrixCategoricals = d3.selectAll(".cellPositive").data().map(d => d.attributes[datasetSpec.categoricalVar]);
+    const linkCategoricals = d3.selectAll(".link").data().map(d => d[categoricalVar]);
+    const matrixCategoricals = d3.selectAll(".cellPositive").data().map(d => d.attributes[categoricalVar]);
 
     // Combine the two arrays and get unique categories
     const categories = Array.from(new Set([...linkCategoricals, ...matrixCategoricals]));
@@ -75,12 +75,12 @@ export function defineCategoricalMapping(){
     });
 
     //Flip switch
-    categoricalDefined = true
+    categoricalDefined.categoricalVar = true
 }
 
-export function CategoricalMatrices() {
+export function CategoricalMatrices(categoricalVar) {
     const graph = appState.graph;
-    const categoricalVar = datasetSpec.categoricalVar;
+    //const categoricalVar = datasetSpec.categoricalVar;
 
     const matrixGroups = {};
 

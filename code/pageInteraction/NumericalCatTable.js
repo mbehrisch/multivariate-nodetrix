@@ -32,6 +32,7 @@ export function customNumericalCategoriesFunction(){
         `;
 
         tableBody.appendChild(row);
+        attachRemoveListeners(tableBody);
     });
 
     attachRemoveListeners(tableBody);
@@ -45,4 +46,32 @@ function attachRemoveListeners(tableBody) {
             }
         };
     });
+}
+
+export function createNumCatLegend(customNumericalCategories, colorScale){
+    //Legend
+    const legendList = d3.select("#numerical-legend-list");
+
+    // Create legend items
+    customNumericalCategories.forEach(cat => {
+        const item = legendList.append("li")
+            .attr("class", "legend-item legend-color-item");
+
+        item.append("span")
+            .attr("class", "legend-color")
+            .style("background-color", colorScale(cat.label));
+
+        item.append("span")
+            .text(`${cat.label} (${cat.range[0]} - ${cat.range[1]})`);
+    });
+
+    const OutOfRangeItem = legendList.append("li")
+        .attr("class", "legend-item legend-color-item");
+    
+    OutOfRangeItem.append("span")
+        .attr("class", "legend-color")
+        .style("background-color", "#fc0000");
+    
+    OutOfRangeItem.append("span")
+        .text("Out of Range");
 }

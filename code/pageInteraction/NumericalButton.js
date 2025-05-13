@@ -1,4 +1,4 @@
-import { appState } from "../main.js";
+import { appState, datasetSpec } from "../main.js";
 import { buildEverything } from "../utils.js";
 import { resetBinaryColors } from "../multivariate/BinaryEdge.js";
 import { resetCategoricalColours } from "../multivariate/CategoricalEdge.js";
@@ -19,6 +19,92 @@ export function addNumericalColourLegend() {
     numericalToggle.addEventListener("change", toggleNumericalColoring);
 
     toggleNumericalColoring(); // Reset state on load
+
+    //Categorical button
+    reorderItem.append("input")
+        .attr("type", "checkbox")
+        .attr("id", "categorical-numerical-matrices-checkbox");
+
+    reorderItem.append("label")
+        .attr("for", "categorical-numerical-matrices-checkbox")
+        .text("Treat numerical variables as categories");
+
+    // Hook event listener
+    document.getElementById("categorical-numerical-matrices-checkbox")
+        .addEventListener("change", toggleNumericalCategories);
+}
+
+import { createNumCatLegend, getCustomNumericalCategories } from "../pageInteraction/NumericalCatTable.js";
+let customNumericalCategories=[]
+export function toggleNumericalCategories(){
+    const numericalCategoricalToggle = document.getElementById("categorical-numerical-matrices-checkbox")
+    if (numericalCategoricalToggle.checked){
+        console.log("A")
+        d3.select("#numerical-legend-colors").style("display", "none")
+        const {customNumericalCategories, colorScale}=applyNumericalCategoriesColours();
+        createNumCatLegend(customNumericalCategories, colorScale);
+    }
+    else{
+        console.log("b")
+        d3.select("#numerical-legend-colors").style("display", "block")
+        d3.selectAll(".legend-color-item").remove();
+        applyNumericalColouring();
+    }
+    //Apply it to the matrix cells and links
+}
+
+function assignToCategory(value) {
+    for (const cat of customNumericalCategories) {
+        if (value >= cat.range[0] && value < cat.range[1]) {
+            return cat.label;
+        }
+    }
+    return "Out of Range";
+}
+
+function applyNumericalCategoriesColours(){
+    customNumericalCategories.length = 0; // Clear existing
+    getCustomNumericalCategories().forEach(cat => customNumericalCategories.push(cat));
+
+    const sortedCategories = [...customNumericalCategories].sort((a, b) => a.range[0] - b.range[0]);
+
+    const colorScale = d3.scaleOrdinal()
+        .domain(sortedCategories.map(cat => cat.label))
+        //Slice first as it is too light against white
+        .range((d3.schemeYlGnBu[sortedCategories.length+1] || d3.schemeYlGnBu[9]).slice(1));
+
+    d3.selectAll(".cellPositive").each(function(d) {
+        const value = d.attributes[datasetSpec.numericalVar];
+        const category = assignToCategory(value);
+        let color = colorScale(category)
+
+        if (category === "Out of Range"){
+            color = "#fc0000"
+        }
+
+        d3.select(this)
+            .style("fill", color)
+            .style("stroke", color);
+            
+    });
+
+    d3.selectAll(".link").each(function(d) {
+        const value = d[datasetSpec.numericalVar];
+        const category = assignToCategory(value);
+        let color = colorScale(category)
+
+        console.log(value, category, color)
+
+        if (category === "Out of Range"){
+            color = "#fc0000"
+        }
+
+        d3.select(this)
+            .style("opacity", null)
+            .style("stroke", color);
+    });
+
+    return {customNumericalCategories: sortedCategories, colorScale}
 }
 
 export function buttonNumericalMatrices() {
@@ -52,6 +138,11 @@ function toggleNumericalColoring() {
         legendContainer.style("display", "block");
 
     } else {
+        const numericalCategoricalToggle = document.getElementById("categorical-numerical-matrices-checkbox")
+        if(numericalCategoricalToggle){
+            numericalCategoricalToggle.checked = false
+            d3.selectAll(".legend-color-item").remove();
+        }
         resetNumericalColours();
         legendContainer.style("display", "none");
     }

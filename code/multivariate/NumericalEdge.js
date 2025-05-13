@@ -12,7 +12,7 @@ export function applyNumericalColouring() {
     // Apply colors to links
     d3.selectAll(".link").each(function(d) {
         const value = d[datasetSpec.numericalVar];
-        const color = numericalColorScale(value);
+        let color = numericalColorScale(value);
 
         d3.select(this)
             .style("stroke", color)
@@ -110,10 +110,6 @@ export function NumericalMatrices() {
     Object.entries(matrixGroups).forEach(([label, nodes]) => {
         if (nodes.length < 2) delete matrixGroups[label];
     });
-
-    // Object.entries(matrixGroups).forEach(([category, nodes]) => {
-    //     console.log(`Category: ${category}, Number of nodes: ${nodes.length}`);
-    // });
 
     return matrixGroups;
 }

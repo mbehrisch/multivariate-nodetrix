@@ -45,7 +45,7 @@ export function buildEverything() {
     }
 
     if (buttonState.categoricalVariableActivated) {
-        applyCategoricalColouring();
+        applyCategoricalColouring(datasetSpec.categoricalVar);
     }
 
     if (buttonState.numericalVariableActivated) {

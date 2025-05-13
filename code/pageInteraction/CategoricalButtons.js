@@ -1,4 +1,4 @@
-import { appState } from "../main.js";
+import { appState, datasetSpec } from "../main.js";
 import { buildEverything, louvainMatrices } from "../utils.js";
 import { resetBinaryColors } from "../multivariate/BinaryEdge.js";
 import { applyCategoricalColouring, resetCategoricalColours, CategoricalMatrices, categoricalColorMap } from "../multivariate/CategoricalEdge.js";
@@ -22,7 +22,7 @@ export function addCategoricalColourLegend() {
 }
 
 export function buttonCategoricalMatrices(){
-    appState.matrixGroups = CategoricalMatrices();
+    appState.matrixGroups = CategoricalMatrices(datasetSpec.categoricalVar);
     buildEverything();
 }
 
@@ -47,7 +47,7 @@ function toggleCategoricalColoring() {
             d3.select("#numerical-variable-legend-container").style("display", "none");
         }
         //Apply Categorical Colouring, render the legend
-        applyCategoricalColouring();
+        applyCategoricalColouring(datasetSpec.categoricalVar);
         renderCategoricalLegend();
         legendContainer.style("display", "block");
     } else {

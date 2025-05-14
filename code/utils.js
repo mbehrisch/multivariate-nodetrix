@@ -4,7 +4,7 @@ import { applyForceLayout } from './building/force-layout.js';
 import { svg, appState, buttonState, datasetSpec } from './main.js';
 import { applyBinaryColouring } from './multivariate/BinaryEdge.js';
 import { applyCategoricalColouring } from './multivariate/CategoricalEdge.js';
-import { applyNumericalColouring } from './multivariate/NumericalEdge.js';
+import { applyNumericalCategoriesColours, applyNumericalColouring } from './multivariate/NumericalEdge.js';
 
 //Build everything when called upon
 export function buildEverything() {
@@ -49,7 +49,11 @@ export function buildEverything() {
     }
 
     if (buttonState.numericalVariableActivated) {
-        applyNumericalColouring();
+        if (buttonState.numericalCategoriesActivated){
+            applyNumericalCategoriesColours();
+        }else{
+            applyNumericalColouring();
+        }
     }
     
     setSimulationState({

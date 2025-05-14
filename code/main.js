@@ -1,10 +1,10 @@
 import Graph from 'https://cdn.skypack.dev/graphology';
 
 import { buildEverything, louvainMatrices } from './utils.js';
-//import { addCategoricalColourLegend, addBinaryColourLegend } from './pageInteraction/EdgeButtons.js';
-import { addBinaryColourLegend, addButtonFunctions } from './pageInteraction/BinaryButtons.js';
-import { addCategoricalColourLegend } from './pageInteraction/CategoricalButtons.js';
-import { addNumericalColourLegend } from './pageInteraction/NumericalButton.js';
+//import { SetupCagegoricalColour, SetupBinaryColour } from './pageInteraction/EdgeButtons.js';
+import { SetupBinaryColour, addButtonFunctions } from './pageInteraction/BinaryButtons.js';
+import { SetupCategoricalColour } from './pageInteraction/CategoricalButtons.js';
+import { SetupNumericalColour } from './pageInteraction/NumericalButton.js';
 import { customNumericalCategoriesFunction } from './pageInteraction/NumericalCatTable.js';
 
 const graphDiv = document.getElementById('graph');
@@ -38,7 +38,8 @@ export const buttonState = {
     binarySorted: false,
 //    binaryMatrices: false,
     categoricalVariableActivated: false,
-    numericalVariableActivated: false
+    numericalVariableActivated: false,
+    numericalCategoriesActivated: false
 }
 
 let graph = new Graph({ multi: true });
@@ -78,12 +79,14 @@ fetch("data/sampled_data.json")
         appState.graph = graph;
         appState.matrixGroups = louvainMatrices();
 
+        buildEverything();
+
         addButtonFunctions();
-        addBinaryColourLegend();
-        addCategoricalColourLegend();
-        addNumericalColourLegend();
+        SetupBinaryColour();
+        SetupCategoricalColour();
+        SetupNumericalColour();
 
         customNumericalCategoriesFunction();
         
-        buildEverything();
+
     });

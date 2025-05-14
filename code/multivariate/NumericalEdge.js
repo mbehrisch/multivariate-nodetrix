@@ -1,14 +1,11 @@
 import { appState, buttonState, datasetSpec } from "../main.js";
 
-export let numericalColorScale;
-let numericalDefined = false;
+// export let numericalColorScale;
 export let numericalColorMap = new Map();
 
 export function applyNumericalColouring() {
-    if (!numericalDefined) {
-        defineNumericalMapping();
-    }
 
+    const numericalColorScale = defineNumericalMapping();
     // Apply colors to links
     d3.selectAll(".link").each(function(d) {
         const value = d[datasetSpec.numericalVar];
@@ -29,6 +26,7 @@ export function applyNumericalColouring() {
     });
 
     buttonState.numericalVariableActivated = true;
+    buttonState.numericalCategoriesActivated = false
 }
 
 export function resetNumericalColours() {
@@ -53,17 +51,72 @@ export function defineNumericalMapping() {
     let maxValue = d3.max(allValues);
 
     // You can change d3.interpolateViridis to any other sequential interpolator
-    numericalColorScale = d3.scaleSequentialLog()
+    const numericalColorScale = d3.scaleSequentialLog()
         .domain([minValue, maxValue])
         //Start a little darker due to visibility
         //.interpolator(t => d3.interpolateGreens(0.2 + 0.8 * t));
         .interpolator(t => d3.interpolateYlGnBu(t)) 
 
-    numericalDefined = true;
+    return numericalColorScale
 }
 
 import { getCustomNumericalCategories } from "../pageInteraction/NumericalCatTable.js";
 let customNumericalCategories=[]
+
+export function applyNumericalCategoriesColours(){
+    customNumericalCategories.length = 0; // Clear existing
+    getCustomNumericalCategories().forEach(cat => customNumericalCategories.push(cat));
+
+    //Sort the ranges to make sense with the colours
+    const sortedCategories = [...customNumericalCategories].sort((a, b) => a.range[0] - b.range[0]);
+
+    const numCatcolorScale = d3.scaleOrdinal()
+        .domain(sortedCategories.map(cat => cat.label))
+        //Slice first as it is too light against white
+        .range((d3.schemeYlGnBu[sortedCategories.length+1] || d3.schemeYlGnBu[9]).slice(1));
+
+    d3.selectAll(".cellPositive").each(function(d) {
+        const value = d.attributes[datasetSpec.numericalVar];
+        const category = assignToCategory(value);
+        let color = numCatcolorScale(category)
+
+        if (category === "Out of Range"){
+            color = "#fc0000"
+        }
+
+        d3.select(this)
+            .style("fill", color)
+            .style("stroke", color);
+            
+    });
+
+    d3.selectAll(".link").each(function(d) {
+        const value = d[datasetSpec.numericalVar];
+        const category = assignToCategory(value);
+        let color = numCatcolorScale(category)
+
+        if (category === "Out of Range"){
+            color = "#fc0000"
+        }
+
+        d3.select(this)
+            .style("opacity", null)
+            .style("stroke", color);
+    });
+
+    buttonState.numericalCategoriesActivated = true
+
+    return {customNumericalCategories: sortedCategories, numCatcolorScale}
+}
+
+function assignToCategory(value) {
+    for (const cat of customNumericalCategories) {
+        if (value >= cat.range[0] && value < cat.range[1]) {
+            return cat.label;
+        }
+    }
+    return "Out of Range";
+}
 
 export function NumericalMatrices() {
     const graph = appState.graph;

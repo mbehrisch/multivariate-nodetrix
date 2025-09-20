@@ -2,7 +2,7 @@ import { buildMatrix } from './building/matrix-builder.js';
 import { buildNL } from './building/NL-builder.js';
 import { applyForceLayout } from './building/force-layout.js';
 import { svg, appState, buttonState, datasetSpec } from './main.js';
-import { applyBinaryColouring } from './multivariate/BinaryEdge.js';
+import { applyBinaryColouring, applyBinaryStroke } from './multivariate/BinaryEdge.js';
 import { applyCategoricalColouring } from './multivariate/CategoricalEdge.js';
 import { applyNumericalCategoriesColours, applyNumericalColouring } from './multivariate/NumericalEdge.js';
 
@@ -10,7 +10,9 @@ import { applyNumericalCategoriesColours, applyNumericalColouring } from './mult
 export function buildEverything() {
     const matrixGroups = appState.matrixGroups;
 
+    // Remove everything except defs
     svg.selectAll("*").remove();
+    createDiagonalHatchPattern();
 
     const sim = appState.sim;
     if (sim) {
@@ -40,8 +42,12 @@ export function buildEverything() {
 
     applyForceLayout(nodes, links, dummyMap);
 
-    if (buttonState.binaryVariableActivated) {
+    if (buttonState.binaryColour) {
         applyBinaryColouring();
+    }
+
+    if (buttonState.binaryStroke){
+        applyBinaryStroke();
     }
 
     if (buttonState.categoricalVariableActivated) {
@@ -178,4 +184,20 @@ export function louvainMatrices(){
     });
 
     return matrixGroups
+}
+
+function createDiagonalHatchPattern() {
+  // Check if pattern already exists to avoid duplicates
+  if (svg.select("pattern#diagonalHatch").empty()) {
+    svg.append("defs")
+        .append("pattern")
+            .attr("id", "diagonalHatch")
+            .attr("patternUnits", "userSpaceOnUse")
+            .attr("width", 6)
+            .attr("height", 6)
+        .append("path")
+            .attr("d", "M0,0 l6,6")
+            .attr("stroke", "white")
+            .attr("stroke-width", 1);
+  }
 }

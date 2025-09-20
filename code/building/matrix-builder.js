@@ -38,42 +38,43 @@ export function buildMatrix() {
             .attr("class", "matrix-row")
             .attr("transform", (d, j) => `translate(0, ${j * cellSize})`);
 
-        rows.selectAll(".cell")
+        rows.selectAll(".cell-group")
             .data(function(rowId) {
-                //Might be problematic if directed/multi-edge becomes important
                 return nodesInMatrix.map(colId => {
                     let attributes = null;
-        
-                    // Check for the forward edge (rowId -> colId)
+
                     const forwardEdges = [...graph.edgeEntries(rowId, colId)];
-                    
-                    // Check for the reverse edge (colId -> rowId)
                     const backwardEdges = [...graph.edgeEntries(colId, rowId)];
-                    
-                    //Ensure symmetry
+
                     if (colId >= rowId) {
-                        // For cells where colId >= rowId, use the reverse edge first
                         if (backwardEdges.length > 0) {
                             attributes = backwardEdges[0].attributes;
                         }
                     } else {
-                        // Otherwise, use the forward edge
                         if (forwardEdges.length > 0) {
                             attributes = forwardEdges[0].attributes;
                         }
                     }
-                    
+
                     return { row: rowId, col: colId, attributes };
                 });
             })
-            .enter().append("rect")
-            .attr("class", d => {
-                if (d.row === d.col) return "cell cellDiagonal";
-                return d.attributes ? "cell cellPositive" : "cell cellNegative";
-            })
-            .attr("x", (d, i) => i * cellSize)
-            .attr("width", cellSize)
-            .attr("height", cellSize);
+            .enter()
+            .append("g")
+                .attr("class", "cell-group")
+                .attr("transform", (d, i) => `translate(${i * cellSize}, 0)`)
+                .each(function(d) {
+                    const g = d3.select(this);
+
+                    g.append("rect")
+                        .attr("class", () => {
+                            if (d.row === d.col) return "cell cellDiagonal";
+                            return d.attributes ? "cell cellPositive" : "cell cellNegative";
+                        })
+                        .attr("width", cellSize)
+                        .attr("height", cellSize);
+                });
+
 
         //// Row labels (for matrix)
         const labelRow = matrixSvg.append("g")

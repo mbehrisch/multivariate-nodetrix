@@ -3,11 +3,45 @@ import { buildEverything } from "../utils.js";
 import { resetBinaryColors } from "../multivariate/BinaryEdge.js";
 import { resetCategoricalColours } from "../multivariate/CategoricalEdge.js";
 import { applyNumericalColouring, resetNumericalColours, defineNumericalMapping,
-     NumericalMatrices, applyNumericalCategoriesColours } from "../multivariate/NumericalEdge.js";
+     NumericalMatrices, applyNumericalCategoriesColours,
+    applyNumericalThickness, 
+    resetNumericalThickness} from "../multivariate/NumericalEdge.js";
 import { createNumCatLegend } from "../pageInteraction/NumericalCatTable.js";
 
 // Grab toggle elements
 const numericalToggle = document.getElementById("edge-numerical-color-toggle");
+
+export function SetupNumericalOptions(){
+    document.getElementById("numerical-options-button").addEventListener("click", toggleNumericalOptions)
+    document.getElementById("numerical-options-button").checked=false
+    SetupNumericalColour();
+    SetUpNumericalThickness();
+}
+
+function toggleNumericalOptions(){
+    const numericalOptionsButton = document.getElementById("numerical-options-button")
+    if (numericalOptionsButton.checked){
+        d3.select("#numerical-options-container").style("display", "block")
+    }else{
+        d3.select("#numerical-options-container").style("display", "none")
+    }
+}
+
+const numericalThicknessButton = document.getElementById("numerical-thickness-button")
+function SetUpNumericalThickness(){
+    numericalThicknessButton.checked = false
+    //createBinaryStrokeLegend();
+    numericalThicknessButton.addEventListener("change", toggleNumericalThickness);
+    toggleNumericalThickness();
+}
+
+function toggleNumericalThickness(){
+    if (numericalThicknessButton.checked === true) {
+        applyNumericalThickness();
+    }else{
+        resetNumericalThickness();
+    }
+}
 
 // Toggle logic
 function toggleNumericalColoring() {
@@ -76,7 +110,7 @@ export function SetupNumericalColour() {
 function renderNumericalLegend() {
     const container = d3.select("#numerical-legend-colors");
 
-    const numericalColorScale=defineNumericalMapping(); // Ensure scale is set
+    const numericalColorScale = defineNumericalMapping(); // Ensure scale is set
 
     const gradientId = "numerical-gradient-scale";
     const min = numericalColorScale.domain()[0];

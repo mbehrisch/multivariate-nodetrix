@@ -1,4 +1,4 @@
-import { appState, buttonState, datasetSpec } from "../main.js";
+import { appState, buttonState, datasetSpec, cellSize } from "../main.js";
 
 // export let numericalColorScale;
 export let numericalColorMap = new Map();
@@ -48,9 +48,8 @@ export function defineNumericalMapping() {
     const allValues = [...linkValues, ...matrixValues].filter(v => v != null && !isNaN(v));
 
     const minValue = d3.min(allValues);
-    let maxValue = d3.max(allValues);
+    const maxValue = d3.max(allValues);
 
-    // You can change d3.interpolateViridis to any other sequential interpolator
     const numericalColorScale = d3.scaleSequentialLog()
         .domain([minValue, maxValue])
         //Start a little darker due to visibility
@@ -165,4 +164,71 @@ export function NumericalMatrices() {
     });
 
     return matrixGroups;
+}
+
+export function applyNumericalThickness(){
+    const linkValues = d3.selectAll(".link").data().map(d => d[datasetSpec.numericalVar]);
+    const matrixValues = d3.selectAll(".cellPositive").data().map(d => d.attributes[datasetSpec.numericalVar]);
+
+    const allValues = [...linkValues, ...matrixValues].filter(v => v != null && !isNaN(v));
+
+    const minValue = d3.min(allValues);
+    const maxValue = d3.max(allValues);
+
+    const strokeWidthScale = d3.scaleLinear()
+        .domain([minValue, maxValue])
+        .range([1, 5]);
+
+    d3.selectAll(".link")
+        .style("stroke-width", d => {
+            const val = d[datasetSpec.numericalVar];
+            return strokeWidthScale(val);
+        });
+
+    const fillScale = d3.scaleLinear()
+        .domain([minValue, maxValue])
+        .range([0.1, 1]);    
+
+    d3.selectAll(".cellPositive").each(function(d,i) {
+        const fillRatio = fillScale(d.attributes[datasetSpec.numericalVar]);
+        const innerSize = cellSize * Math.sqrt(fillRatio); // sqrt for area proportional scaling
+        const offset = (cellSize - innerSize) / 2;
+
+        const cell = d3.select(this);
+        const bbox = this.getBBox();
+        const parent = d3.select(this.parentNode);
+        const baseColor = cell.style("fill")
+        let parsedColor = null
+        if (baseColor === "black"){
+            parsedColor = "#606060"
+        }else if (baseColor === "red"){
+            parsedColor = "pink"
+        }else{
+            parsedColor = d3.color(baseColor).brighter(1)
+        }
+
+        // Use a unique id or data attribute to identify the overlay for this cell
+        const overlayId = "thickness-overlay-" + i;
+        const cellNode = this;
+
+        // Create overlay rect with same position and size
+        const overlay = parent.append("rect")
+            .attr("id", overlayId)
+            .attr("class", "thickness-overlay")
+            .attr("x", bbox.x + offset)
+            .attr("y", bbox.y + offset)
+            .attr("width", innerSize)
+            .attr("height", innerSize)
+            .attr("fill", parsedColor.toString())
+
+        // Move overlay in DOM to right after the cell node
+        overlay.node().parentNode.insertBefore(overlay.node(), cellNode.nextSibling);
+    })
+}
+
+export function resetNumericalThickness(){
+    d3.selectAll(".link")
+        .style("stroke-width", 1)
+
+    d3.selectAll(".thickness-overlay").remove();
 }

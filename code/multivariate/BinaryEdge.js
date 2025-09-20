@@ -2,40 +2,30 @@ import { datasetSpec, buttonState, appState } from "../main.js";
 
 //Function to provide colours to links and matrix cells for binary variables
 export function applyBinaryColouring() {
-    d3.selectAll(".cellPositive")
-        .style("fill", null)
-        .style("stroke", null);
 
+    // Colour matrix cells
     d3.selectAll(".cellPositive")
-        .classed("CellBinaryYes", d => d.attributes[datasetSpec.binaryVar] === true)
-        .classed("CellBinaryNo", d => d.attributes[datasetSpec.binaryVar] !== true);
+        .style("fill", d => d.attributes[datasetSpec.binaryVar] === true ? "green" : "red");
 
+    // Colour links
     d3.selectAll(".link")
-        .each(function(d) {
-            d3.select(this)
-                .classed("linkBinaryYes", d[datasetSpec.binaryVar] === true)
-                .classed("linkBinaryNo", d[datasetSpec.binaryVar] !== true);
-        });
+        .style("stroke", d => d[datasetSpec.binaryVar] === true ? "green" : "red");
     
     //Switch button state
-    buttonState.binaryVariableActivated = true
+    buttonState.binaryColour = true
 }
 
 //Reset colours
 export function resetBinaryColors() {
     d3.selectAll(".cellPositive")
-        .classed("CellBinaryYes", false)
-        .classed("CellBinaryNo", false);
+        .style("fill", null);
 
+    // Reset link stroke color
     d3.selectAll(".link")
-        .each(function(d) {
-            d3.select(this)
-                .classed("linkBinaryYes", false)
-                .classed("linkBinaryNo", false);
-        });
+        .style("stroke", null);
     
     //Switch button state and sorted button state
-    buttonState.binaryVariableActivated = false
+    buttonState.binaryColour = false
 }
 //Function to create Matrices based on if the majority of the edges of a node are true or not
 export function BinaryMatrices() {
@@ -69,4 +59,46 @@ export function BinaryMatrices() {
     if (majorityFalse.length > 1) matrixGroups.majorityFalse = majorityFalse;
 
     return matrixGroups;
+}
+
+export function applyBinaryStroke() {
+    d3.selectAll(".cellPositive").each(function(d, i) {
+        if (d.attributes[datasetSpec.binaryVar] === true) {
+            const cell = d3.select(this);
+            const bbox = this.getBBox();
+            const parent = d3.select(this.parentNode);
+
+            // Use a unique id or data attribute to identify the overlay for this cell
+            const overlayId = "stroke-overlay-" + i;
+            const cellNode = this;
+
+            // Create overlay rect with same position and size
+            const overlay = parent.append("rect")
+                .attr("id", overlayId)
+                .attr("class", "stroke-overlay")
+                .attr("x", bbox.x)
+                .attr("y", bbox.y)
+                .attr("width", bbox.width)
+                .attr("height", bbox.height)
+                .attr("fill", "url(#diagonalHatch)")
+
+            // Move overlay in DOM to right after the cell node
+            overlay.node().parentNode.insertBefore(overlay.node(), cellNode.nextSibling);
+        }
+    });
+
+    d3.selectAll(".link")
+        .style("stroke-dasharray", d => d[datasetSpec.binaryVar] === true ? "4,2" : "none");
+
+    buttonState.binaryStroke = true;
+}
+
+
+export function resetBinaryStroke(){
+    d3.selectAll(".link")
+        .style("stroke-dasharray", "none")
+
+    d3.selectAll(".stroke-overlay").remove();
+
+    buttonState.binaryStroke = false
 }

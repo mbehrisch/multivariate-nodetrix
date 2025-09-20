@@ -1,6 +1,8 @@
-import { applyBinaryColouring, resetBinaryColors, BinaryMatrices } from "../multivariate/BinaryEdge.js";
+import { applyBinaryColouring, resetBinaryColors,
+        applyBinaryStroke, resetBinaryStroke,
+         BinaryMatrices } from "../multivariate/BinaryEdge.js";
 import { buildEverything, louvainMatrices } from "../utils.js";
-import { appState, buttonState } from "../main.js";
+import { appState, buttonState, svg } from "../main.js";
 import { resetCategoricalColours } from "../multivariate/CategoricalEdge.js";
 import { resetNumericalColours } from "../multivariate/NumericalEdge.js";
 
@@ -8,6 +10,22 @@ import { buttonCategoricalMatrices } from "./CategoricalButtons.js";
 import { buttonNumericalMatrices } from "./NumericalButton.js"
 
 const edgeTypeBinaryToggle = document.getElementById("edge-binary-color-toggle")
+
+export function SetupBinaryOptions(){
+    document.getElementById("binary-options-button").addEventListener("click", toggleBinaryOptions)
+    document.getElementById("binary-options-button").checked=false
+    SetupBinaryColour();
+    SetupBinaryStroke();
+}
+
+function toggleBinaryOptions(){
+    const binaryOptionsButton = document.getElementById("binary-options-button")
+    if (binaryOptionsButton.checked){
+        d3.select("#binary-options-container").style("display", "block")
+    }else{
+        d3.select("#binary-options-container").style("display", "none")
+    }
+}
 
 //Function that toggles the legend and applies/removes the colour when button is clicked
 function toggleBinaryEdgeColoring() {
@@ -44,8 +62,28 @@ function toggleBinaryEdgeColoring() {
     
 }
 
+const binaryStrokeButton = document.getElementById("binary-stroke-button")
+function SetupBinaryStroke(){
+    binaryStrokeButton.checked = false
+    createBinaryStrokeLegend();
+    binaryStrokeButton.addEventListener("change", toggleBinaryStroke);
+    toggleBinaryStroke();
+}
+
+function toggleBinaryStroke(){
+    const strokeLegendContainer = d3.select('#binary-stroke-legend-container')
+    if (binaryStrokeButton.checked){
+        applyBinaryStroke();
+        strokeLegendContainer.style("display", "flex") //Flex ensures better layout
+    }
+    else{
+        resetBinaryStroke();
+        strokeLegendContainer.style("display", "none")
+    }
+}
+
 //Function to make the togglable BinaryColour Legend 
-export function SetupBinaryColour() {
+function SetupBinaryColour() {
     edgeTypeBinaryToggle.checked = false;
 
     ////Add legend
@@ -54,11 +92,11 @@ export function SetupBinaryColour() {
     //Append list items for Yes and No
     legend.append("li")
         .attr("class", "legend-item")
-        .html('<span class="legend-color yes"></span>Yes');
+        .html('<span class="legend-color yes"></span>True');
 
     legend.append("li")
         .attr("class", "legend-item")
-        .html('<span class="legend-color no"></span>No');
+        .html('<span class="legend-color no"></span>False');
 
     ////Append button for the Binary Reordering of matrices
     const reorderItem = legend.append("li")
@@ -94,7 +132,7 @@ function toggleBinaryReorder(){
 
 ////Recreate matrix buttons
 //Add the listeners to the recreate matrices once
-export function addButtonFunctions(){
+export function SetupRecreateMatrices(){
     document.getElementById("louvain-matrices-button").addEventListener("click", buttonLouvainMatrices)
     document.getElementById("binary-matrices-button").addEventListener("click", buttonBinaryMatrices)
     document.getElementById("categorical-matrices-button").addEventListener("click", buttonCategoricalMatrices)
@@ -111,4 +149,14 @@ function buttonLouvainMatrices(){
 function buttonBinaryMatrices(){
     appState.matrixGroups = BinaryMatrices();
     buildEverything();
+}
+
+function createBinaryStrokeLegend() {
+    const strokeLegendContainer = document.getElementById('binary-stroke-legend-container');
+    const strokeLegendList = document.getElementById('binary-stroke-list');
+    strokeLegendContainer.style.display = 'block';
+    strokeLegendList.innerHTML = `
+        <li><svg width="40" height="10"><line x1="0" y1="5" x2="40" y2="5" stroke="black" stroke-width="2" stroke-dasharray="4,2"/></svg></li>
+        <li><svg width="40" height="10"><line x1="0" y1="5" x2="40" y2="5" stroke="black" stroke-width="2"/></svg></li>
+    `;
 }

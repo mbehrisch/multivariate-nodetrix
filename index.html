@@ -108,20 +108,59 @@
           <h4 class="mb-2">Multivariate options</h4>
           <h5 class="mt-3">Edges</h5>
 
-          <!-- Binary variable checkbox -->
+          <!-- BINARY-->
           <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="edge-binary-color-toggle">
-            <label class="form-check-label" for="edge-binary-color-toggle">
+            <input class="form-check-input" type="checkbox" id="binary-options-button">
+            <label class="form-check-label" for="binary-options-button">
               Binary variable: Codeshare
             </label>
           </div>
 
-          <!-- Binary variable legend -->
-          <div id="binary-variable-legend-container" style="display: none;">
-            <ul id="binary-legend-list"></ul>
+          <div id="binary-options-container" style = "display:none;">
+            <!-- Binary Colour checkbox -->
+            <div class="form-check ms-3">
+              <input class="form-check-input" type="checkbox" id="edge-binary-color-toggle">
+              <label class="form-check-label" for="edge-binary-color-toggle">
+                Colour
+              </label>
+            </div>
+
+            <!-- Binary Colour legend -->
+            <div class = "ms-3">
+              <div id="binary-variable-legend-container" style="display: none;">
+                <ul id="binary-legend-list"></ul>
+              </div>
+            </div>
+
+            <!-- Binary stroke button-->
+            <div class="form-check ms-3">
+              <input class="form-check-input" type="checkbox" id="binary-stroke-button">
+              <label class="form-check-label" for="edge-binary-color-toggle">
+                Stroke
+              </label>
+            </div>
+
+            <!-- Binary stroke legend -->
+            <div id="binary-stroke-legend-container" class = "flex gap-3 ms-3">
+              <div>
+                <ul id="binary-stroke-list"></ul>
+              </div>
+
+              <div id="matrix-cell-legend">
+                <ul class="list-unstyled">
+                  <li class="d-flex align-items-center mb-1">
+                    <span class="legend-box hatch-pattern me-2"></span> True
+                  </li>
+                  <li class="d-flex align-items-center mb-1">
+                    <span class="legend-box legend-box-filled me-2"></span> False
+                  </li>
+                </ul>
+              </div>
+            </div>
           </div>
 
-          <!-- Nominal variable checkbox -->
+          <!--CATEGORICAL-->
+          <!-- Categorical variable checkbox -->
           <div class="form-check">
             <input class="form-check-input" type="checkbox" id="edge-categorical-color-toggle">
             <label class="form-check-label" for="edge-categorical-color-toggle">
@@ -129,7 +168,7 @@
             </label>
           </div>
 
-          <!-- Nominal variable legend -->
+          <!-- Categorical variable legend -->
           <div id="categorical-variable-legend-container" style="display: none;">
             <ul id="categorical-legend-colors">
               <!-- Dynamic airline country color items will go here -->
@@ -139,24 +178,43 @@
             </ul>
           </div>
 
-          <!-- Nominal variable checkbox -->
+          <!-- NUMERICAL-->
           <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="edge-numerical-color-toggle">
-            <label class="form-check-label" for="edge-numerical-color-toggle">
+            <input class="form-check-input" type="checkbox" id="numerical-options-button">
+            <label class="form-check-label" for="numerical-options-button">
               Numerical variable: Distance traveled (km)
             </label>
           </div>
 
-          <!-- Nominal variable legend -->
-          <div id="numerical-variable-legend-container" style="display: none;">
-            <ul id="numerical-legend-colors">
-              <!-- Dynamic airline country color items will go here -->
-            </ul>
-            <ul id="numerical-legend-list">
-              <!-- Static options like checkbox will go here -->
-            </ul>
-          </div>
+          <div id = "numerical-options-container" style = "display:none;">        
+            <!-- Numerical colour checkbox -->
+            <div class="form-check ms-3">
+              <input class="form-check-input" type="checkbox" id="edge-numerical-color-toggle">
+              <label class="form-check-label" for="edge-numerical-color-toggle">
+                Colour
+              </label>
+            </div>
 
+            <!-- Numerical colour legend -->
+            <div id="numerical-variable-legend-container" style="display: none;" class = "ms-3">
+              <ul id="numerical-legend-colors">
+                <!-- Dynamic airline country color items will go here -->
+              </ul>
+              <ul id="numerical-legend-list">
+                <!-- Static options like checkbox will go here -->
+              </ul>
+            </div>
+
+            <!-- Numerical thickness checkbox -->
+            <div class="form-check ms-3">
+              <input class="form-check-input" type="checkbox" id="numerical-thickness-button">
+              <label class="form-check-label" for="numerical-thickness-button">
+                Thickness
+              </label>
+            </div>
+
+
+          </div>
 
         </div>
       </div>

@@ -2,9 +2,9 @@ import Graph from 'https://cdn.skypack.dev/graphology';
 
 import { buildEverything, louvainMatrices } from './utils.js';
 //import { SetupCagegoricalColour, SetupBinaryColour } from './pageInteraction/EdgeButtons.js';
-import { SetupBinaryColour, addButtonFunctions } from './pageInteraction/BinaryButtons.js';
+import { SetupBinaryOptions, SetupRecreateMatrices } from './pageInteraction/BinaryButtons.js';
 import { SetupCategoricalColour } from './pageInteraction/CategoricalButtons.js';
-import { SetupNumericalColour } from './pageInteraction/NumericalButton.js';
+import { SetupNumericalOptions } from './pageInteraction/NumericalButton.js';
 import { customNumericalCategoriesFunction } from './pageInteraction/NumericalCatTable.js';
 
 const graphDiv = document.getElementById('graph');
@@ -34,7 +34,8 @@ export const appState = {
 
 //State of buttons
 export const buttonState = {
-    binaryVariableActivated: false,
+    binaryColour: false,
+    binaryStroke: false,
     binarySorted: false,
 //    binaryMatrices: false,
     categoricalVariableActivated: false,
@@ -81,10 +82,10 @@ fetch("data/sampled_data.json")
 
         buildEverything();
 
-        addButtonFunctions();
-        SetupBinaryColour();
+        SetupRecreateMatrices();
+        SetupBinaryOptions();
         SetupCategoricalColour();
-        SetupNumericalColour();
+        SetupNumericalOptions();
 
         customNumericalCategoriesFunction();
         

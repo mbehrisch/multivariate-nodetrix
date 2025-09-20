@@ -1,5 +1,3 @@
-//To do: make standard force public; or maybe do not reset upon dragging for better user impact;
-
 import { cellSize, appState } from '../main.js';
 import { buildEverything } from '../utils.js';
 import { setSimulationState } from '../utils.js';

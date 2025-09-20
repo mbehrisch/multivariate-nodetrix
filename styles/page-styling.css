@@ -4,18 +4,20 @@ body {
   background-color: #fcfcfc;
   margin: 0;
   padding: 0;
-  height: 100vh;
-  overflow: hidden;
+  /* Remove fixed height */
+  min-height: 100%; 
+  overflow-x: hidden; /* only hide horizontal overflow */
 }
 
 /* Ensure full height for container and rows */
 html, body, .container-fluid {
-  height: 100%;
+  min-height: 100%;
 }
 
 /* Graph container column */
 #graph-container {
-  height: calc((100vh - 100px)); /* Adjust height to leave space for title */
+  /* Remove viewport dependency */
+  min-height: 600px; /* or any sensible base height */
   display: flex;
   flex-direction: column;
   padding-right: 20px;
@@ -42,7 +44,8 @@ html, body, .container-fluid {
 
 /* Sidebar column */
 #sidebar {
-  height: calc(100vh - 100px); /* Adjust height to match graph */
+  /* Use min-height instead of calc with vh */
+  min-height: 600px;
   overflow-y: auto;
   padding-left: 20px;
   padding-right: 20px;
@@ -90,6 +93,46 @@ html, body, .container-fluid {
   gap: 12px;
   align-items: center;
 }
+#binary-stroke-legend-list,
+#binary-stroke-legend-list li {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+ul, li {
+  list-style: none;
+  padding-left: 0;
+  margin-left: 0;
+}
+
+.legend-box {
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+  border: 1px solid #ccc;
+}
+
+.legend-box-filled{
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+  border: 1px solid #ccc;
+  fill: black
+}
+
+.hatch-pattern {
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 3px,
+    #000 3px,
+    #000 4px
+  );
+}
+
 
 /* Legend item layout */
 .legend-item,

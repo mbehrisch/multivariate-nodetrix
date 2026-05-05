@@ -89,7 +89,7 @@ export function setSimulationState({ alphaTarget, velocityDecay, chargeStrength,
     const link = sim.force("link");
     if (link) link.distance(linkDistance);
 
-    sim.alpha(1).restart();
+    sim.restart();
 }
 
 

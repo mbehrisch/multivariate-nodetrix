@@ -1,3 +1,5 @@
+import Clustering from 'hdbscanjs';
+import louvain from 'graphology-communities-louvain';
 import { buildMatrix } from './building/matrix-builder.js';
 import { buildNL } from './building/NL-builder.js';
 import { applyForceLayout } from './building/force-layout.js';
@@ -150,8 +152,6 @@ export function buildAdjacencyMatrix(nodesInMatrix) {
     return { adjMatrix, hasEdges };
 }
 
-import Clustering from 'https://cdn.skypack.dev/hdbscanjs';
-
 export function hierarchicalClustering(adjMatrix, hasEdges, nodesInMatrix) {
    
     //If there are no edges in matrix, no sorting is needed
@@ -171,7 +171,6 @@ export function hierarchicalClustering(adjMatrix, hasEdges, nodesInMatrix) {
 }
 
 
-import louvain from 'https://cdn.skypack.dev/graphology-communities-louvain';
 export function louvainMatrices(){
     const graph = appState.graph
     

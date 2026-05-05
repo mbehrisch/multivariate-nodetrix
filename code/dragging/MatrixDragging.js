@@ -1,6 +1,6 @@
+import * as d3 from 'd3';
 import { cellSize, appState } from '../main.js';
-import { buildEverything } from '../utils.js';
-import { setSimulationState } from '../utils.js';
+import { buildEverything, setSimulationState } from '../utils.js';
 
 export function matrixDragStarted(event, draggedMatrixId) {
     d3.select(this).raise(); // bring to front

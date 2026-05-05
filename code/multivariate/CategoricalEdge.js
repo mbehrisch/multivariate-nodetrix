@@ -1,3 +1,4 @@
+import * as d3 from 'd3';
 import { appState, buttonState, datasetSpec } from "../main.js";
 
 //Function to determine the mapping of category to colour --> same colour for mental model

@@ -1,4 +1,6 @@
+import * as d3 from 'd3';
 import { appState, buttonState, datasetSpec, cellSize } from "../main.js";
+import { getCustomNumericalCategories } from "../pageInteraction/NumericalCatTable.js";
 
 // export let numericalColorScale;
 export let numericalColorMap = new Map();

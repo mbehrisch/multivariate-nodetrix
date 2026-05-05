@@ -1,3 +1,4 @@
+import * as d3 from 'd3';
 import { datasetSpec, buttonState, appState } from "../main.js";
 
 //Function to provide colours to links and matrix cells for binary variables

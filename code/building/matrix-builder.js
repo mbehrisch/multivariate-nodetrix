@@ -1,6 +1,7 @@
-import { svg , appState, datasetSpec} from '../main.js';
-import { cellSize } from '../main.js'; 
+import * as d3 from 'd3';
+import { svg, appState, datasetSpec, cellSize } from '../main.js';
 import { matrixDragStarted, matrixDragged, matrixDragEnded } from '../dragging/MatrixDragging.js';
+import { buildEverything } from '../utils.js';
 
 // Builds matrices and establishes paths for matrix-to-matrix edges
 export function buildMatrix() {
@@ -194,7 +195,6 @@ function buildInterMatrixLinks(){
            .attr("class", "link matrix-matrix-link");
 }
 
-import { buildEverything } from '../utils.js';
 //Function to remove NodeFromMatrix when row or column is control-clicked
 function removeNodeFromMatrix (event, nodeId){
     const graph = appState.graph

@@ -1,6 +1,5 @@
-import { appState, nodeSize, svg } from '../main.js';
-import { cellSize } from '../main.js';
-import { width, height } from '../main.js';
+import * as d3 from 'd3';
+import { appState, nodeSize, svg, cellSize, width, height } from '../main.js';
 
 export function applyForceLayout(nodes, links, dummyMap) {
     appState.sim = d3.forceSimulation(nodes)

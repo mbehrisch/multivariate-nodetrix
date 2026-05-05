@@ -1,7 +1,8 @@
-import Graph from 'https://cdn.skypack.dev/graphology';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import * as d3 from 'd3';
+import Graph from 'graphology';
 
 import { buildEverything, louvainMatrices } from './utils.js';
-//import { SetupCagegoricalColour, SetupBinaryColour } from './pageInteraction/EdgeButtons.js';
 import { SetupBinaryOptions, SetupRecreateMatrices } from './pageInteraction/BinaryButtons.js';
 import { SetupCategoricalColour } from './pageInteraction/CategoricalButtons.js';
 import { SetupNumericalOptions } from './pageInteraction/NumericalButton.js';

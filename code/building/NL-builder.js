@@ -1,4 +1,5 @@
-import { appState, datasetSpec, svg, nodeSize} from '../main.js';
+import * as d3 from 'd3';
+import { appState, datasetSpec, svg, nodeSize } from '../main.js';
 import { nodeDragStarted, nodeDragged, nodeDragEnded } from '../dragging/NodeDragging.js';
 
 // Builds nodes, establishes node-node paths and node-matrix paths

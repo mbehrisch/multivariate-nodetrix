@@ -1,3 +1,4 @@
+import * as d3 from 'd3';
 import { appState, buttonState } from "../main.js";
 import { buildEverything } from "../utils.js";
 import { resetBinaryColors } from "../multivariate/BinaryEdge.js";

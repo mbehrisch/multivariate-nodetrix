@@ -1,3 +1,4 @@
+import * as d3 from 'd3';
 import { applyBinaryColouring, resetBinaryColors,
         applyBinaryStroke, resetBinaryStroke,
          BinaryMatrices } from "../multivariate/BinaryEdge.js";

@@ -1,6 +1,6 @@
-import { buildEverything } from '../utils.js';
+import * as d3 from 'd3';
 import { svg, cellSize, appState, nodeSize } from '../main.js';
-import { setSimulationState } from '../utils.js';
+import { buildEverything, setSimulationState } from '../utils.js';
 
 let previouslyOverlappingNodeId = null;
 

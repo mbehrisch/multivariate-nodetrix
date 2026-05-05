@@ -1,3 +1,5 @@
+import * as d3 from 'd3';
+
 export function getCustomNumericalCategories() {
     const rows = document.querySelectorAll("#numerical-category-table tbody tr");
     const categories = [];

@@ -61,7 +61,6 @@ export function defineNumericalMapping() {
     return numericalColorScale
 }
 
-import { getCustomNumericalCategories } from "../page-interaction/numerical-cat-table.js";
 let customNumericalCategories=[]
 
 export function applyNumericalCategoriesColours(){

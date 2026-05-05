@@ -8,15 +8,18 @@ import { SetupNumericalOptions } from './pageInteraction/NumericalButton.js';
 import { customNumericalCategoriesFunction } from './pageInteraction/NumericalCatTable.js';
 
 const graphDiv = document.getElementById('graph');
-export const width = graphDiv.clientWidth;
-export const height = graphDiv.clientHeight;
+const graphRect = graphDiv.getBoundingClientRect();
+export const width = graphRect.width;
+export const height = graphRect.height;
 
 export const cellSize = 15;
 export const nodeSize = 10
 
 export const svg = d3.select("#graph").append("svg")
-    .attr("width", width)
-    .attr("height", height);
+    .attr("width", "100%")
+    .attr("height", "100%")
+    .attr("viewBox", `0 0 ${width} ${height}`)
+    .attr("preserveAspectRatio", "xMidYMid meet");
 
 //Define specifications of the dataset. These are to be attributes of nodes and edges as depicted below
 export const datasetSpec = {

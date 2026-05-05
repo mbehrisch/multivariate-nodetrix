@@ -1,8 +1,21 @@
 {
+    "name": "multivariate-nodetrix",
+    "private": true,
+    "version": "0.0.0",
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build",
+        "preview": "vite preview",
+        "start": "vite"
+    },
     "dependencies": {
         "graphology": "^0.26.0",
         "graphology-communities-louvain": "^2.0.2",
         "graphology-utils": "^2.5.2",
         "hdbscanjs": "^1.0.12"
+    },
+    "devDependencies": {
+        "vite": "^5.4.21"
     }
 }

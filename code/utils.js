@@ -174,6 +174,9 @@ export function hierarchicalClustering(adjMatrix, hasEdges, nodesInMatrix) {
 import louvain from 'https://cdn.skypack.dev/graphology-communities-louvain';
 export function louvainMatrices(){
     graph=appState.graph
+    
+    console.log("Running Louvain on graph with", graph.order, "nodes and", graph.size, "edges.");
+
     // Louvain community detection
     const communities = louvain(graph);
 

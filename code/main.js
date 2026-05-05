@@ -77,6 +77,8 @@ fetch("data/sampled_data.json")
             });
         });
 
+        console.log("Graph loaded:", graph.export());
+
         appState.graph = graph;
         appState.matrixGroups = louvainMatrices();
 

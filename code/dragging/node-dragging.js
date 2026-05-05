@@ -2,18 +2,29 @@ import * as d3 from 'd3';
 import { svg, cellSize, appState, nodeSize } from '../main.js';
 import { buildEverything, setSimulationState } from '../utils.js';
 
+// Sim parameters while a drag is active: barely moving so other nodes don't shift away
+const SIM_DRAG_HOLD = {
+    alphaTarget: 0.005,
+    velocityDecay: 0.99,
+    chargeStrength: -1,
+    linkDistance: 500,
+};
+// Sim parameters right after release, before cooling to rest
+const SIM_DRAG_RELEASE = {
+    alphaTarget: 0.1,
+    velocityDecay: 0.6,
+    chargeStrength: -50,
+    linkDistance: 20,
+};
+const SIM_RELEASE_COOLDOWN_MS = 500;
+
 let previouslyOverlappingNodeId = null;
 
 export function nodeDragStarted(event) {
     // Ensure simulation is slow and active
     if (!event.active) {
-        setSimulationState({
-            alphaTarget: 0.005,
-            velocityDecay: 0.99,
-            chargeStrength: -1,
-            linkDistance: 500
-        });
-    }    
+        setSimulationState(SIM_DRAG_HOLD);
+    }
 
     // Move with mouse
     event.subject.fx = event.subject.x;
@@ -37,14 +48,8 @@ export function nodeDragEnded(event) {
     const sim = appState.sim;  // Access simulation from appState
 
     if (!event.active) {
-        setSimulationState({
-            alphaTarget: 0.1,
-            velocityDecay: 0.6,
-            chargeStrength: -50,
-            linkDistance: 20,
-        });
-    
-        setTimeout(() => sim.alphaTarget(0), 500);
+        setSimulationState(SIM_DRAG_RELEASE);
+        setTimeout(() => sim.alphaTarget(0), SIM_RELEASE_COOLDOWN_MS);
     }
 
     // Reset dragged node position

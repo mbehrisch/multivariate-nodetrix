@@ -9,6 +9,18 @@ import { applyNumericalColouring, resetNumericalColours, defineNumericalMapping,
     resetNumericalThickness} from "../multivariate/numerical-edge.js";
 import { createNumCatLegend } from "../page-interaction/numerical-cat-table.js";
 
+// Numerical legend layout
+const LEGEND_BAR_WIDTH = 250;
+const LEGEND_RIGHT_PADDING = 15;
+const LEGEND_SVG_HEIGHT = 50;
+const LEGEND_BAR_Y = 5;
+const LEGEND_BAR_HEIGHT = 15;
+const LEGEND_TICK_Y = 38;
+const LEGEND_TICK_FONT_SIZE = "10px";
+const GRADIENT_STOP_COUNT = 10;
+const TICK_COUNT = 8;
+const TICK_ROUND_TO = 100;
+
 // Grab toggle elements
 const numericalToggle = document.getElementById("edge-numerical-color-toggle");
 
@@ -117,10 +129,10 @@ function renderNumericalLegend() {
     const min = numericalColorScale.domain()[0];
     const max = numericalColorScale.domain()[1];
 
-    const svgWidth = 250;
+    const svgTotalWidth = LEGEND_BAR_WIDTH + LEGEND_RIGHT_PADDING;
     const svg = container.append("svg")
-        .attr("width", svgWidth+15)
-        .attr("height", 50);
+        .attr("width", svgTotalWidth)
+        .attr("height", LEGEND_SVG_HEIGHT);
 
     const defs = svg.append("defs");
     const gradient = defs.append("linearGradient")
@@ -128,9 +140,8 @@ function renderNumericalLegend() {
         .attr("x1", "0%")
         .attr("x2", "100%");
 
-    const steps = 10;
-    for (let i = 0; i <= steps; i++) {
-        const t = i / steps;
+    for (let i = 0; i <= GRADIENT_STOP_COUNT; i++) {
+        const t = i / GRADIENT_STOP_COUNT;
         gradient.append("stop")
             .attr("offset", `${t * 100}%`)
             .attr("stop-color", d3.interpolateYlGnBu(t));
@@ -138,19 +149,18 @@ function renderNumericalLegend() {
 
     svg.append("rect")
         .attr("x", 0)
-        .attr("y", 5)
-        .attr("width", svgWidth+15)
-        .attr("height", 15)
+        .attr("y", LEGEND_BAR_Y)
+        .attr("width", svgTotalWidth)
+        .attr("height", LEGEND_BAR_HEIGHT)
         .style("fill", `url(#${gradientId})`);
 
     // Add log ticks with spacing
-    const logScale = d3.scaleLog().domain([min, max]).range([0, svgWidth]);
-    const tickCount = 8;
+    const logScale = d3.scaleLog().domain([min, max]).range([0, LEGEND_BAR_WIDTH]);
     const logMin = Math.log10(min);
     const logMax = Math.log10(max);
-    const ticks = d3.range(tickCount).map(i =>{
-        const rawTick = Math.pow(10, logMin + (i * (logMax - logMin) / (tickCount - 1)));
-        return Math.round(rawTick / 100) * 100; // round to nearest 100
+    const ticks = d3.range(TICK_COUNT).map(i => {
+        const rawTick = Math.pow(10, logMin + (i * (logMax - logMin) / (TICK_COUNT - 1)));
+        return Math.round(rawTick / TICK_ROUND_TO) * TICK_ROUND_TO;
     });
 
     const formatTick = d3.format("~s");
@@ -158,8 +168,8 @@ function renderNumericalLegend() {
     ticks.forEach(tick => {
         svg.append("text")
             .attr("x", logScale(tick))
-            .attr("y", 38)
-            .attr("font-size", "10px")
+            .attr("y", LEGEND_TICK_Y)
+            .attr("font-size", LEGEND_TICK_FONT_SIZE)
             .attr("text-anchor", "middle")
             .text(formatTick(tick));
     });

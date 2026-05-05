@@ -2,18 +2,29 @@ import * as d3 from 'd3';
 import { cellSize, appState } from '../main.js';
 import { buildEverything, setSimulationState } from '../utils.js';
 
+// Sim parameters while a drag is active: barely moving
+const SIM_DRAG_HOLD = {
+    alphaTarget: 0.005,
+    velocityDecay: 0.99,
+    chargeStrength: -1,
+    linkDistance: 500,
+};
+// Sim parameters right after release, before cooling to rest
+const SIM_DRAG_RELEASE = {
+    alphaTarget: 0.1,
+    velocityDecay: 0.6,
+    chargeStrength: -50,
+    linkDistance: 20,
+};
+const SIM_RELEASE_COOLDOWN_MS = 500;
+
 export function matrixDragStarted(event, draggedMatrixId) {
     d3.select(this).raise(); // bring to front
     const sim = appState.sim;
 
     //As the simulation places nodes and links we need it alive, just very slowly to make it easier
     if (!event.active && sim) {
-        setSimulationState({
-            alphaTarget: 0.005,
-            velocityDecay: 0.99,
-            chargeStrength: -1,
-            linkDistance: 500,
-        });
+        setSimulationState(SIM_DRAG_HOLD);
     }
 
     // Highlight the dragged matrix
@@ -76,14 +87,8 @@ export function matrixDragEnded(event, draggedMatrixId) {
 
     // Normal simulation intensity when dragging is over, with cooldown to no movement
     if (!event.active && sim) {
-        setSimulationState({
-            alphaTarget: 0.1,
-            velocityDecay: 0.6,
-            chargeStrength: -50,
-            linkDistance: 20,
-        });
-    
-        setTimeout(() => sim.alphaTarget(0), 500);
+        setSimulationState(SIM_DRAG_RELEASE);
+        setTimeout(() => sim.alphaTarget(0), SIM_RELEASE_COOLDOWN_MS);
     }
 };
 

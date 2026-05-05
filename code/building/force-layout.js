@@ -1,27 +1,40 @@
 import * as d3 from 'd3';
 import { appState, nodeSize, svg, cellSize, width, height } from '../main.js';
 
+// Force-simulation tuning
+const LINK_DISTANCE = 20;
+const CHARGE_STRENGTH = -50;
+const COLLIDE_STRENGTH = 1;
+const NODE_COLLIDE_PADDING_FACTOR = 2;
+const MATRIX_COLLIDE_PADDING_FACTOR = 1.5;
+
+// Bezier control offset for inter-node link curvature
+const BEZIER_VERTICAL_OFFSET = 10;
+
+// Tick-loop bounds clamping: keep node labels off the top edge
+const NODE_TOP_PADDING = 10;
+
 export function applyForceLayout(nodes, links, dummyMap) {
     appState.sim = d3.forceSimulation(nodes)
         .force("link", d3.forceLink(links)
             .id(d => d.id)
-            .distance(20)
+            .distance(LINK_DISTANCE)
         )
-        .force("charge", d3.forceManyBody().strength(-50))
+        .force("charge", d3.forceManyBody().strength(CHARGE_STRENGTH))
         .force("center", d3.forceCenter(width / 2, height / 2))
         .force("collide", d3.forceCollide().radius(d => {
             if (d.id && d.id.startsWith("dummy-")) {
-                return (d.matrixSize+1) * cellSize * 1.5;
+                return (d.matrixSize + 1) * cellSize * MATRIX_COLLIDE_PADDING_FACTOR;
             }
-            return d.r + nodeSize*2;
-        }).strength(1))
+            return d.r + nodeSize * NODE_COLLIDE_PADDING_FACTOR;
+        }).strength(COLLIDE_STRENGTH))
         .on("tick", ticked);
 
     function ticked() {
         //Move nodes and their labels within width and height
         svg.selectAll(".node")
             .attr("cx", d => d.x = Math.max(nodeSize, Math.min(width - nodeSize, d.x)))
-            .attr("cy", d => d.y = Math.max(nodeSize+10, Math.min(height - nodeSize, d.y)));
+            .attr("cy", d => d.y = Math.max(nodeSize + NODE_TOP_PADDING, Math.min(height - nodeSize, d.y)));
 
         svg.selectAll(".NLlabel")
             .attr("x", d => d.x)
@@ -73,14 +86,12 @@ export function applyForceLayout(nodes, links, dummyMap) {
 
     //Find BezierPath of two locaitions
     function getBezierPath(sourcePos, targetPos) {
-        let verticalOffset = 10; //Magic variable
-        
         const dx = targetPos.x - sourcePos.x;
         const dy = targetPos.y - sourcePos.y;
-        let midX = sourcePos.x + dx / 2;
+        const midX = sourcePos.x + dx / 2;
 
-        const controlY1 = sourcePos.y + (dy > 0 ? verticalOffset : -verticalOffset);
-        const controlY2 = targetPos.y + (dy > 0 ? -verticalOffset : verticalOffset);
+        const controlY1 = sourcePos.y + (dy > 0 ? BEZIER_VERTICAL_OFFSET : -BEZIER_VERTICAL_OFFSET);
+        const controlY2 = targetPos.y + (dy > 0 ? -BEZIER_VERTICAL_OFFSET : BEZIER_VERTICAL_OFFSET);
 
         return `M${sourcePos.x},${sourcePos.y}
                 C${midX},${controlY1}

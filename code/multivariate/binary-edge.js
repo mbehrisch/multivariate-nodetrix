@@ -1,6 +1,9 @@
 import * as d3 from 'd3';
 import { datasetSpec, buttonState, appState } from "../main.js";
 
+// Threshold for grouping a node into the "majority-true" community
+const MAJORITY_THRESHOLD = 0.5;
+
 //Function to provide colours to links and matrix cells for binary variables
 export function applyBinaryColouring() {
 
@@ -47,7 +50,7 @@ export function BinaryMatrices() {
             }
         });
 
-        if (trueCount >= connectedEdges.length / 2) { //Semi-magic variable
+        if (trueCount >= connectedEdges.length * MAJORITY_THRESHOLD) {
             majorityTrue.push(nodeKey);
         } else {
             majorityFalse.push(nodeKey);

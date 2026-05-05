@@ -8,6 +8,24 @@ import { applyBinaryColouring, applyBinaryStroke } from './multivariate/binary-e
 import { applyCategoricalColouring } from './multivariate/categorical-edge.js';
 import { applyNumericalCategoriesColours, applyNumericalColouring } from './multivariate/numerical-edge.js';
 
+// Simulation parameters used after a (re)build settles
+const SIM_REST = {
+    alphaTarget: 0.01,
+    velocityDecay: 0.3,
+    chargeStrength: -50,
+    linkDistance: 30,
+};
+const SIM_REST_COOLDOWN_MS = 1000;
+
+// Adjacency-matrix edge weights for hierarchical clustering
+const ADJ_DIAGONAL_WEIGHT = 1;
+const ADJ_EDGE_WEIGHT = 1;
+const ADJ_BINARY_TRUE_WEIGHT = 2;
+
+// Diagonal-hatch SVG pattern for "true" cells
+const HATCH_TILE = 6;
+const HATCH_STROKE = 1;
+
 //Build everything when called upon
 export function buildEverything() {
     const matrixGroups = appState.matrixGroups;
@@ -64,15 +82,11 @@ export function buildEverything() {
         }
     }
     
-    setSimulationState({
-        alphaTarget: 0.01,
-        velocityDecay: 0.3,
-        chargeStrength: -50,
-        linkDistance: 30,
-    });
+    setSimulationState(SIM_REST);
 
     setTimeout(() => {
-        appState.sim.alphaTarget(0);}, 1000);
+        appState.sim.alphaTarget(0);
+    }, SIM_REST_COOLDOWN_MS);
 }
 
 //Set simulation states
@@ -129,16 +143,16 @@ export function buildAdjacencyMatrix(nodesInMatrix) {
     nodesInMatrix.forEach((rowId, i) => {
         nodesInMatrix.forEach((colId, j) => {
             if (rowId === colId) {
-                adjMatrix[i][j] = 1; // Diagonal bias
+                adjMatrix[i][j] = ADJ_DIAGONAL_WEIGHT;
             }
 
             if (graph.hasEdge(rowId, colId)) {
-                let edgeWeight = 1;
+                let edgeWeight = ADJ_EDGE_WEIGHT;
 
                 if (buttonState.binarySorted) {
                     const entries = [...graph.edgeEntries(rowId, colId)];
                     if (entries.length > 0 && entries[0].attributes[datasetSpec.binaryVar] === true) {
-                        edgeWeight = 2;
+                        edgeWeight = ADJ_BINARY_TRUE_WEIGHT;
                     }
                 }
 
@@ -195,11 +209,11 @@ function createDiagonalHatchPattern() {
         .append("pattern")
             .attr("id", "diagonalHatch")
             .attr("patternUnits", "userSpaceOnUse")
-            .attr("width", 6)
-            .attr("height", 6)
+            .attr("width", HATCH_TILE)
+            .attr("height", HATCH_TILE)
         .append("path")
-            .attr("d", "M0,0 l6,6")
+            .attr("d", `M0,0 l${HATCH_TILE},${HATCH_TILE}`)
             .attr("stroke", "white")
-            .attr("stroke-width", 1);
+            .attr("stroke-width", HATCH_STROKE);
   }
 }

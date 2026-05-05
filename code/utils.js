@@ -1,12 +1,12 @@
 import Clustering from 'hdbscanjs';
 import louvain from 'graphology-communities-louvain';
 import { buildMatrix } from './building/matrix-builder.js';
-import { buildNL } from './building/NL-builder.js';
+import { buildNL } from './building/nl-builder.js';
 import { applyForceLayout } from './building/force-layout.js';
 import { svg, appState, buttonState, datasetSpec } from './main.js';
-import { applyBinaryColouring, applyBinaryStroke } from './multivariate/BinaryEdge.js';
-import { applyCategoricalColouring } from './multivariate/CategoricalEdge.js';
-import { applyNumericalCategoriesColours, applyNumericalColouring } from './multivariate/NumericalEdge.js';
+import { applyBinaryColouring, applyBinaryStroke } from './multivariate/binary-edge.js';
+import { applyCategoricalColouring } from './multivariate/categorical-edge.js';
+import { applyNumericalCategoriesColours, applyNumericalColouring } from './multivariate/numerical-edge.js';
 
 //Build everything when called upon
 export function buildEverything() {

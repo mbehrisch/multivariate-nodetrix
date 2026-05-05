@@ -1,10 +1,10 @@
 import * as d3 from 'd3';
 import { appState, datasetSpec } from "../main.js";
 import { buildEverything } from "../utils.js";
-import { resetBinaryColors } from "../multivariate/BinaryEdge.js";
+import { resetBinaryColors } from "../multivariate/binary-edge.js";
 import { applyCategoricalColouring, resetCategoricalColours,
-     CategoricalMatrices, categoricalColorMap } from "../multivariate/CategoricalEdge.js";
-import { resetNumericalColours } from "../multivariate/NumericalEdge.js";
+     CategoricalMatrices, categoricalColorMap } from "../multivariate/categorical-edge.js";
+import { resetNumericalColours } from "../multivariate/numerical-edge.js";
 
 
 const categoricalToggle = document.getElementById("edge-categorical-color-toggle");

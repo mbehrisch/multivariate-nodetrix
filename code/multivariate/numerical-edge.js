@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import { appState, buttonState, datasetSpec, cellSize } from "../main.js";
-import { getCustomNumericalCategories } from "../pageInteraction/NumericalCatTable.js";
+import { getCustomNumericalCategories } from "../page-interaction/numerical-cat-table.js";
 
 // export let numericalColorScale;
 export let numericalColorMap = new Map();
@@ -61,7 +61,7 @@ export function defineNumericalMapping() {
     return numericalColorScale
 }
 
-import { getCustomNumericalCategories } from "../pageInteraction/NumericalCatTable.js";
+import { getCustomNumericalCategories } from "../page-interaction/numerical-cat-table.js";
 let customNumericalCategories=[]
 
 export function applyNumericalCategoriesColours(){

@@ -3,10 +3,10 @@ import * as d3 from 'd3';
 import Graph from 'graphology';
 
 import { buildEverything, louvainMatrices } from './utils.js';
-import { SetupBinaryOptions, SetupRecreateMatrices } from './pageInteraction/BinaryButtons.js';
-import { SetupCategoricalColour } from './pageInteraction/CategoricalButtons.js';
-import { SetupNumericalOptions } from './pageInteraction/NumericalButton.js';
-import { customNumericalCategoriesFunction } from './pageInteraction/NumericalCatTable.js';
+import { SetupBinaryOptions, SetupRecreateMatrices } from './page-interaction/binary-buttons.js';
+import { SetupCategoricalColour } from './page-interaction/categorical-buttons.js';
+import { SetupNumericalOptions } from './page-interaction/numerical-button.js';
+import { customNumericalCategoriesFunction } from './page-interaction/numerical-cat-table.js';
 
 const graphDiv = document.getElementById('graph');
 const graphRect = graphDiv.getBoundingClientRect();

@@ -1,14 +1,14 @@
 import * as d3 from 'd3';
 import { applyBinaryColouring, resetBinaryColors,
         applyBinaryStroke, resetBinaryStroke,
-         BinaryMatrices } from "../multivariate/BinaryEdge.js";
+         BinaryMatrices } from "../multivariate/binary-edge.js";
 import { buildEverything, louvainMatrices } from "../utils.js";
 import { appState, buttonState, svg } from "../main.js";
-import { resetCategoricalColours } from "../multivariate/CategoricalEdge.js";
-import { resetNumericalColours } from "../multivariate/NumericalEdge.js";
+import { resetCategoricalColours } from "../multivariate/categorical-edge.js";
+import { resetNumericalColours } from "../multivariate/numerical-edge.js";
 
-import { buttonCategoricalMatrices } from "./CategoricalButtons.js";
-import { buttonNumericalMatrices } from "./NumericalButton.js"
+import { buttonCategoricalMatrices } from "./categorical-buttons.js";
+import { buttonNumericalMatrices } from "./numerical-button.js"
 
 const edgeTypeBinaryToggle = document.getElementById("edge-binary-color-toggle")
 

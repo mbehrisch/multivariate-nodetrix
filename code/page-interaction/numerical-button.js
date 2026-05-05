@@ -1,13 +1,13 @@
 import * as d3 from 'd3';
 import { appState, buttonState } from "../main.js";
 import { buildEverything } from "../utils.js";
-import { resetBinaryColors } from "../multivariate/BinaryEdge.js";
-import { resetCategoricalColours } from "../multivariate/CategoricalEdge.js";
+import { resetBinaryColors } from "../multivariate/binary-edge.js";
+import { resetCategoricalColours } from "../multivariate/categorical-edge.js";
 import { applyNumericalColouring, resetNumericalColours, defineNumericalMapping,
      NumericalMatrices, applyNumericalCategoriesColours,
     applyNumericalThickness, 
-    resetNumericalThickness} from "../multivariate/NumericalEdge.js";
-import { createNumCatLegend } from "../pageInteraction/NumericalCatTable.js";
+    resetNumericalThickness} from "../multivariate/numerical-edge.js";
+import { createNumCatLegend } from "../page-interaction/numerical-cat-table.js";
 
 // Grab toggle elements
 const numericalToggle = document.getElementById("edge-numerical-color-toggle");

@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import { svg, appState, datasetSpec, cellSize } from '../main.js';
-import { matrixDragStarted, matrixDragged, matrixDragEnded } from '../dragging/MatrixDragging.js';
+import { matrixDragStarted, matrixDragged, matrixDragEnded } from '../dragging/matrix-dragging.js';
 import { buildEverything } from '../utils.js';
 
 // Builds matrices and establishes paths for matrix-to-matrix edges

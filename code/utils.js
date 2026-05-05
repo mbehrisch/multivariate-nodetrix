@@ -93,7 +93,7 @@ export function setSimulationState({ alphaTarget, velocityDecay, chargeStrength,
 
 //Local helper function to add dummyNodes to the force-layout
 function addDummyNodesFL(nodes, links, dummyNodes){
-    graph = appState.graph
+    const graph = appState.graph
     const matrixGroups = appState.matrixGroups
 
     dummyNodes.forEach(dummy => {
@@ -173,7 +173,7 @@ export function hierarchicalClustering(adjMatrix, hasEdges, nodesInMatrix) {
 
 import louvain from 'https://cdn.skypack.dev/graphology-communities-louvain';
 export function louvainMatrices(){
-    graph=appState.graph
+    const graph = appState.graph
     
     console.log("Running Louvain on graph with", graph.order, "nodes and", graph.size, "edges.");
 

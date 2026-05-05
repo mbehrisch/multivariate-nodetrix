@@ -197,7 +197,7 @@ function buildInterMatrixLinks(){
 import { buildEverything } from '../utils.js';
 //Function to remove NodeFromMatrix when row or column is control-clicked
 function removeNodeFromMatrix (event, nodeId){
-    graph=appState.graph
+    const graph = appState.graph
     const matrixGroups = appState.matrixGroups
     
     for (const [matrixId, nodesInMatrix] of Object.entries(matrixGroups)) {

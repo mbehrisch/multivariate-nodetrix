@@ -39,7 +39,7 @@ export function matrixDragged(event, draggedMatrixId) {
 }
 
 export function matrixDragEnded(event, draggedMatrixId) {
-    graph=appState.graph
+    const graph = appState.graph
     const matrixGroups = appState.matrixGroups
     //Find dummynode
     const sim = appState.sim;

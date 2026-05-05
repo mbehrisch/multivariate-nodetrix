@@ -3,7 +3,7 @@ import { nodeDragStarted, nodeDragged, nodeDragEnded } from '../dragging/NodeDra
 
 // Builds nodes, establishes node-node paths and node-matrix paths
 export function buildNL() {
-    graph = appState.graph
+    const graph = appState.graph
     const matrixGroups = appState.matrixGroups
 
     // Split up nodes into a group that is going into matrix and into NL nodes

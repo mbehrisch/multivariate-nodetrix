@@ -202,6 +202,19 @@ export function louvainMatrices(){
     return matrixGroups
 }
 
+export function noMatrix(){
+    const graph = appState.graph
+    
+    console.log("Running NO MATRIX (only NL) on graph with", graph.order, "nodes and", graph.size, "edges.");
+
+    const matrixGroups = {};
+    graph.forEachNode(node => {
+        matrixGroups[node] = [node];
+    });
+
+    return matrixGroups
+}
+
 function createDiagonalHatchPattern() {
   // Check if pattern already exists to avoid duplicates
   if (svg.select("pattern#diagonalHatch").empty()) {

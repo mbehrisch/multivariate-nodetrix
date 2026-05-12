@@ -2,7 +2,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import * as d3 from 'd3';
 import Graph from 'graphology';
 
-import { buildEverything, louvainMatrices } from './utils.js';
+import { buildEverything, louvainMatrices, noMatrix } from './utils.js';
 import { SetupBinaryOptions, SetupRecreateMatrices } from './page-interaction/binary-buttons.js';
 import { SetupCategoricalColour } from './page-interaction/categorical-buttons.js';
 import { SetupNumericalOptions } from './page-interaction/numerical-button.js';
@@ -82,7 +82,8 @@ fetch("data/sampled_data.json")
         });
 
         appState.graph = graph;
-        appState.matrixGroups = louvainMatrices();
+        // appState.matrixGroups = louvainMatrices();
+        appState.matrixGroups = noMatrix();
 
         buildEverything();
 

@@ -22,6 +22,9 @@ export const svg = d3.select("#graph").append("svg")
     .attr("viewBox", `0 0 ${width} ${height}`)
     .attr("preserveAspectRatio", "xMidYMid meet");
 
+export const tooltip = d3.select("body").append("div")
+    .attr("id", "tooltip");
+
 //Define specifications of the dataset. These are to be attributes of nodes and edges as depicted below
 export const datasetSpec = {
     label: "IATA",  //For the flight data the IATA attribute is the label
@@ -33,7 +36,8 @@ export const datasetSpec = {
 export const appState = {
     graph: null,              // Holds the graph data
     sim: null,                // Holds the simulation state
-    matrixGroups: {},          // Stores matrices and their nodes (),
+    matrixGroups: {},         // Stores matrices and their nodes
+    visualizationMode: 'nodeTrix',
 };
 
 //State of buttons
@@ -93,6 +97,13 @@ fetch("data/sampled_data.json")
         SetupNumericalOptions();
 
         customNumericalCategoriesFunction();
-        
 
+        const viewModeSelect = document.getElementById("view-mode-select");
+        if (viewModeSelect) {
+            viewModeSelect.value = appState.visualizationMode;
+            viewModeSelect.addEventListener("change", event => {
+                appState.visualizationMode = event.target.value;
+                buildEverything();
+            });
+        }
     });

@@ -41,16 +41,18 @@ export function applyForceLayout(nodes, links, dummyMap) {
             .attr("y", d => d.y);
 
         //Move matrices based on their dummyNodes
-        Object.entries(dummyMap).forEach(([dummyId, matrixSvg]) => {
-            const dummyNode = getNode(dummyId);
-            const matrixSize = dummyNode.matrixSize;
-            const matrixWidth = matrixSize * cellSize;
+        if (dummyMap) {
+            Object.entries(dummyMap).forEach(([dummyId, matrixSvg]) => {
+                const dummyNode = getNode(dummyId);
+                const matrixSize = dummyNode.matrixSize;
+                const matrixWidth = matrixSize * cellSize;
 
-            dummyNode.x = Math.max(cellSize, Math.min(width - matrixWidth+cellSize, dummyNode.x));
-            dummyNode.y = Math.max(cellSize, Math.min(height - matrixWidth + cellSize, dummyNode.y));
+                dummyNode.x = Math.max(cellSize, Math.min(width - matrixWidth+cellSize, dummyNode.x));
+                dummyNode.y = Math.max(cellSize, Math.min(height - matrixWidth + cellSize, dummyNode.y));
 
-            matrixSvg.attr("transform", `translate(${dummyNode.x}, ${dummyNode.y})`);
-        });
+                matrixSvg.attr("transform", `translate(${dummyNode.x}, ${dummyNode.y})`);
+            });
+        }
 
         //Draw links, NL links can simply use the node information
         svg.selectAll(".NLlink")
@@ -60,22 +62,23 @@ export function applyForceLayout(nodes, links, dummyMap) {
                 return getBezierPath(sourcePos, targetPos);
             });
         
-        
-        svg.selectAll(".matrix-NL-link")
-            .attr("d", d => {
-                //Source is always the matrix, target is node
-                const sourcePos = NodeInMatrixPosition(d.source, d.target, true);
-                const targetPos = getNode(d.target);
-                return getBezierPath(sourcePos, targetPos);
-            });
+        if (dummyMap) {
+            svg.selectAll(".matrix-NL-link")
+                .attr("d", d => {
+                    //Source is always the matrix, target is node
+                    const sourcePos = NodeInMatrixPosition(d.source, d.target, true);
+                    const targetPos = getNode(d.target);
+                    return getBezierPath(sourcePos, targetPos);
+                });
 
-        svg.selectAll(".matrix-matrix-link")
-            .attr("d", d => {
-                //Both source and target are matrix
-                const sourcePos = NodeInMatrixPosition(d.source, d.target, false);
-                const targetPos = NodeInMatrixPosition(d.target, d.source, false);
-                return getBezierPath(sourcePos, targetPos);
-            });
+            svg.selectAll(".matrix-matrix-link")
+                .attr("d", d => {
+                    //Both source and target are matrix
+                    const sourcePos = NodeInMatrixPosition(d.source, d.target, false);
+                    const targetPos = NodeInMatrixPosition(d.target, d.source, false);
+                    return getBezierPath(sourcePos, targetPos);
+                });
+        }
     }
 
     //Safety function --> d3 ForceLayout mismatchting

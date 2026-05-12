@@ -159,6 +159,27 @@ ul, li {
   background-color: green;
 }
 
+#tooltip {
+  position: absolute;
+  pointer-events: none;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: #111;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  opacity: 0;
+  transition: opacity 0.1s ease-in-out;
+  z-index: 20;
+}
+
+#tooltip strong {
+  display: inline-block;
+  min-width: 70px;
+}
+
 .legend-color.no,
 .binary-no {
   background-color: red;

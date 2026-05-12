@@ -23,8 +23,10 @@
     text-overflow: ellipsis; /* Adds ellipsis for overflowed text */
 }
 
-.NL-label {
-    pointer-events: none
+.NLlabel,
+.label.NLlabel {
+    pointer-events: none;
+    user-select: none;
 }
 
 

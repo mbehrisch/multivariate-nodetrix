@@ -60,6 +60,10 @@ export function nodeDragEnded(event) {
     svg.selectAll(".node").classed("highlighted", false);
     svg.selectAll(".matrix").classed("matrixHighlighted", false);
 
+    if (appState.visualizationMode === 'nodeLink') {
+        return;
+    }
+
     //Find if there is an overlapping node upon release
     const overlappingNode = getOverlappingNodes(event.subject, sim.nodes());
     if (overlappingNode) {

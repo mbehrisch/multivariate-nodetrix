@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import { appState, datasetSpec, svg, nodeSize } from '../main.js';
+import { appState, datasetSpec, svg, nodeSize, tooltip } from '../main.js';
 import { nodeDragStarted, nodeDragged, nodeDragEnded } from '../dragging/node-dragging.js';
 
 // Builds nodes, establishes node-node paths and node-matrix paths
@@ -38,12 +38,25 @@ export function buildNL() {
         .enter().append("path")
         .attr("class", "link NLlink");
 
-    // Add label to nodes
+    const nodes = svg.selectAll(".node")
+        .data(Object.values(nodeLinkDict))
+        .enter().append("circle")
+        .attr("class", "node")
+        .attr("r", d => d.r)
+        .call(d3.drag()
+            .on("start", event => nodeDragStarted(event))
+            .on("drag", event => nodeDragged(event))
+            .on("end", event => nodeDragEnded(event)))
+        .on("click", (event, d) => unanchorNode(event, d.id));
+
     const labels = svg.selectAll(".NLlabel")
         .data(Object.values(nodeLinkDict))
         .enter().append("text")
         .attr("class", "label NLlabel")
-        .attr("dy", -nodeSize)
+        .attr("x", d => d.x)
+        .attr("y", d => d.y)
+        .attr("text-anchor", "middle")
+        .attr("dominant-baseline", "middle")
         .text(d => graph.getNodeAttribute(d.id, datasetSpec.label));
 
     //matrixToNLLinks
@@ -78,7 +91,45 @@ export function buildNL() {
         .append("path")
         .attr("class", "link matrix-NL-link");
 
-    const nodes = svg.selectAll(".node")
+    // Update the nodes and links
+    return {
+        nodes: Object.values(nodeLinkDict),
+        links: nodeLinkEdges,
+    };
+}
+
+export function buildNodeLinkOnly() {
+    const graph = appState.graph;
+    const nodeLinkDict = {};
+
+    graph.forEachNode(nodeId => {
+        nodeLinkDict[nodeId] = {
+            id: nodeId,
+            ...graph.getNodeAttributes(nodeId),
+            x: 0,
+            y: 0,
+            vx: 0,
+            vy: 0,
+            r: nodeSize
+        };
+    });
+
+    const nodeLinkEdges = [];
+    graph.forEachEdge((key, attributes, source, target) => {
+        nodeLinkEdges.push({
+            source,
+            target,
+            key,
+            ...attributes
+        });
+    });
+
+    svg.selectAll(".NLlink")
+        .data(nodeLinkEdges)
+        .enter().append("path")
+        .attr("class", "link NLlink");
+
+    svg.selectAll(".node")
         .data(Object.values(nodeLinkDict))
         .enter().append("circle")
         .attr("class", "node")
@@ -87,13 +138,54 @@ export function buildNL() {
             .on("start", event => nodeDragStarted(event))
             .on("drag", event => nodeDragged(event))
             .on("end", event => nodeDragEnded(event)))
+        .on("mouseover", (event, d) => showTooltip(event, d))
+        .on("mousemove", (event, d) => moveTooltip(event, d))
+        .on("mouseleave", () => hideTooltip())
         .on("click", (event, d) => unanchorNode(event, d.id));
 
-    // Update the nodes and links
+    svg.selectAll(".NLlabel")
+        .data(Object.values(nodeLinkDict))
+        .enter().append("text")
+        .attr("class", "label NLlabel")
+        .attr("x", d => d.x)
+        .attr("y", d => d.y)
+        .attr("text-anchor", "middle")
+        .attr("dominant-baseline", "middle")
+        .text(d => graph.getNodeAttribute(d.id, datasetSpec.label));
+
     return {
         nodes: Object.values(nodeLinkDict),
         links: nodeLinkEdges,
     };
+}
+
+function showTooltip(event, d) {
+    const nodeId = d.id;
+    const label = appState.graph.getNodeAttribute(nodeId, datasetSpec.label);
+
+    const lines = [
+        `<div><strong>Node id:</strong> ${nodeId}</div>`,
+        `<div><strong>Label:</strong> ${label || 'n/a'}</div>`,
+        d.airport ? `<div><strong>Airport:</strong> ${d.airport}</div>` : '',
+        d.city ? `<div><strong>City:</strong> ${d.city}</div>` : '',
+        d.country ? `<div><strong>Country:</strong> ${d.country}</div>` : ''
+    ].filter(Boolean).join('');
+
+    tooltip
+        .html(lines)
+        .style('left', `${event.pageX + 12}px`)
+        .style('top', `${event.pageY + 12}px`)
+        .style('opacity', 1);
+}
+
+function moveTooltip(event) {
+    tooltip
+        .style('left', `${event.pageX + 12}px`)
+        .style('top', `${event.pageY + 12}px`);
+}
+
+function hideTooltip() {
+    tooltip.style('opacity', 0);
 }
 
 function unanchorNode(event, nodeId){    

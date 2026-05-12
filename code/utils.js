@@ -1,7 +1,7 @@
 import Clustering from 'hdbscanjs';
 import louvain from 'graphology-communities-louvain';
 import { buildMatrix } from './building/matrix-builder.js';
-import { buildNL } from './building/nl-builder.js';
+import { buildNL, buildNodeLinkOnly } from './building/nl-builder.js';
 import { applyForceLayout } from './building/force-layout.js';
 import { svg, appState, buttonState, datasetSpec } from './main.js';
 import { applyBinaryColouring, applyBinaryStroke } from './multivariate/binary-edge.js';
@@ -42,6 +42,39 @@ export function buildEverything() {
         sim.force("charge", null);
         sim.force("center", null);
         sim.force("collide", null);
+    }
+
+    // If the user selected node-link-only mode, render only the NL diagram.
+    if (appState.visualizationMode === 'nodeLink') {
+        const { nodes, links } = buildNodeLinkOnly();
+        applyForceLayout(nodes, links);
+
+        if (buttonState.binaryColour) {
+            applyBinaryColouring();
+        }
+
+        if (buttonState.binaryStroke){
+            applyBinaryStroke();
+        }
+
+        if (buttonState.categoricalVariableActivated) {
+            applyCategoricalColouring(datasetSpec.categoricalVar);
+        }
+
+        if (buttonState.numericalVariableActivated) {
+            if (buttonState.numericalCategoriesActivated){
+                applyNumericalCategoriesColours();
+            }else{
+                applyNumericalColouring();
+            }
+        }
+
+        setSimulationState(SIM_REST);
+        setTimeout(() => {
+            appState.sim.alphaTarget(0);
+        }, SIM_REST_COOLDOWN_MS);
+
+        return;
     }
 
     // Reordering Phase

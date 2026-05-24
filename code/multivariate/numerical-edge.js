@@ -28,7 +28,8 @@ export function applyNumericalColouring() {
     });
 
     buttonState.numericalVariableActivated = true;
-    buttonState.numericalCategoriesActivated = false
+    buttonState.numericalCategoriesActivated = false;
+    if (buttonState.syncDirectional) buttonState.syncDirectional();
 }
 
 export function resetNumericalColours() {
@@ -41,6 +42,7 @@ export function resetNumericalColours() {
         .style("stroke", "gray");
 
     buttonState.numericalVariableActivated = false;
+    if (buttonState.syncDirectional) buttonState.syncDirectional();
 }
 
 export function defineNumericalMapping() {
@@ -104,7 +106,8 @@ export function applyNumericalCategoriesColours(){
             .style("stroke", color);
     });
 
-    buttonState.numericalCategoriesActivated = true
+    buttonState.numericalCategoriesActivated = true;
+    if (buttonState.syncDirectional) buttonState.syncDirectional();
 
     return {customNumericalCategories: sortedCategories, numCatcolorScale}
 }

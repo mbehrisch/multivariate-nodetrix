@@ -163,22 +163,42 @@
           </div>
 
           <!--CATEGORICAL-->
-          <!-- Categorical variable checkbox -->
           <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="edge-categorical-color-toggle">
-            <label class="form-check-label" for="edge-categorical-color-toggle">
+            <input class="form-check-input" type="checkbox" id="categorical-options-button">
+            <label class="form-check-label" for="categorical-options-button">
               Categorical variable: Airline country of origin
             </label>
           </div>
 
-          <!-- Categorical variable legend -->
-          <div id="categorical-variable-legend-container" style="display: none;">
-            <ul id="categorical-legend-colors">
-              <!-- Dynamic airline country color items will go here -->
-            </ul>
-            <ul id="categorical-legend-list">
-              <!-- Static options like checkbox will go here -->
-            </ul>
+          <div id="categorical-options-container" style="display:none;">
+            <!-- Categorical Colour checkbox -->
+            <div class="form-check ms-3">
+              <input class="form-check-input" type="checkbox" id="edge-categorical-color-toggle">
+              <label class="form-check-label" for="edge-categorical-color-toggle">
+                Colour
+              </label>
+            </div>
+
+            <!-- Categorical Colour legend -->
+            <div class="ms-3">
+              <div id="categorical-variable-legend-container" style="display: none;">
+                <ul id="categorical-legend-colors"></ul>
+                <ul id="categorical-legend-list"></ul>
+              </div>
+            </div>
+
+            <!-- Categorical Dashing checkbox -->
+            <div class="form-check ms-3">
+              <input class="form-check-input" type="checkbox" id="categorical-dash-button">
+              <label class="form-check-label" for="categorical-dash-button">
+                Stroke
+              </label>
+            </div>
+
+            <!-- Categorical Dashing legend -->
+            <div id="categorical-dash-legend-container" class="flex gap-3 ms-3" style="display:none;">
+              <ul id="categorical-dash-list"></ul>
+            </div>
           </div>
 
           <!-- NUMERICAL-->
@@ -216,7 +236,54 @@
               </label>
             </div>
 
+          </div>
 
+          <!-- DIRECTIONAL -->
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="directional-options-button">
+            <label class="form-check-label" for="directional-options-button">
+              Directional encodings
+            </label>
+          </div>
+
+          <div id="directional-options-container" style="display:none;">
+            <!-- Gradient checkbox -->
+            <div class="form-check ms-3">
+              <input class="form-check-input" type="checkbox" id="directional-gradient-button">
+              <label class="form-check-label" for="directional-gradient-button">
+                Gradient (source → target)
+              </label>
+            </div>
+
+            <!-- Gradient legend -->
+            <div id="directional-gradient-legend" class="ms-3" style="display:none;">
+              <svg width="120" height="14">
+                <defs>
+                  <linearGradient id="legend-gradient" x1="0%" x2="100%">
+                    <stop offset="0%" stop-color="#2ca25f"/>
+                    <stop offset="100%" stop-color="#2166ac"/>
+                  </linearGradient>
+                </defs>
+                <rect x="0" y="2" width="80" height="8" fill="url(#legend-gradient)" rx="1"/>
+                <text x="84" y="10" font-size="8">source → target</text>
+              </svg>
+            </div>
+
+            <!-- Tapering checkbox -->
+            <div class="form-check ms-3">
+              <input class="form-check-input" type="checkbox" id="directional-taper-button">
+              <label class="form-check-label" for="directional-taper-button">
+                Tapering (wide → narrow)
+              </label>
+            </div>
+
+            <!-- Tapering legend -->
+            <div id="directional-taper-legend" class="ms-3" style="display:none;">
+              <svg width="120" height="16">
+                <polygon points="0,8 80,5 80,11" fill="#333" opacity="0.75"/>
+                <text x="84" y="11" font-size="8">source → target</text>
+              </svg>
+            </div>
           </div>
 
         </div>

@@ -15,8 +15,8 @@ export function applyBinaryColouring() {
     d3.selectAll(".link")
         .style("stroke", d => d[datasetSpec.binaryVar] === true ? "green" : "red");
     
-    //Switch button state
-    buttonState.binaryColour = true
+    buttonState.binaryColour = true;
+    if (buttonState.syncDirectional) buttonState.syncDirectional();
 }
 
 //Reset colours
@@ -24,12 +24,11 @@ export function resetBinaryColors() {
     d3.selectAll(".cellPositive")
         .style("fill", null);
 
-    // Reset link stroke color
     d3.selectAll(".link")
         .style("stroke", null);
-    
-    //Switch button state and sorted button state
-    buttonState.binaryColour = false
+
+    buttonState.binaryColour = false;
+    if (buttonState.syncDirectional) buttonState.syncDirectional();
 }
 //Function to create Matrices based on if the majority of the edges of a node are true or not
 export function BinaryMatrices() {

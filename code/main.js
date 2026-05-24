@@ -4,8 +4,9 @@ import Graph from 'graphology';
 
 import { buildEverything, louvainMatrices, noMatrix } from './utils.js';
 import { SetupBinaryOptions, SetupRecreateMatrices } from './page-interaction/binary-buttons.js';
-import { SetupCategoricalColour } from './page-interaction/categorical-buttons.js';
+import { SetupCategoricalOptions } from './page-interaction/categorical-buttons.js';
 import { SetupNumericalOptions } from './page-interaction/numerical-button.js';
+import { SetupDirectionalOptions } from './page-interaction/directional-buttons.js';
 import { customNumericalCategoriesFunction } from './page-interaction/numerical-cat-table.js';
 
 const graphDiv = document.getElementById('graph');
@@ -45,10 +46,13 @@ export const buttonState = {
     binaryColour: false,
     binaryStroke: false,
     binarySorted: false,
-//    binaryMatrices: false,
     categoricalVariableActivated: false,
+    categoricalDash: false,
     numericalVariableActivated: false,
-    numericalCategoriesActivated: false
+    numericalCategoriesActivated: false,
+    directionalGradient: false,
+    directionalTaper: false,
+    syncDirectional: null,   // callback set by tapering; called whenever stroke colour changes
 }
 
 let graph = new Graph({ multi: true });
@@ -93,8 +97,9 @@ fetch("data/sampled_data.json")
 
         SetupRecreateMatrices();
         SetupBinaryOptions();
-        SetupCategoricalColour();
+        SetupCategoricalOptions();
         SetupNumericalOptions();
+        SetupDirectionalOptions();
 
         customNumericalCategoriesFunction();
 

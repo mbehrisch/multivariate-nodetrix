@@ -5,8 +5,9 @@ import { buildNL, buildNodeLinkOnly } from './building/nl-builder.js';
 import { applyForceLayout } from './building/force-layout.js';
 import { svg, appState, buttonState, datasetSpec } from './main.js';
 import { applyBinaryColouring, applyBinaryStroke } from './multivariate/binary-edge.js';
-import { applyCategoricalColouring } from './multivariate/categorical-edge.js';
+import { applyCategoricalColouring, applyCategoricalDashing } from './multivariate/categorical-edge.js';
 import { applyNumericalCategoriesColours, applyNumericalColouring } from './multivariate/numerical-edge.js';
+import { applyDirectionalGradient, applyDirectionalTaper } from './multivariate/directional-edge.js';
 
 // Simulation parameters used after a (re)build settles
 const SIM_REST = {
@@ -69,6 +70,13 @@ export function buildEverything() {
             }
         }
 
+        if (buttonState.categoricalDash) {
+            applyCategoricalDashing(datasetSpec.categoricalVar);
+        }
+
+        if (buttonState.directionalGradient) applyDirectionalGradient();
+        if (buttonState.directionalTaper) applyDirectionalTaper();
+
         setSimulationState(SIM_REST);
         setTimeout(() => {
             appState.sim.alphaTarget(0);
@@ -114,7 +122,14 @@ export function buildEverything() {
             applyNumericalColouring();
         }
     }
-    
+
+    if (buttonState.categoricalDash) {
+        applyCategoricalDashing(datasetSpec.categoricalVar);
+    }
+
+    if (buttonState.directionalGradient) applyDirectionalGradient();
+    if (buttonState.directionalTaper) applyDirectionalTaper();
+
     setSimulationState(SIM_REST);
 
     setTimeout(() => {

@@ -111,4 +111,24 @@ fetch("data/sampled_data.json")
                 buildEverything();
             });
         }
+        // window.debugEdges is now available. After the page loads, open the browser console and call:
+        // debugEdges("AMS", "LHR")
+        // It will print a table of all edges between those two airports with their direction, airline, codeshare status, distance, etc.
+        window.debugEdges = function(iataA, iataB) {
+            const g = appState.graph;
+            const nodeA = g.nodes().find(n => g.getNodeAttribute(n, 'IATA') === iataA);
+            const nodeB = g.nodes().find(n => g.getNodeAttribute(n, 'IATA') === iataB);
+            if (!nodeA) { console.warn(`No node found for IATA "${iataA}"`); return; }
+            if (!nodeB) { console.warn(`No node found for IATA "${iataB}"`); return; }
+            console.log(`Nodes: ${iataA}=${nodeA}, ${iataB}=${nodeB}`);
+            const edges = [];
+            g.forEachEdge((key, attrs, source, target) => {
+                if ((source === nodeA && target === nodeB) || (source === nodeB && target === nodeA)) {
+                    edges.push({ edgeId: key, direction: `${g.getNodeAttribute(source,'IATA')} → ${g.getNodeAttribute(target,'IATA')}`, ...attrs });
+                }
+            });
+            console.log(`${edges.length} edge(s) between ${iataA} and ${iataB}:`);
+            console.table(edges);
+            return edges;
+        };
     });

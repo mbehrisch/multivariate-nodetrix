@@ -11,7 +11,7 @@ const TAPER_SAMPLES = 20;
 
 export function applyDirectionalGradient() {
     ensureDefs();
-    const defs = d3.select("svg defs");
+    const defs = svg.select("defs");
 
     d3.selectAll(".link").each(function(d, i) {
         const gradId = `dir-gradient-${i}`;
@@ -138,8 +138,10 @@ function updateTapers() {
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function ensureDefs() {
-    if (d3.select("svg defs").empty()) {
-        d3.select("svg").insert("defs", ":first-child");
+    // Use the imported `svg` reference so we always target the main SVG,
+    // not any legend SVGs that may be present in the document.
+    if (svg.select("defs").empty()) {
+        svg.insert("defs", ":first-child");
     }
 }
 

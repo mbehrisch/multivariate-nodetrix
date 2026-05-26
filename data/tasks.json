@@ -1,0 +1,68 @@
+{
+  "_doc": {
+    "schema": "Each object in 'tasks' is one study task. Fields:",
+    "id":            "Unique string identifier (e.g. 'T5'). Used in log events.",
+    "condition":     "Which encoding is active: 'categorical' | 'numerical' | 'directional'.",
+    "description":   "Question text shown to the participant.",
+    "colorKeywords": "Optional. Array of { word, color } objects. Each occurrence of 'word' in description is wrapped in a coloured <span>.",
+    "answerType":    "'select-node' (participant double-clicks a node) | 'multiple-choice' (radio buttons).",
+    "options":       "Required for multiple-choice only. Array of option strings.",
+    "correctAnswer": "String that must match selectedAnswer exactly to count as correct.",
+    "diagram":       "Path to the dataset JSON (currently always 'data/sampled_data.json').",
+    "howToAdd":      "Append a new object to the 'tasks' array. Tasks run in array order. The progress bar adjusts automatically. If the new task uses a different condition than the previous one, the canvas rebuilds automatically."
+  },
+  "tasks": [
+    {
+      "id": "T1",
+      "condition": "categorical",
+      "description": "Which country of origin has the most airline routes in this network?",
+      "colorKeywords": [
+        { "word": "country of origin", "color": "#4A90E2" },
+        { "word": "most airline routes", "color": "#F5A623" }
+      ],
+      "answerType": "multiple-choice",
+      "options": ["United States", "China", "France", "Germany", "United Kingdom"],
+      "correctAnswer": "United States",
+      "diagram": "data/sampled_data.json"
+    },
+    {
+      "id": "T2",
+      "condition": "categorical",
+      "description": "Find the busiest airport hub — the one where routes from the most countries converge. Look for the node where the greatest variety of edge colors and dash patterns meets.",
+      "colorKeywords": [
+        { "word": "busiest airport hub", "color": "#E24A4A" },
+        { "word": "most countries converge", "color": "#4A90E2" }
+      ],
+      "answerType": "select-node",
+      "correctAnswer": "ATL",
+      "diagram": "data/sampled_data.json"
+    },
+    {
+      "id": "T3",
+      "condition": "numerical",
+      "description": "Find the airport connected by the longest route in this network. Look for the thickest and most intensely colored edge, then identify the airport at one of its ends.",
+      "colorKeywords": [
+        { "word": "longest route", "color": "#F5A623" },
+        { "word": "thickest", "color": "#7B68EE" }
+      ],
+      "answerType": "select-node",
+      "correctAnswer": "EWR",
+      "diagram": "data/sampled_data.json"
+    },
+    {
+      "id": "T4",
+      "condition": "directional",
+      "description": "Which airport is the departure point for the most outgoing flights? Edges taper from wide at the source to narrow at the destination, and shift from green (source) to blue (target).",
+      "colorKeywords": [
+        { "word": "departure point", "color": "#2ca25f" },
+        { "word": "most outgoing flights", "color": "#F5A623" },
+        { "word": "wide at the source", "color": "#2ca25f" },
+        { "word": "green", "color": "#2ca25f" }
+      ],
+      "answerType": "multiple-choice",
+      "options": ["ATL", "CDG", "PEK", "LAX", "FRA"],
+      "correctAnswer": "ATL",
+      "diagram": "data/sampled_data.json"
+    }
+  ]
+}

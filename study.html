@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Edge Encoding Study</title>
+
+  <!-- Same three CSS files as index.html -->
+  <link rel="stylesheet" href="styles/page-styling.css" />
+  <link rel="stylesheet" href="styles/NodeTrixStyle.css" />
+  <link rel="stylesheet" href="styles/MultivariateMatrixStyle.css" />
+
+  <style>
+    /* ── Override page-styling defaults for the study layout ── */
+    html, body {
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Two-panel shell */
+    #study-shell {
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── Left panel ── */
+    #study-left {
+      width: 360px;
+      flex-shrink: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: #fafafa;
+      border-right: 1px solid #ddd;
+      padding: 24px 20px 20px;
+      box-sizing: border-box;
+      overflow-y: auto;
+    }
+
+    /* ── Right panel ── */
+    /* display:flex + flex-direction:column lets #graph (flex:1
+       from page-styling.css) expand to full panel height */
+    #study-right {
+      flex: 1;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* main.js will append <svg id="study-svg"> here.
+       flex:1 + border are already set by page-styling.css */
+    #graph {
+      border: none; /* remove the decorative border for the study */
+    }
+
+    /* ── Left-panel typography ── */
+    .panel-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #aaa;
+      margin: 0 0 6px;
+    }
+
+    #task-description {
+      font-size: 14px;
+      line-height: 1.65;
+      color: #222;
+      margin-bottom: 22px;
+    }
+
+    #study-legend {
+      margin-bottom: 18px;
+    }
+
+    .study-legend-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .study-legend-list li {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 5px;
+      font-size: 12px;
+      color: #333;
+    }
+
+    /* ── Overall progress bar ── */
+    #study-progress-bar {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 6px;
+    }
+
+    .progress-step {
+      flex: 1;
+      height: 6px;
+      border-radius: 3px;
+      background: #ddd;
+      transition: background 0.2s;
+    }
+
+    .progress-step--done    { background: #4caf50; }
+    .progress-step--current { background: #ff7f0e; }
+
+    #task-progress {
+      font-size: 12px;
+      color: #999;
+      margin-bottom: 20px;
+    }
+
+    /* ── Answer area docked at the bottom ── */
+    #answer-area {
+      margin-top: auto;
+      padding-top: 16px;
+      border-top: 1px solid #e0e0e0;
+    }
+
+    #selected-node-display {
+      font-size: 14px;
+      color: #444;
+      margin: 0 0 10px;
+    }
+
+    /* ── Node highlight (toggled by nl-builder.js on single-click) ── */
+    .node--highlighted {
+      stroke: #ff7f0e !important;
+      stroke-width: 3px !important;
+    }
+
+    /* Edges connected to the highlighted node */
+    .edge--highlighted {
+      stroke: #ff7f0e !important;
+      stroke-opacity: 1 !important;
+      stroke-width: 2px !important;
+    }
+
+    /* Taper polygons in directional mode (fill-based, not stroke-based) */
+    .taper-link.edge--highlighted {
+      fill: #ff7f0e !important;
+      opacity: 0.9 !important;
+    }
+
+    /* Neighbouring nodes of the highlighted node */
+    .neighbor--highlighted {
+      fill: #ffe0b2 !important;
+      stroke: #ff7f0e !important;
+      stroke-width: 2px !important;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="study-shell">
+
+    <!-- ────────────── Left panel ────────────── -->
+    <div id="study-left">
+
+      <!-- Overall progress: one segment per task -->
+      <div id="study-progress-bar"></div>
+      <div id="task-progress"></div>
+
+      <p class="panel-label">Task</p>
+      <div id="task-description">Loading…</div>
+
+      <p class="panel-label">Legend</p>
+      <div id="study-legend"></div>
+
+      <div id="task-progress"></div>
+
+      <!-- Answer area: populated dynamically by study.js -->
+      <div id="answer-area"></div>
+
+    </div>
+
+    <!-- ────────────── Right panel ────────────── -->
+    <!-- main.js (imported by study.js) reads #graph's bounding rect
+         and appends <svg id="study-svg"> inside it. -->
+    <div id="study-right">
+      <div id="graph"></div>
+    </div>
+
+  </div>
+
+  <script type="module" src="code/study.js"></script>
+</body>
+</html>

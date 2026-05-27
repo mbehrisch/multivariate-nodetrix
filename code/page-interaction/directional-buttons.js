@@ -1,11 +1,13 @@
 import * as d3 from 'd3';
 import {
     applyDirectionalGradient, resetDirectionalGradient,
-    applyDirectionalTaper, resetDirectionalTaper
+    applyDirectionalTaper, resetDirectionalTaper,
+    applyDirectionalArrows, resetDirectionalArrows
 } from '../multivariate/directional-edge.js';
 
 const gradientButton = document.getElementById("directional-gradient-button");
 const taperButton = document.getElementById("directional-taper-button");
+const arrowButton = document.getElementById("directional-arrow-button");
 
 export function SetupDirectionalOptions() {
     document.getElementById("directional-options-button")
@@ -14,6 +16,7 @@ export function SetupDirectionalOptions() {
 
     SetupDirectionalGradient();
     SetupDirectionalTaper();
+    SetupDirectionalArrow();
 }
 
 function toggleDirectionalOptions() {
@@ -57,5 +60,21 @@ function toggleDirectionalTaper() {
     } else {
         resetDirectionalTaper();
         legendEl.style("display", "none");
+    }
+}
+
+// ─── Arrow ────────────────────────────────────────────────────────────────────
+
+function SetupDirectionalArrow() {
+    arrowButton.checked = false;
+    arrowButton.addEventListener("change", toggleDirectionalArrow);
+    toggleDirectionalArrow();
+}
+
+function toggleDirectionalArrow() {
+    if (arrowButton.checked) {
+        applyDirectionalArrows();
+    } else {
+        resetDirectionalArrows();
     }
 }

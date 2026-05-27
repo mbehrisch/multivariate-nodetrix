@@ -40,6 +40,7 @@ import {
 import {
     applyDirectionalGradient,
     applyDirectionalTaper,
+    applyDirectionalArrows,
 } from './multivariate/directional-edge.js';
 
 // ── Synchronous setup (before main.js's fetch resolves) ──────
@@ -136,6 +137,7 @@ function applyConditionEncoding(cond) {
     } else if (cond === 'directional') {
         applyDirectionalGradient();
         applyDirectionalTaper();
+        applyDirectionalArrows();   // triangle at each edge's target end
         renderDirectionalLegend();
     }
 }

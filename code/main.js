@@ -52,6 +52,7 @@ export const buttonState = {
     numericalCategoriesActivated: false,
     directionalGradient: false,
     directionalTaper: false,
+    directionalArrow: false,
     syncDirectional: null,   // callback set by tapering; called whenever stroke colour changes
 }
 

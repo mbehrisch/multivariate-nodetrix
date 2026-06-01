@@ -1,17 +1,17 @@
 {
   "_doc": {
     "schema": "Each object in 'tasks' is one study task. Fields:",
-    "id":            "Unique string identifier (e.g. 'T5'). Used in log events.",
-    "condition":     "Which encoding is active: 'categorical' | 'numerical' | 'directional'.",
-    "encodings":     "Optional. Array of encoding names to activate for this task. If omitted, the default set for the condition is used. Categorical options: 'color', 'dashing'. Numerical options: 'color', 'thickness'. Directional options: 'gradient', 'taper', 'arrows'. Examples: ['color'] for colour-only, ['dashing'] for dash-only, ['color','dashing'] for both.",
-    "filter":        "Optional. Object that filters the dataset before rendering. Omit for the full dataset. Supported types: { 'type': 'deduplicate' } — keeps exactly one edge per node pair (the first one in insertion order), turning a dense bidirectional multigraph into a clean directed graph. Use this for directional tasks so each pair has an unambiguous direction.",
-    "description":   "Question text shown to the participant.",
-    "colorKeywords": "Optional. Array of { word, color } objects. Each occurrence of 'word' in description is wrapped in a coloured <span>.",
-    "answerType":    "'select-node' (participant double-clicks a node) | 'multiple-choice' (radio buttons).",
-    "options":       "Required for multiple-choice only. Array of option strings.",
-    "correctAnswer": "String that must match selectedAnswer exactly to count as correct.",
-    "diagram":       "Path to the dataset JSON (currently always 'data/sampled_data.json').",
-    "howToAdd":      "Append a new object to the 'tasks' array. Tasks run in array order. The progress bar adjusts automatically. If the new task uses a different condition than the previous one, the canvas rebuilds automatically. If the new task changes only the 'encodings' but keeps the same condition, the canvas also rebuilds with the new encodings."
+    "id":             "Unique string identifier (e.g. 'T5'). Used in log events.",
+    "condition":      "Which encoding is active: 'categorical' | 'numerical' | 'directional'.",
+    "encodings":      "Optional. Array of encoding names to activate for this task. If omitted, the default set for the condition is used. Categorical options: 'color', 'dashing'. Numerical options: 'color', 'thickness'. Directional options: 'gradient', 'taper', 'arrows'. Examples: ['color'] for colour-only, ['dashing'] for dash-only, ['color','dashing'] for both.",
+    "filter":         "Optional. Object that filters the dataset before rendering. Omit for the full dataset. Supported types: { 'type': 'deduplicate' } — keeps exactly one edge per node pair (the first one in insertion order), turning a dense bidirectional multigraph into a clean directed graph. Use this for directional tasks so each pair has an unambiguous direction.",
+    "description":    "Question text shown to the participant.",
+    "colorKeywords":  "Optional. Array of { word, color } objects. Each occurrence of 'word' in description is wrapped in a coloured <span>.",
+    "answerType":     "'select-node' (participant double-clicks a node) | 'multiple-choice' (radio buttons).",
+    "options":        "Required for multiple-choice only. Array of option strings.",
+    "correctAnswers": "Array of accepted correct answers. All strings must match selectedAnswer exactly. Use a single-element array for one correct answer, or multiple elements when several answers should count as correct (e.g. both endpoints of an edge).",
+    "diagram":        "Path to the dataset JSON (currently always 'data/sampled_data.json').",
+    "howToAdd":       "Append a new object to the 'tasks' array. Tasks run in array order. The progress bar adjusts automatically. If the new task uses a different condition than the previous one, the canvas rebuilds automatically. If the new task changes only the 'encodings' but keeps the same condition, the canvas also rebuilds with the new encodings."
   },
   "tasks": [
     {
@@ -25,21 +25,21 @@
       ],
       "answerType": "multiple-choice",
       "options": ["United States", "China", "France", "Germany", "United Kingdom"],
-      "correctAnswer": "United States",
+      "correctAnswers": ["United States"],
       "diagram": "data/sampled_data.json"
     },
     {
       "id": "T2",
       "condition": "categorical",
       "encodings": ["color", "dashing"],
-      "description": "Find the busiest airport hub, the one where routes from the most countries converge. Look for the node where the greatest variety of edge colors and dash patterns meets.",
       "filter": { "type": "deduplicate" },
+      "description": "Find the busiest airport hub, the one where routes from the most countries converge. Look for the node where the greatest variety of edge colors and dash patterns meets.",
       "colorKeywords": [
         { "word": "busiest airport hub", "color": "#E24A4A" },
         { "word": "most countries converge", "color": "#4A90E2" }
       ],
       "answerType": "select-node",
-      "correctAnswer": "ATL",
+      "correctAnswers": ["ATL"],
       "diagram": "data/sampled_data.json"
     },
     {
@@ -52,7 +52,7 @@
         { "word": "thickest", "color": "#7B68EE" }
       ],
       "answerType": "select-node",
-      "correctAnswer": "EWR",
+      "correctAnswers": ["EWR", "YYZ"],
       "diagram": "data/sampled_data.json"
     },
     {
@@ -69,7 +69,7 @@
       ],
       "answerType": "multiple-choice",
       "options": ["ATL", "CDG", "PEK", "LAX", "FRA"],
-      "correctAnswer": "CDG",
+      "correctAnswers": ["CDG"],
       "diagram": "data/sampled_data.json"
     }
   ]

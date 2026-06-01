@@ -437,7 +437,13 @@ function onNodeSelected(event) {
 function submitAnswer() {
     const task           = tasks[currentTaskIndex];
     const responseTimeMs = Date.now() - taskStartTime;
-    const isCorrect      = selectedAnswer === task.correctAnswer;
+
+    // Support both a single string ("correctAnswer") and an array
+    // ("correctAnswers") so old and new task definitions both work.
+    const correctSet = Array.isArray(task.correctAnswers)
+        ? task.correctAnswers
+        : [task.correctAnswer];
+    const isCorrect = correctSet.includes(selectedAnswer);
 
     logEvent('answer_submitted', {
         taskId:         task.id,

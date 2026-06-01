@@ -53,12 +53,15 @@ const prolificPid = _p.get('PROLIFIC_PID') || 'PREVIEW';
 const studyId     = _p.get('STUDY_ID')     || 'PREVIEW';
 const sessionId   = _p.get('SESSION_ID')   || 'PREVIEW';
 const condition   = _p.get('condition')    || 'categorical';
+// Latin-Square order: 1, 2, 3, or 4.  Defaults to 1 for local testing.
+const order       = _p.get('order')        || '1';
 
 const sessionData = {
     prolificPid,
     studyId,
     sessionId,
     condition,
+    order,
     startTime: Date.now(),
 };
 
@@ -108,7 +111,7 @@ function waitForGraph() {
 async function init() {
     logEvent('page_load', {
         prolificPid: sessionData.prolificPid,
-        conditions:  'all',    // participant goes through every condition
+        order:       sessionData.order,   // Latin-Square order (1–4)
         timestamp:   new Date().toISOString(),
     });
 
@@ -118,8 +121,11 @@ async function init() {
         waitForGraph(),
     ]);
 
-    // All tasks in JSON order — no condition filter
-    tasks = tasksData.tasks;
+    // Select the task list for this participant's Latin-Square order.
+    // Falls back to order 1 if the URL parameter is missing or invalid.
+    tasks = tasksData.orders?.[order]?.tasks
+         ?? tasksData.orders?.['1']?.tasks
+         ?? [];
 
     // ── Save original graph once so filters always start from full data ──
     appState._baseGraph = appState.graph;
@@ -148,7 +154,12 @@ async function init() {
 function applyConditionEncoding(cond, encodings) {
     const active = new Set(encodings);
 
-    if (cond === 'categorical') {
+    if (cond === 'baseline') {
+        // No edge encoding — clear any legend left over from a previous task
+        document.getElementById('study-legend').innerHTML =
+            '<p class="panel-label" style="color:#999;font-style:italic;">No edge encoding active</p>';
+
+    } else if (cond === 'categorical') {
         if (active.has('color'))   applyCategoricalColouring(datasetSpec.categoricalVar);
         if (active.has('dashing')) applyCategoricalDashing(datasetSpec.categoricalVar);
         renderCategoricalLegend(encodings);

@@ -1,76 +1,286 @@
 {
   "_doc": {
-    "schema": "Each object in 'tasks' is one study task. Fields:",
-    "id":             "Unique string identifier (e.g. 'T5'). Used in log events.",
-    "condition":      "Which encoding is active: 'categorical' | 'numerical' | 'directional'.",
-    "encodings":      "Optional. Array of encoding names to activate for this task. If omitted, the default set for the condition is used. Categorical options: 'color', 'dashing'. Numerical options: 'color', 'thickness'. Directional options: 'gradient', 'taper', 'arrows'. Examples: ['color'] for colour-only, ['dashing'] for dash-only, ['color','dashing'] for both.",
-    "filter":         "Optional. Object that filters the dataset before rendering. Omit for the full dataset. Supported types: { 'type': 'deduplicate' } — keeps exactly one edge per node pair (the first one in insertion order), turning a dense bidirectional multigraph into a clean directed graph. Use this for directional tasks so each pair has an unambiguous direction.",
-    "description":    "Question text shown to the participant.",
-    "colorKeywords":  "Optional. Array of { word, color } objects. Each occurrence of 'word' in description is wrapped in a coloured <span>.",
-    "answerType":     "'select-node' (participant double-clicks a node) | 'multiple-choice' (radio buttons).",
-    "options":        "Required for multiple-choice only. Array of option strings.",
-    "correctAnswers": "Array of accepted correct answers. All strings must match selectedAnswer exactly. Use a single-element array for one correct answer, or multiple elements when several answers should count as correct (e.g. both endpoints of an edge).",
-    "diagram":        "Path to the dataset JSON (currently always 'data/sampled_data.json').",
-    "howToAdd":       "Append a new object to the 'tasks' array. Tasks run in array order. The progress bar adjusts automatically. If the new task uses a different condition than the previous one, the canvas rebuilds automatically. If the new task changes only the 'encodings' but keeps the same condition, the canvas also rebuilds with the new encodings."
-  },
-  "tasks": [
-    {
-      "id": "T1",
-      "condition": "categorical",
-      "encodings": ["color"],
-      "description": "Which country of origin has the most airline routes in this network?",
-      "colorKeywords": [
-        { "word": "country of origin", "color": "#4A90E2" },
-        { "word": "most airline routes", "color": "#F5A623" }
-      ],
-      "answerType": "multiple-choice",
-      "options": ["United States", "China", "France", "Germany", "United Kingdom"],
-      "correctAnswers": ["United States"],
-      "diagram": "data/sampled_data.json"
+    "schema": "Latin-Square study design. Each participant is assigned one order (1–4) via the URL parameter ?order=N. Every order presents all four conditions (SV0 baseline, SV1 categorical, SV2 numerical, SV3 directional) each paired with a different task type (Estimation, Structure, Browsing, Attribute).",
+    "latinSquare": {
+      "order1": "SV0+Estimation → SV1+Structure → SV2+Browsing  → SV3+Attribute",
+      "order2": "SV1+Estimation → SV2+Structure → SV3+Browsing  → SV0+Attribute",
+      "order3": "SV2+Estimation → SV3+Structure → SV0+Browsing  → SV1+Attribute",
+      "order4": "SV3+Estimation → SV0+Structure → SV1+Browsing  → SV2+Attribute"
     },
-    {
-      "id": "T2",
-      "condition": "categorical",
-      "encodings": ["color", "dashing"],
-      "filter": { "type": "deduplicate" },
-      "description": "Find the busiest airport hub, the one where routes from the most countries converge. Look for the node where the greatest variety of edge colors and dash patterns meets.",
-      "colorKeywords": [
-        { "word": "busiest airport hub", "color": "#E24A4A" },
-        { "word": "most countries converge", "color": "#4A90E2" }
-      ],
-      "answerType": "select-node",
-      "correctAnswers": ["ATL"],
-      "diagram": "data/sampled_data.json"
-    },
-    {
-      "id": "T3",
-      "condition": "numerical",
-      "encodings": ["color", "thickness"],
-      "description": "Find the airport connected by the longest route in this network. Look for the thickest and most intensely colored edge, then identify the airport at one of its ends.",
-      "colorKeywords": [
-        { "word": "longest route", "color": "#F5A623" },
-        { "word": "thickest", "color": "#7B68EE" }
-      ],
-      "answerType": "select-node",
-      "correctAnswers": ["EWR", "YYZ"],
-      "diagram": "data/sampled_data.json"
-    },
-    {
-      "id": "T4",
-      "condition": "directional",
-      "encodings": ["gradient", "taper", "arrows"],
-      "filter": { "type": "deduplicate" },
-      "description": "Which airport is the departure point for the most outgoing flights? Edges taper from wide at the source to narrow at the destination, and shift from green (source) to blue (target).",
-      "colorKeywords": [
-        { "word": "departure point", "color": "#2ca25f" },
-        { "word": "most outgoing flights", "color": "#F5A623" },
-        { "word": "wide at the source", "color": "#2ca25f" },
-        { "word": "green", "color": "#2ca25f" }
-      ],
-      "answerType": "multiple-choice",
-      "options": ["ATL", "CDG", "PEK", "LAX", "FRA"],
-      "correctAnswers": ["CDG"],
-      "diagram": "data/sampled_data.json"
+    "taskFields": {
+      "id":             "Unique string identifier (e.g. 'T_O1_E'). Prefix T_O{order}_{E|S|B|A}.",
+      "taskType":       "One of 'estimation' | 'structure' | 'browsing' | 'attribute'. For logging only.",
+      "condition":      "Active encoding: 'baseline' | 'categorical' | 'numerical' | 'directional'.",
+      "encodings":      "Array of encoding names. Categorical: 'color','dashing'. Numerical: 'color','thickness'. Directional: 'gradient','taper','arrows'. Empty array [] for baseline.",
+      "filter":         "Optional. { 'type': 'deduplicate' } reduces 1 227 edges to 205 unique pairs for a clean, unambiguous graph. Applied to ALL tasks for visual consistency across conditions.",
+      "description":    "Question text shown to the participant.",
+      "colorKeywords":  "Optional. Array of { word, color } objects to highlight key terms in the description.",
+      "answerType":     "'select-node' | 'multiple-choice'",
+      "options":        "Required for multiple-choice only.",
+      "correctAnswers": "Array of accepted answers. Multiple values = several nodes/options count as correct (e.g. both endpoints of an edge, or any leaf node for browsing tasks).",
+      "diagram":        "Path to the dataset JSON."
     }
-  ]
+  },
+
+  "orders": {
+
+    "1": {
+      "tasks": [
+        {
+          "id": "T_O1_E",
+          "taskType": "estimation",
+          "condition": "baseline",
+          "encodings": [],
+          "filter": { "type": "deduplicate" },
+          "description": "How many airports (nodes) are in this network? Count all the circles visible in the diagram.",
+          "colorKeywords": [],
+          "answerType": "multiple-choice",
+          "options": ["35", "39", "43", "47"],
+          "correctAnswers": ["43"],
+          "diagram": "data/sampled_data.json"
+        },
+        {
+          "id": "T_O1_S",
+          "taskType": "structure",
+          "condition": "categorical",
+          "encodings": ["color", "dashing"],
+          "filter": { "type": "deduplicate" },
+          "description": "Find the airport where routes from the most different countries of origin meet. Look for the node connected to edges of the greatest variety of colours and dash patterns.",
+          "colorKeywords": [
+            { "word": "most different countries of origin", "color": "#4A90E2" },
+            { "word": "greatest variety of colours", "color": "#F5A623" }
+          ],
+          "answerType": "select-node",
+          "correctAnswers": ["FRA", "DUS"],
+          "diagram": "data/sampled_data.json"
+        },
+        {
+          "id": "T_O1_B",
+          "taskType": "browsing",
+          "condition": "numerical",
+          "encodings": ["color", "thickness"],
+          "filter": { "type": "deduplicate" },
+          "description": "Find any airport connected by at least one very long route — longer than 10,000 km. Look for a node with at least one very thick, intensely coloured edge.",
+          "colorKeywords": [
+            { "word": "very long route", "color": "#F5A623" },
+            { "word": "very thick", "color": "#7B68EE" }
+          ],
+          "answerType": "select-node",
+          "correctAnswers": ["EWR", "PVG", "CAN", "LAX"],
+          "diagram": "data/sampled_data.json"
+        },
+        {
+          "id": "T_O1_A",
+          "taskType": "attribute",
+          "condition": "directional",
+          "encodings": ["gradient", "taper", "arrows"],
+          "filter": { "type": "deduplicate" },
+          "description": "Which airport is the departure point for the most outgoing flights? Edges taper from wide at the source to narrow at the destination, and shift from green (source) to blue (target).",
+          "colorKeywords": [
+            { "word": "departure point", "color": "#2ca25f" },
+            { "word": "most outgoing flights", "color": "#F5A623" },
+            { "word": "green", "color": "#2ca25f" }
+          ],
+          "answerType": "multiple-choice",
+          "options": ["ATL", "CDG", "BRU", "FRA", "EWR"],
+          "correctAnswers": ["CDG"],
+          "diagram": "data/sampled_data.json"
+        }
+      ]
+    },
+
+    "2": {
+      "tasks": [
+        {
+          "id": "T_O2_E",
+          "taskType": "estimation",
+          "condition": "categorical",
+          "encodings": ["color", "dashing"],
+          "filter": { "type": "deduplicate" },
+          "description": "How many different countries of origin are represented by the edge colours in this network?",
+          "colorKeywords": [
+            { "word": "countries of origin", "color": "#4A90E2" },
+            { "word": "edge colours", "color": "#F5A623" }
+          ],
+          "answerType": "multiple-choice",
+          "options": ["5", "6", "7", "8"],
+          "correctAnswers": ["7"],
+          "diagram": "data/sampled_data.json"
+        },
+        {
+          "id": "T_O2_S",
+          "taskType": "structure",
+          "condition": "numerical",
+          "encodings": ["color", "thickness"],
+          "filter": { "type": "deduplicate" },
+          "description": "Find the airport at one end of the single longest route in this network. Look for the thickest, most intensely coloured edge and click one of its endpoints.",
+          "colorKeywords": [
+            { "word": "single longest route", "color": "#F5A623" },
+            { "word": "thickest", "color": "#7B68EE" }
+          ],
+          "answerType": "select-node",
+          "correctAnswers": ["EWR", "PVG"],
+          "diagram": "data/sampled_data.json"
+        },
+        {
+          "id": "T_O2_B",
+          "taskType": "browsing",
+          "condition": "directional",
+          "encodings": ["gradient", "taper", "arrows"],
+          "filter": { "type": "deduplicate" },
+          "description": "Find any airport that has only outgoing connections — all its edges are wide at that end, with no arrows pointing towards it.",
+          "colorKeywords": [
+            { "word": "only outgoing connections", "color": "#2ca25f" },
+            { "word": "no arrows pointing towards it", "color": "#2166ac" }
+          ],
+          "answerType": "select-node",
+          "correctAnswers": ["YAM", "YHD", "ABJ", "BOD", "CAN", "ATL", "COD"],
+          "diagram": "data/sampled_data.json"
+        },
+        {
+          "id": "T_O2_A",
+          "taskType": "attribute",
+          "condition": "baseline",
+          "encodings": [],
+          "filter": { "type": "deduplicate" },
+          "description": "Without any colour or thickness encoding, which country of origin do you think operates the most airline routes in this network? Make your best guess.",
+          "colorKeywords": [],
+          "answerType": "multiple-choice",
+          "options": ["United States", "China", "France", "Germany", "Canada"],
+          "correctAnswers": ["France"],
+          "diagram": "data/sampled_data.json"
+        }
+      ]
+    },
+
+    "3": {
+      "tasks": [
+        {
+          "id": "T_O3_E",
+          "taskType": "estimation",
+          "condition": "numerical",
+          "encodings": ["color", "thickness"],
+          "filter": { "type": "deduplicate" },
+          "description": "Approximately how long is the longest route in this network? Use the thickest, most intensely coloured edge as your guide.",
+          "colorKeywords": [
+            { "word": "longest route", "color": "#F5A623" },
+            { "word": "thickest", "color": "#7B68EE" }
+          ],
+          "answerType": "multiple-choice",
+          "options": ["8,000 km", "10,000 km", "12,000 km", "14,000 km"],
+          "correctAnswers": ["12,000 km"],
+          "diagram": "data/sampled_data.json"
+        },
+        {
+          "id": "T_O3_S",
+          "taskType": "structure",
+          "condition": "directional",
+          "encodings": ["gradient", "taper", "arrows"],
+          "filter": { "type": "deduplicate" },
+          "description": "Find the airport that serves as the main destination hub — the one that the most routes arrive AT. Look for the node with the most arrows pointing towards it.",
+          "colorKeywords": [
+            { "word": "main destination hub", "color": "#2166ac" },
+            { "word": "most routes arrive AT", "color": "#F5A623" },
+            { "word": "arrows pointing towards it", "color": "#2166ac" }
+          ],
+          "answerType": "select-node",
+          "correctAnswers": ["YYZ"],
+          "diagram": "data/sampled_data.json"
+        },
+        {
+          "id": "T_O3_B",
+          "taskType": "browsing",
+          "condition": "baseline",
+          "encodings": [],
+          "filter": { "type": "deduplicate" },
+          "description": "Find any airport that has only one direct connection to the rest of the network — it appears connected by a single edge.",
+          "colorKeywords": [],
+          "answerType": "select-node",
+          "correctAnswers": ["YHD", "SSG", "COD"],
+          "diagram": "data/sampled_data.json"
+        },
+        {
+          "id": "T_O3_A",
+          "taskType": "attribute",
+          "condition": "categorical",
+          "encodings": ["color", "dashing"],
+          "filter": { "type": "deduplicate" },
+          "description": "Which country of origin operates the most routes in this network? Use the edge colours and dash patterns to identify the most frequently occurring country.",
+          "colorKeywords": [
+            { "word": "most routes", "color": "#F5A623" },
+            { "word": "edge colours and dash patterns", "color": "#4A90E2" }
+          ],
+          "answerType": "multiple-choice",
+          "options": ["United States", "China", "France", "Germany", "Canada"],
+          "correctAnswers": ["France"],
+          "diagram": "data/sampled_data.json"
+        }
+      ]
+    },
+
+    "4": {
+      "tasks": [
+        {
+          "id": "T_O4_E",
+          "taskType": "estimation",
+          "condition": "directional",
+          "encodings": ["gradient", "taper", "arrows"],
+          "filter": { "type": "deduplicate" },
+          "description": "How many routes depart FROM the single busiest departure airport? First identify which airport has the most outgoing edges, then count them.",
+          "colorKeywords": [
+            { "word": "routes depart FROM", "color": "#2ca25f" },
+            { "word": "most outgoing edges", "color": "#F5A623" }
+          ],
+          "answerType": "multiple-choice",
+          "options": ["14", "17", "20", "23"],
+          "correctAnswers": ["20"],
+          "diagram": "data/sampled_data.json"
+        },
+        {
+          "id": "T_O4_S",
+          "taskType": "structure",
+          "condition": "baseline",
+          "encodings": [],
+          "filter": { "type": "deduplicate" },
+          "description": "Find the airport that has the most direct connections to other airports in this network.",
+          "colorKeywords": [],
+          "answerType": "select-node",
+          "correctAnswers": ["CDG"],
+          "diagram": "data/sampled_data.json"
+        },
+        {
+          "id": "T_O4_B",
+          "taskType": "browsing",
+          "condition": "categorical",
+          "encodings": ["color", "dashing"],
+          "filter": { "type": "deduplicate" },
+          "description": "Find any airport that has routes from at least 5 different countries of origin. Look for a node where edges of 5 or more different colours and patterns meet.",
+          "colorKeywords": [
+            { "word": "5 different countries of origin", "color": "#F5A623" },
+            { "word": "different colours and patterns", "color": "#4A90E2" }
+          ],
+          "answerType": "select-node",
+          "correctAnswers": ["FRA", "DUS", "EWR", "BRU", "MAN", "CDG", "IAH"],
+          "diagram": "data/sampled_data.json"
+        },
+        {
+          "id": "T_O4_A",
+          "taskType": "attribute",
+          "condition": "numerical",
+          "encodings": ["color", "thickness"],
+          "filter": { "type": "deduplicate" },
+          "description": "Which airport is connected by the most long-distance routes? Look for the node that has the most thick, intensely coloured edges connected to it.",
+          "colorKeywords": [
+            { "word": "most long-distance routes", "color": "#F5A623" },
+            { "word": "thick, intensely coloured edges", "color": "#7B68EE" }
+          ],
+          "answerType": "multiple-choice",
+          "options": ["PEK", "FRA", "CDG", "EWR", "PVG"],
+          "correctAnswers": ["PEK"],
+          "diagram": "data/sampled_data.json"
+        }
+      ]
+    }
+
+  }
 }

@@ -128,6 +128,11 @@
       margin: 0 0 10px;
     }
 
+    /* ── Base edge thickness (overrides NodeTrixStyle.css default of 1px) ── */
+    .link {
+      stroke-width: 2px;
+    }
+
     /* ── Node highlight (toggled by nl-builder.js on single-click) ── */
     .node--highlighted {
       stroke: #ff7f0e !important;
@@ -138,7 +143,7 @@
     .edge--highlighted {
       stroke: #ff7f0e !important;
       stroke-opacity: 1 !important;
-      stroke-width: 2px !important;
+      stroke-width: 3.5px !important;
     }
 
     /* Taper polygons in directional mode (fill-based, not stroke-based) */

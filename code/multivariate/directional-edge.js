@@ -4,7 +4,7 @@ import { svg, appState, buttonState, nodeSize } from '../main.js';
 const GRADIENT_SOURCE_COLOR = "#2ca25f";
 const GRADIENT_TARGET_COLOR = "#2166ac";
 
-const TAPER_MAX_WIDTH = 6;
+const TAPER_MAX_WIDTH = 9;
 const TAPER_SAMPLES = 20;
 
 // Arrow dimensions (pixels).  Tip sits on the node's circumference;
@@ -190,10 +190,11 @@ function updateArrows() {
         if (!p) return;
 
         // ── Find where the bezier curve exits the target node circle ──────────
-        // Binary-search for the parameter t where |B(t) − target| = nodeSize.
-        // This gives the exact point on the drawn line where it disappears under
-        // the node, regardless of edge orientation or length.
-        const r2 = nodeSize * nodeSize;
+        // Binary-search for the parameter t where |B(t) − target| = effective radius.
+        // appState.studyNodeR is set by study.js when nodes are rendered larger than
+        // the default nodeSize; fall back to nodeSize for the main visualization.
+        const effectiveR = appState.studyNodeR ?? nodeSize;
+        const r2 = effectiveR * effectiveR;
         let lo = 0, hi = 1;
         for (let i = 0; i < 20; i++) {
             const mid = (lo + hi) / 2;

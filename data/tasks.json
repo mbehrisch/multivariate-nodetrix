@@ -32,7 +32,8 @@
       "id": "T2",
       "condition": "categorical",
       "encodings": ["color", "dashing"],
-      "description": "Find the busiest airport hub — the one where routes from the most countries converge. Look for the node where the greatest variety of edge colors and dash patterns meets.",
+      "description": "Find the busiest airport hub, the one where routes from the most countries converge. Look for the node where the greatest variety of edge colors and dash patterns meets.",
+      "filter": { "type": "deduplicate" },
       "colorKeywords": [
         { "word": "busiest airport hub", "color": "#E24A4A" },
         { "word": "most countries converge", "color": "#4A90E2" }

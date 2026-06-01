@@ -210,6 +210,11 @@ function applyTaskFilter(graph, filter) {
     return graph;
 }
 
+// Study-specific layout constants (override the defaults from main.js / force-layout.js)
+const STUDY_NODE_R       = 15;   // visual radius; main.js nodeSize = 10
+const STUDY_CHARGE       = -250; // stronger repulsion → better spread
+const STUDY_LINK_DIST    = 70;   // longer edges → nodes further apart
+
 // ── Tear down the canvas and rebuild for a specific task ─────
 function rebuildForTask(task) {
     const encodings = getEncodings(task);
@@ -223,15 +228,29 @@ function rebuildForTask(task) {
 
     const { nodes, links } = buildNodeLinkOnly();
     applyForceLayout(nodes, links);
+
+    // ── Study-specific node size ──────────────────────────────────
+    // Overwrite the radius that nl-builder set to nodeSize (10 px).
+    // We also store it in appState so directional-edge.js can use the
+    // correct value when placing arrowheads at the node circumference.
+    appState.studyNodeR = STUDY_NODE_R;
+    svg.selectAll('.node')
+        .each(d => { d.r = STUDY_NODE_R; })
+        .attr('r', STUDY_NODE_R);
+    // Update the running collision force so nodes don't overlap
+    if (appState.sim) {
+        appState.sim.force('collide').radius(d => d.r + STUDY_NODE_R * 2);
+    }
+
     applyConditionEncoding(task.condition, encodings);
 
     setSimulationState({
         alphaTarget:    0.01,
-        velocityDecay:  0.3,
-        chargeStrength: -50,
-        linkDistance:   30,
+        velocityDecay:  0.4,
+        chargeStrength: STUDY_CHARGE,
+        linkDistance:   STUDY_LINK_DIST,
     });
-    setTimeout(() => { if (appState.sim) appState.sim.alphaTarget(0); }, 1000);
+    setTimeout(() => { if (appState.sim) appState.sim.alphaTarget(0); }, 1500);
 }
 
 function capitalise(str) {

@@ -43,6 +43,11 @@ import {
     applyDirectionalArrows,
 } from './multivariate/directional-edge.js';
 
+import {
+    applyEdgeTooltip,
+    resetEdgeTooltip,
+} from './multivariate/baseline-edge.js';
+
 // ── Synchronous setup (before main.js's fetch resolves) ──────
 appState.visualizationMode = 'nodeLink';  // keeps buildEverything() in NL-only mode
 svg.attr('id', 'study-svg');              // give the SVG the spec'd id
@@ -68,7 +73,9 @@ const sessionData = {
 // ── Encoding defaults (used when a task omits "encodings") ───
 // Each key matches a task's "condition" value.
 // The values list every encoding that is ON by default for that condition.
+// "baseline" encoding = edge-hover tooltip (works with any condition).
 const DEFAULT_ENCODINGS = {
+    baseline:    ['baseline'],
     categorical: ['color', 'dashing'],
     numerical:   ['color', 'thickness'],
     directional: ['gradient', 'taper', 'arrows'],
@@ -175,6 +182,12 @@ function applyConditionEncoding(cond, encodings) {
         if (active.has('arrows'))   applyDirectionalArrows();
         renderDirectionalLegend(encodings);
     }
+
+    // ── Cross-cutting: "baseline" encoding adds edge-hover tooltips ──────────
+    // Works alongside any condition — just include "baseline" in the encodings
+    // array for the task.  Distinct from the "baseline" condition (SV0), which
+    // controls which visual encoding is applied to the edges.
+    if (active.has('baseline')) applyEdgeTooltip();
 }
 
 // ── Dataset filter ────────────────────────────────────────────

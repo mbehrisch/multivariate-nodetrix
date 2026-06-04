@@ -7,6 +7,7 @@ import { SetupBinaryOptions, SetupRecreateMatrices } from './page-interaction/bi
 import { SetupCategoricalOptions } from './page-interaction/categorical-buttons.js';
 import { SetupNumericalOptions } from './page-interaction/numerical-button.js';
 import { SetupDirectionalOptions } from './page-interaction/directional-buttons.js';
+import { SetupBaselineOptions }    from './page-interaction/baseline-buttons.js';
 import { customNumericalCategoriesFunction } from './page-interaction/numerical-cat-table.js';
 
 const graphDiv = document.getElementById('graph');
@@ -101,6 +102,7 @@ fetch("data/sampled_data.json")
         SetupCategoricalOptions();
         SetupNumericalOptions();
         SetupDirectionalOptions();
+        SetupBaselineOptions();
 
         customNumericalCategoriesFunction();
 

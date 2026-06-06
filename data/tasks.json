@@ -1,12 +1,6 @@
 {
   "_doc": {
-    "schema": "Latin-Square study design. Each participant is assigned one order (1–4) via the URL parameter ?order=N. Every order presents all four conditions (SV0 baseline, SV1 categorical, SV2 numerical, SV3 directional) each paired with a different task type (Estimation, Structure, Browsing, Attribute).",
-    "latinSquare": {
-      "order1": "SV0+Estimation → SV1+Structure → SV2+Browsing  → SV3+Attribute",
-      "order2": "SV1+Estimation → SV2+Structure → SV3+Browsing  → SV0+Attribute",
-      "order3": "SV2+Estimation → SV3+Structure → SV0+Browsing  → SV1+Attribute",
-      "order4": "SV3+Estimation → SV0+Structure → SV1+Browsing  → SV2+Attribute"
-    },
+    "structure_design": {    },
     "taskFields": {
       "id":             "Unique string identifier (e.g. 'T_O1_E'). Prefix T_O{order}_{E|S|B|A}.",
       "taskType":       "One of 'estimation' | 'structure' | 'browsing' | 'attribute'. For logging only.",
@@ -27,63 +21,198 @@
     "1": {
       "tasks": [
         {
-          "id": "T_O1_E",
+          "id": "T_O1_E_Cat",
           "taskType": "estimation",
           "condition": "baseline",
           "encodings": ["baseline"],
-          "filter": { "type": "deduplicate" },
-          "description": "How many airports (nodes) are in this network? Count all the circles visible in the diagram.",
-          "colorKeywords": [],
+          "filter": {},
+          "description": "Of China, France, the UK and Canada, which country's airlines operate the most routes?",
+          "colorKeywords": [
+            {"word": "China, France, the UK and Canada", "color": "#F5A623"},
+            {"word": "the most routes", "color": "#7B68EE"}
+          ],
           "answerType": "multiple-choice",
-          "options": ["35", "39", "43", "47"],
-          "correctAnswers": ["43"],
+          "options": ["China", "France", "UK", "Canada"],
+          "correctAnswers": ["China"],
           "diagram": "data/sampled_data.json"
         },
         {
-          "id": "T_O1_S",
+          "id": "T_O1_E_Num",
+          "taskType": "estimation",
+          "condition": "numerical",
+          "encodings": ["baseline"],
+          "filter": {},
+          "description": "Across the whole network, are most routes short (under 2000 km) or long (over 2000 km)?",
+          "colorKeywords": [
+            { "word": "short (under 2000 km)", "color": "#4A90E2" },
+            { "word": "long (over 2000 km)", "color": "#F5A623" }
+          ],
+          "answerType": "multiple-choice",
+          "options": ["Short", "Long"],
+          "correctAnswers": ["Short"],
+          "diagram": "data/sampled_data.json"
+        },
+        {
+          "id": "T_O1_E_Dir",
+          "taskType": "estimation",
+          "condition": "directional",
+          "encodings": ["baseline"],
+          "filter": { "type": "deduplicate" },
+          "description": "Does airport DEN have more incoming or outgoing flights overall?",
+          "colorKeywords": [
+            { "word": "DEN", "color": "#F5A623" },
+            { "word": "incoming", "color": "#7B68EE" },
+            { "word": "outgoing", "color": "#EB9854"}
+          ],
+          "answerType": "multiple-choice",
+          "options": ["Incoming", "Outgoing"],
+          "correctAnswers": ["Outgoing"],
+          "diagram": "data/sampled_data.json"
+        },
+        {
+          "id": "T_O1_S_Cat",
           "taskType": "structure",
           "condition": "categorical",
-          "encodings": ["color", "dashing"],
-          "filter": { "type": "deduplicate" },
-          "description": "Find the airport where routes from the most different countries of origin meet. Look for the node connected to edges of the greatest variety of colours and dash patterns.",
+          "encodings": ["baseline"],
+          "filter": { "type": "deduplicate"},
+          "description": "Double-click a group of three airports whose mutual flights are all operated by the same country's airlines.",
           "colorKeywords": [
-            { "word": "most different countries of origin", "color": "#4A90E2" },
-            { "word": "greatest variety of colours", "color": "#F5A623" }
+            { "word": "Double-click", "color": "#2ca25f" },
+            { "word": "group of three airports", "color": "#F5A623" },
+            { "word": "same country's airlines", "color": "#2ca25f" }
           ],
           "answerType": "select-node",
-          "correctAnswers": ["FRA", "DUS"],
+          "correctAnswers": ["CDG"], 
           "diagram": "data/sampled_data.json"
         },
         {
-          "id": "T_O1_B",
+          "id": "T_O1_S_Num",
+          "taskType": "structure",
+          "condition": "numerical",
+          "encodings": ["baseline"],
+          "filter": { "type": "deduplicate"},
+          "description": "Double-click a cluster of three airports that are all mutually connected by routes longer than 5000 km.",
+          "colorKeywords": [
+            { "word": "Double-click", "color": "#2ca25f" },
+            { "word": "group of three airports", "color": "#F5A623" },
+            { "word": "longer than 5000 km", "color": "#2ca25f" }
+          ],
+          "answerType": "select-node",
+          "correctAnswers": ["CDG"],
+          "diagram": "data/sampled_data.json"
+        },
+        {
+          "id": "T_O1_S_Dir",
+          "taskType": "structure",
+          "condition": "directional",
+          "encodings": ["baseline"],
+          "filter": { "type": "deduplicate"},
+          "description": "Double-click a chain of three airports where each flight points from one to the next (A to B to C).",
+          "colorKeywords": [
+            { "word": "Double-click", "color": "#2ca25f" },
+            { "word": "three airports", "color": "#F5A623" },
+            { "word": "points from one to the next", "color": "#2ca25f" }
+          ],
+          "answerType": "select-node",
+          "correctAnswers": ["CDG"],
+          "diagram": "data/sampled_data.json"
+        },
+        {
+          "id": "T_O1_B_Cat",
+          "taskType": "browsing",
+          "condition": "categorical",
+          "encodings": ["baseline"],
+          "filter": { "type": "deduplicate"},
+          "description": "Start at airport DLA. Take a US-operated flight, then a UK-operated flight. Select both airports you land on.",
+          "colorKeywords": [
+            { "word": "DLA", "color": "#2ca25f" },
+            { "word": "US-operated flight", "color": "#F5A623" },
+            { "word": "UK-operated flight", "color": "#2ca25f" }
+          ],
+          "answerType": "select-node",
+          "correctAnswers": ["CDG"],
+          "diagram": "data/sampled_data.json"
+        },
+        {
+          "id": "T_O1_B_Num",
           "taskType": "browsing",
           "condition": "numerical",
-          "encodings": ["color", "thickness"],
-          "filter": { "type": "deduplicate" },
-          "description": "Find any airport connected by at least one very long route — longer than 10,000 km. Look for a node with at least one very thick, intensely coloured edge.",
+          "encodings": ["baseline"],
+          "filter": { "type": "deduplicate"},
+          "description": "Start at MAN. Take a route longer than 4000 km, then a route shorter than 1000 km. Select both airports.",
           "colorKeywords": [
-            { "word": "very long route", "color": "#F5A623" },
-            { "word": "very thick", "color": "#7B68EE" }
+            { "word": "X", "color": "#2ca25f" },
+            { "word": "longer than 4000 km", "color": "#F5A623" },
+            { "word": "shorter than 1000 km", "color": "#2ca25f" }
           ],
           "answerType": "select-node",
-          "correctAnswers": ["EWR", "PVG", "CAN", "LAX"],
+          "correctAnswers": ["ERW", ""],
           "diagram": "data/sampled_data.json"
         },
         {
-          "id": "T_O1_A",
+          "id": "T_O1_B_Dir",
+          "taskType": "browsing",
+          "condition": "directional",
+          "encodings": ["baseline"],
+          "filter": { "type": "deduplicate"},
+          "description": "Start at X. Follow the flight direction for two hops (A to B to C). Select each airport you reach.",
+          "colorKeywords": [
+            { "word": "X", "color": "#2ca25f" },
+            { "word": "two hops", "color": "#F5A623" },
+            { "word": "Select each", "color": "#2ca25f" }
+          ],
+          "answerType": "select-node",
+          "correctAnswers": ["CDG"],
+          "diagram": "data/sampled_data.json"
+        },
+        {
+          "id": "T_O1_A_Cat",
+          "taskType": "attribute",
+          "condition": "categorical",
+          "encodings": ["baseline"],
+          "filter": {},
+          "description": "Airport X is highlighted. How many of its connected airports are reached via a Canadian airline?",
+          "colorKeywords": [
+            { "word": "Airport X", "color": "#2ca25f" },
+            { "word": "How many", "color": "#F5A623" },
+            { "word": "Canadian airline", "color": "#2ca25f" }
+          ],
+          "answerType": "multiple-choice", 
+          "options": ["X", "Y", "Z", "A"],
+          "correctAnswers": ["X"], 
+          "diagram": "data/sampled_data.json"
+        },
+        {
+          "id": "T_O1_A_Num",
+          "taskType": "attribute",
+          "condition": "numerical",
+          "encodings": ["baseline"],
+          "filter": {},
+          "description": "Airport X is highlighted. Find the connected airport that is furthest away.",
+          "colorKeywords": [
+            { "word": "Airport X", "color": "#2ca25f" },
+            { "word": "connected airport", "color": "#F5A623" },
+            { "word": "furthest away", "color": "#2ca25f" }
+          ],
+          "answerType": "select-node", 
+          "correctAnswers": ["X"], 
+          "diagram": "data/sampled_data.json"
+        },
+        {
+          "id": "T_O1_A_Dir",
           "taskType": "attribute",
           "condition": "directional",
-          "encodings": ["gradient", "taper", "arrows"],
-          "filter": { "type": "deduplicate" },
-          "description": "Which airport is the departure point for the most outgoing flights? Edges taper from wide at the source to narrow at the destination, and shift from green (source) to blue (target).",
+          "encodings": ["baseline"],
+          "filter": { "type" : "deduplicate" },
+          "description": "Airport X is highlighted. How many flights depart from X?",
           "colorKeywords": [
-            { "word": "departure point", "color": "#2ca25f" },
-            { "word": "most outgoing flights", "color": "#F5A623" },
-            { "word": "green", "color": "#2ca25f" }
+            { "word": "Airport X", "color": "#2ca25f" },
+            { "word": "How many", "color": "#F5A623" },
+            { "word": "depart", "color": "#2ca25f" }
           ],
-          "answerType": "multiple-choice",
-          "options": ["ATL", "CDG", "BRU", "FRA", "EWR"],
-          "correctAnswers": ["CDG"],
+          "answerType": "multiple-choice", 
+          "options": ["X", "Y", "Z", "A"],
+          "correctAnswers": ["X"],
           "diagram": "data/sampled_data.json"
         }
       ]
@@ -95,7 +224,7 @@
           "id": "T_O2_E",
           "taskType": "estimation",
           "condition": "categorical",
-          "encodings": ["color", "dashing"],
+          "encodings": ["color"],
           "filter": { "type": "deduplicate" },
           "description": "How many different countries of origin are represented by the edge colours in this network?",
           "colorKeywords": [

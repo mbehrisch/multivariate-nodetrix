@@ -667,31 +667,49 @@ function renderNumericalLegend(encodings, thresholds = []) {
     const scale = defineNumericalMapping();
     const [minVal, maxVal] = scale.domain();
     const midVal = Math.round((minVal + maxVal) / 2);
-    const colMin = scale(minVal);
-    const colMax = scale(maxVal);
 
     const showColor     = encodings.includes('color');
     const showThickness = encodings.includes('thickness');
     const hasThresh     = thresholds.length > 0;
 
     // ── SVG height ────────────────────────────────────────────────────────────
-    // colour section:    bar (12) + labels row (20) [+ threshold label row (18) if any]
-    // thickness section: lines+labels (30) [+ 20px per threshold example line if any]
-    const colorH  = showColor     ? (32 + (hasThresh ? 18 : 0)) : 0;
-    const thickH  = showThickness ? (30 + (hasThresh ? thresholds.length * 22 : 0)) : 0;
-    const svgH    = colorH + thickH;
+    // colour section:    bar (12) + labels row (20)
+    // thickness section: three lines + labels (30)
+    // threshold section: always shown when hasThresh && any encoding active
+    //                    4px gap + 22px per threshold entry
+    const colorH     = showColor     ? 32 : 0;
+    const thickBaseH = showThickness ? 30 : 0;
+    const threshH    = hasThresh && (showColor || showThickness)
+        ? (4 + thresholds.length * 22)
+        : 0;
+    const svgH    = colorH + thickBaseH + threshH;
 
     const colorY  = 0;
     const thickY  = colorH;
 
-    // ── Helper: normalised position on the [min, max] scale ──────────────────
+    // ── Helper: LINEAR normalised position on the x-axis [min, max] ──────────
+    // The bar's x-axis is labelled linearly (min km … max km), so threshold
+    // ticks sit at their linear fraction.  The COLOUR at each position is
+    // determined by the log scale, which we represent faithfully with many stops.
     const norm = v => Math.max(0.01, Math.min(0.99, (v - minVal) / (maxVal - minVal)));
+
+    // ── Multi-stop gradient that accurately reflects the log scale ────────────
+    // d3.scaleSequentialLog is non-linear, so a 2-stop CSS gradient gives wrong
+    // intermediate colours (e.g. 2000 km looks yellow in a 2-stop bar but the
+    // scale actually maps it to medium blue).  32 stops make the bar match the
+    // actual edge colours rendered by applyNumericalColouring().
+    const N_STOPS = 32;
+    let gradStops = '';
+    for (let i = 0; i <= N_STOPS; i++) {
+        const t     = i / N_STOPS;
+        const value = minVal + t * (maxVal - minVal);   // linear in km along the bar
+        gradStops  += `<stop offset="${(t * 100).toFixed(1)}%" stop-color="${scale(value)}"/>`;
+    }
 
     let svgContent = `
       <defs>
         <linearGradient id="num-leg-grad" x1="0%" x2="100%">
-          <stop offset="0%"   stop-color="${colMin}"/>
-          <stop offset="100%" stop-color="${colMax}"/>
+          ${gradStops}
         </linearGradient>
       </defs>`;
 
@@ -707,7 +725,7 @@ function renderNumericalLegend(encodings, thresholds = []) {
             svgContent += `
         <line x1="${x.toFixed(1)}" y1="${colorY}"
               x2="${x.toFixed(1)}" y2="${colorY + 12}"
-              stroke="rgba(0,0,0,0.65)" stroke-width="1.5"/>`;
+              stroke="rgba(255, 255, 255, 0.85)" stroke-width="1.5"/>`;
         });
 
         // Min / mid / max scale labels
@@ -716,18 +734,6 @@ function renderNumericalLegend(encodings, thresholds = []) {
         <text x="140" y="${colorY + 26}" font-size="10" fill="#555" text-anchor="middle">${midVal.toLocaleString()} km</text>
         <text x="280" y="${colorY + 26}" font-size="10" fill="#555" text-anchor="end">${Math.round(maxVal).toLocaleString()} km</text>`;
 
-        // Threshold labels in a second row, directly below their tick lines
-        if (hasThresh) {
-            thresholds.forEach(th => {
-                const x      = norm(th.value) * 280;
-                const prefix = th.direction === 'gt' ? '>' : th.direction === 'lt' ? '<' : '|';
-                const anchor = x < 60 ? 'start' : x > 220 ? 'end' : 'middle';
-                svgContent += `
-        <text x="${(x + (anchor === 'start' ? 2 : anchor === 'end' ? -2 : 0)).toFixed(1)}"
-              y="${colorY + 44}" font-size="9" fill="#aa0000"
-              font-weight="600" text-anchor="${anchor}">${prefix} ${th.value.toLocaleString()} km</text>`;
-            });
-        }
     }
 
     // ── Thickness section ─────────────────────────────────────────────────────
@@ -741,21 +747,28 @@ function renderNumericalLegend(encodings, thresholds = []) {
         <text x="140" y="${thickY + 20}" font-size="10" fill="#555" text-anchor="middle">medium</text>
         <text x="240" y="${thickY + 20}" font-size="10" fill="#555" text-anchor="middle">long</text>`;
 
-        // Threshold example lines: one row per threshold, drawn at the exact
-        // computed stroke width so participants can match edges to the task condition.
-        // strokeWidth = 2 + t * 6  mirrors  strokeWidthScale.range([2, 8]).
-        if (hasThresh) {
-            thresholds.forEach((th, i) => {
-                const sw      = (2 + norm(th.value) * 6).toFixed(1);
-                const prefix  = th.direction === 'gt' ? '>' : th.direction === 'lt' ? '<' : '|';
-                const exY     = thickY + 32 + i * 22;
-                svgContent += `
+    }
+
+    // ── Threshold example lines ───────────────────────────────────────────────
+    // Shown when there are thresholds AND at least one encoding is active.
+    // color active    → stroke = scale(value)  so it matches actual edge colour
+    // thickness active → stroke-width from range([2, 8])
+    // Both together   → correct colour + correct width on the same line
+    if (hasThresh && (showColor || showThickness)) {
+        const exSectionY = colorH + thickBaseH + 4;   // 4px gap below last section
+        thresholds.forEach((th, i) => {
+            const sw     = showThickness
+                ? (2 + norm(th.value) * 6).toFixed(1)
+                : '2.5';
+            const stroke = showColor ? scale(th.value) : '#333';
+            const prefix = th.direction === 'gt' ? '>' : th.direction === 'lt' ? '<' : '|';
+            const exY    = exSectionY + i * 22;
+            svgContent += `
         <line x1="0" y1="${exY + 5}" x2="60" y2="${exY + 5}"
-              stroke="${scale(th.value)}" stroke-width="${sw}"/>
+              stroke="${stroke}" stroke-width="${sw}"/>
         <text x="68" y="${exY + 9}" font-size="9" fill="#aa0000"
               font-weight="600">${prefix} ${th.value.toLocaleString()} km</text>`;
-            });
-        }
+        });
     }
 
     el.innerHTML = `

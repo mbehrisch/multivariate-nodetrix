@@ -43,7 +43,7 @@
           "id": "T_O1_E_Num",
           "taskType": "estimation",
           "condition": "numerical",
-          "encodings": ["baseline", "color", "thickness"],
+          "encodings": ["baseline", "thickness"],
           "filter": {},
           "description": "Across the whole network, are most routes short (under 2000 km) or long (over 2000 km)?",
           "colorKeywords": [
@@ -149,7 +149,7 @@
           "id": "T_O1_B_Num",
           "taskType": "browsing",
           "condition": "numerical",
-          "encodings": ["baseline"],
+          "encodings": ["baseline", "thickness"],
           "filter": { "type": "deduplicate"},
           "description": "Start at MAN. Take a route longer than 4000 km, then a route shorter than 1000 km. Select both airports.",
           "colorKeywords": [

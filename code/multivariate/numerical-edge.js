@@ -58,7 +58,7 @@ export function defineNumericalMapping() {
         .domain([minValue, maxValue])
         //Start a little darker due to visibility
         //.interpolator(t => d3.interpolateGreens(0.2 + 0.8 * t));
-        .interpolator(t => d3.interpolateYlGnBu(t)) 
+        .interpolator(t => d3.interpolateYlGnBu(0.2 + 0.8 * t))  // skip the near-white low end
 
     return numericalColorScale
 }

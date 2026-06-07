@@ -13,6 +13,7 @@
       "requiredSelections":  "Required when answerType is 'select-nodes'. How many airports the participant must double-click before Submit is enabled.",
       "thresholds":          "Optional array for numerical tasks. Each entry: { value: number (km), direction: 'gt'|'lt', label: string }. Renders a vertical tick on the colour gradient at that distance and an example line in the thickness legend at the correct stroke width. 'gt' = '>' prefix, 'lt' = '<' prefix.",
       "startNode":           "Optional IATA code. When set, that node is pre-highlighted green (.node--start) when the task loads so participants can find the reference airport instantly.",
+      "tooltipFields":       "Optional. Array controlling which fields appear in edge-hover tooltips (requires 'baseline' in encodings). Values: 'route' (source→target header, always shown), 'airline', 'country', 'distance', 'aircraft', 'all'. If omitted, defaults are derived from condition: directional→['route'], categorical→['route','country'], numerical→['route','distance'], baseline→['all'].",
       "options":             "Required for multiple-choice only.",
       "correctAnswers":      "Array of accepted answers. For select-nodes all selected airports must appear in this array.",
       "diagram":             "Path to the dataset JSON."
@@ -26,15 +27,16 @@
         {
           "id": "T_O1_E_Cat",
           "taskType": "estimation",
-          "condition": "baseline",
-          "encodings": ["baseline"],
-          "filter": {},
+          "condition": "categorical",
+          "encodings": ["baseline", "color", "dashing"],
+          "filter": { "type": "deduplicate" },
           "description": "Of China, France, the UK and Canada, which country's airlines operate the most routes?",
           "colorKeywords": [
             {"word": "China, France, the UK and Canada", "color": "#F5A623"},
             {"word": "the most routes", "color": "#7B68EE"}
           ],
           "answerType": "multiple-choice",
+          "tooltipFields": ["all"],
           "options": ["China", "France", "UK", "Canada"],
           "correctAnswers": ["China"],
           "diagram": "data/sampled_data.json"
@@ -44,7 +46,7 @@
           "taskType": "estimation",
           "condition": "numerical",
           "encodings": ["baseline", "thickness"],
-          "filter": {},
+          "filter": { "type": "deduplicate" },
           "description": "Across the whole network, are most routes short (under 2000 km) or long (over 2000 km)?",
           "colorKeywords": [
             { "word": "short (under 2000 km)", "color": "#4A90E2" },
@@ -62,7 +64,7 @@
           "id": "T_O1_E_Dir",
           "taskType": "estimation",
           "condition": "directional",
-          "encodings": ["baseline"],
+          "encodings": ["baseline", "arrows"],
           "filter": { "type": "deduplicate" },
           "description": "Does airport DEN have more incoming or outgoing flights overall?",
           "colorKeywords": [
@@ -71,6 +73,7 @@
             { "word": "outgoing", "color": "#EB9854"}
           ],
           "startNode": "DEN",
+          "tooltipFields": ["route"],
           "answerType": "multiple-choice",
           "options": ["Incoming", "Outgoing"],
           "correctAnswers": ["Outgoing"],
@@ -123,6 +126,7 @@
             { "word": "three airports", "color": "#F5A623" },
             { "word": "points from one to the next", "color": "#2ca25f" }
           ],
+          "tooltipFields": ["route"],
           "answerType": "select-node",
           "correctAnswers": ["CDG"],
           "diagram": "data/sampled_data.json"
@@ -179,6 +183,7 @@
             { "word": "two hops", "color": "#F5A623" },
             { "word": "Select each", "color": "#2ca25f" }
           ],
+          "tooltipFields": ["route"],
           "answerType": "select-nodes",
           "requiredSelections": 2,
           "correctAnswers": ["CDG"],
@@ -229,6 +234,7 @@
             { "word": "How many", "color": "#F5A623" },
             { "word": "depart", "color": "#2ca25f" }
           ],
+          "tooltipFields": ["route"],
           "answerType": "multiple-choice", 
           "options": ["X", "Y", "Z", "A"],
           "correctAnswers": ["X"],

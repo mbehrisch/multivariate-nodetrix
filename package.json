@@ -12,6 +12,7 @@
     "dependencies": {
         "bootstrap": "^5.3.8",
         "d3": "^7.9.0",
+        "firebase": "^12.14.0",
         "graphology": "^0.26.0",
         "graphology-communities-louvain": "^2.0.2",
         "graphology-utils": "^2.5.2",

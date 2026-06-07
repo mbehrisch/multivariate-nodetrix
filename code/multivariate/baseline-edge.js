@@ -18,8 +18,20 @@ import { appState, datasetSpec, tooltip } from '../main.js';
 const HITAREA_STROKE_WIDTH = 12;   // px — width of the invisible hover target
 
 // ─── Apply ───────────────────────────────────────────────────────────────────
+//
+// fields controls which attributes appear in the tooltip:
+//   'route'    — always shown as the bold header (source → target); listing it
+//                explicitly means "show ONLY the route, nothing else"
+//   'airline'  — Airline: <name>
+//   'country'  — Country: <airlinecountry>
+//   'distance' — Distance: <km>
+//   'aircraft' — Aircraft: <equipment>
+//   'all'      — show every field that has a value
+//
+// Defaults to ['all'] so the function is backward-compatible with the main
+// visualisation (index.html), which calls it without arguments.
 
-export function applyEdgeTooltip() {
+export function applyEdgeTooltip(fields = ['all']) {
     d3.selectAll('.edge-tooltip-hitarea').remove();   // guard against double-apply
 
     d3.selectAll('.NLlink').each(function (d, i) {
@@ -42,7 +54,7 @@ export function applyEdgeTooltip() {
 
         d3.select(hitEl)
             .on('mouseover.edgetooltip', function (event) {
-                showEdgeTooltip(event, edgeDatum);
+                showEdgeTooltip(event, edgeDatum, fields);  // fields captured in closure
             })
             .on('mousemove.edgetooltip', function (event) {
                 tooltip
@@ -80,7 +92,14 @@ function syncHitareas() {
 }
 
 // Build and show the tooltip for a given edge datum.
-function showEdgeTooltip(event, d) {
+// fields controls which extra attributes appear after the route header:
+//   'route'    → header only (no extras)
+//   'airline'  → Airline: <name>
+//   'country'  → Country: <airlinecountry>
+//   'distance' → Distance: <km>
+//   'aircraft' → Aircraft: <equipment>
+//   'all'      → every field that has a value
+function showEdgeTooltip(event, d, fields = ['all']) {
     const srcId  = typeof d.source === 'object' ? d.source.id : d.source;
     const tgtId  = typeof d.target === 'object' ? d.target.id : d.target;
 
@@ -88,11 +107,15 @@ function showEdgeTooltip(event, d) {
     const srcLbl = graph.getNodeAttribute(srcId, datasetSpec.label) || srcId;
     const tgtLbl = graph.getNodeAttribute(tgtId, datasetSpec.label) || tgtId;
 
+    // Route header is always shown; extras depend on fields.
+    const showAll = fields.includes('all');
+    const show    = f => showAll || fields.includes(f);
+
     const lines = [`<strong>${srcLbl} → ${tgtLbl}</strong>`];
-    if (d.airline)         lines.push(`Airline: ${d.airline}`);
-    if (d.airlinecountry)  lines.push(`Country: ${d.airlinecountry}`);
-    if (d.distance_km)     lines.push(`Distance: ${Math.round(d.distance_km).toLocaleString()} km`);
-    if (d.equipment)       lines.push(`Aircraft: ${d.equipment}`);
+    if (show('airline')  && d.airline)        lines.push(`Airline: ${d.airline}`);
+    if (show('country')  && d.airlinecountry) lines.push(`Country: ${d.airlinecountry}`);
+    if (show('distance') && d.distance_km)    lines.push(`Distance: ${Math.round(d.distance_km).toLocaleString()} km`);
+    if (show('aircraft') && d.equipment)      lines.push(`Aircraft: ${d.equipment}`);
 
     tooltip
         .html(lines.join('<br>'))

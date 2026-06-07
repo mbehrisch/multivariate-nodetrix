@@ -48,6 +48,10 @@ import {
     resetEdgeTooltip,
 } from './multivariate/baseline-edge.js';
 
+// ── Firebase ──────────────────────────────────────────────────
+import { initializeApp }                        from 'firebase/app';
+import { getFirestore, collection, addDoc }     from 'firebase/firestore';
+
 // ── Synchronous setup (before main.js's fetch resolves) ──────
 appState.visualizationMode = 'nodeLink';  // keeps buildEverything() in NL-only mode
 svg.attr('id', 'study-svg');              // give the SVG the spec'd id
@@ -87,6 +91,23 @@ function getEncodings(task) {
     return task.encodings || DEFAULT_ENCODINGS[task.condition] || [];
 }
 
+// Return the edge-tooltip fields for the current task.
+// Checks task.tooltipFields first so any task can override the default.
+// Falls back to condition-derived defaults so tasks.json stays lean:
+//   directional  → ['route']               (only source → target header)
+//   categorical  → ['route', 'country']
+//   numerical    → ['route', 'distance']
+//   baseline     → ['all']
+function getTooltipFields(task) {
+    if (task.tooltipFields) return task.tooltipFields;
+    switch (task.condition) {
+        case 'directional':  return ['route'];
+        case 'categorical':  return ['route', 'country'];
+        case 'numerical':    return ['route', 'distance'];
+        default:             return ['all'];
+    }
+}
+
 // ── Mutable state ─────────────────────────────────────────────
 let tasks            = [];
 let currentTaskIndex = 0;
@@ -97,10 +118,38 @@ let activeCondition  = null;    // condition currently rendered on the canvas
 let activeEncodings  = null;    // serialised encoding list for change-detection
 let activeFilter     = null;    // serialised filter spec for change-detection
 
+// ── Firebase initialisation ───────────────────────────────────
+const firebaseConfig = {
+    apiKey:            'AIzaSyBZxE7j3daMk405fI-HxfaGDCvZS2V-wyU',
+    authDomain:        'edge-encoding-study.firebaseapp.com',
+    projectId:         'edge-encoding-study',
+    storageBucket:     'edge-encoding-study.firebasestorage.app',
+    messagingSenderId: '382157431323',
+    appId:             '1:382157431323:web:ddd6f62e9344f99bc10ebe',
+};
+const _firebaseApp = initializeApp(firebaseConfig);
+const db           = getFirestore(_firebaseApp);
+
 // ── Logging ───────────────────────────────────────────────────
-// All events go to console.log for now; Firebase writes are added later.
-function logEvent(eventName, data) {
-    console.log('[STUDY]', eventName, data);
+// Schrijft elk event naar Firestore onder sessions/{prolificPid}/events.
+// Mislukte writes gaan naar console.warn — de studie gaat door.
+async function logEvent(eventName, data) {
+    const payload = {
+        event:      eventName,
+        prolificPid,
+        studyId,
+        sessionId,
+        order,
+        ...data,
+        serverTime: new Date().toISOString(),
+    };
+    console.log('[STUDY]', eventName, payload);   // altijd zichtbaar in DevTools
+
+    try {
+        await addDoc(collection(db, 'sessions', prolificPid, 'events'), payload);
+    } catch (err) {
+        console.warn('[STUDY] Firestore write failed:', err);
+    }
 }
 
 // ── Wait for main.js to populate appState.graph ───────────────
@@ -162,7 +211,10 @@ async function init() {
 // thresholds is an optional array of { value, direction, label } objects from
 // the task definition.  Only the numerical legend uses them; other conditions
 // ignore the parameter safely.
-function applyConditionEncoding(cond, encodings, thresholds = []) {
+// tooltipFields controls which attributes appear in edge-hover tooltips when
+// "baseline" is in encodings.  Derived by getTooltipFields(task) from the task's
+// condition (or overridden per-task via task.tooltipFields in tasks.json).
+function applyConditionEncoding(cond, encodings, thresholds = [], tooltipFields = ['all']) {
     const active = new Set(encodings);
 
     if (cond === 'baseline') {
@@ -191,7 +243,7 @@ function applyConditionEncoding(cond, encodings, thresholds = []) {
     // Works alongside any condition — just include "baseline" in the encodings
     // array for the task.  Distinct from the "baseline" condition (SV0), which
     // controls which visual encoding is applied to the edges.
-    if (active.has('baseline')) applyEdgeTooltip();
+    if (active.has('baseline')) applyEdgeTooltip(tooltipFields);
 }
 
 // ── Dataset filter ────────────────────────────────────────────
@@ -264,13 +316,21 @@ function rebuildForTask(task) {
     appState.studyNodeR = STUDY_NODE_R;
     svg.selectAll('.node')
         .each(d => { d.r = STUDY_NODE_R; })
-        .attr('r', STUDY_NODE_R);
+        .attr('r', STUDY_NODE_R)
+        // ── Disable node-hover tooltip (not needed in the study) ──────────────
+        // nl-builder.js attaches mouseover/mousemove/mouseleave for node tooltips;
+        // null them out so hovering over a node doesn't pop up anything.  Double-
+        // click (study:nodeSelected) is still dispatched and handled normally.
+        .on('mouseover', null)
+        .on('mousemove', null)
+        .on('mouseleave', null);
+
     // Update the running collision force so nodes don't overlap
     if (appState.sim) {
         appState.sim.force('collide').radius(d => d.r + STUDY_NODE_R * 2);
     }
 
-    applyConditionEncoding(task.condition, encodings, task.thresholds ?? []);
+    applyConditionEncoding(task.condition, encodings, task.thresholds ?? [], getTooltipFields(task));
 
     setSimulationState({
         alphaTarget:    0.01,

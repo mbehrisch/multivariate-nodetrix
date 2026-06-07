@@ -9,10 +9,13 @@
       "filter":         "Optional. { 'type': 'deduplicate' } reduces 1 227 edges to 205 unique pairs for a clean, unambiguous graph. Applied to ALL tasks for visual consistency across conditions.",
       "description":    "Question text shown to the participant.",
       "colorKeywords":  "Optional. Array of { word, color } objects to highlight key terms in the description.",
-      "answerType":     "'select-node' | 'multiple-choice'",
-      "options":        "Required for multiple-choice only.",
-      "correctAnswers": "Array of accepted answers. Multiple values = several nodes/options count as correct (e.g. both endpoints of an edge, or any leaf node for browsing tasks).",
-      "diagram":        "Path to the dataset JSON."
+      "answerType":          "'select-node' | 'select-nodes' | 'multiple-choice'. select-node = single double-click; select-nodes = multi-double-click (requires requiredSelections); multiple-choice = radio buttons.",
+      "requiredSelections":  "Required when answerType is 'select-nodes'. How many airports the participant must double-click before Submit is enabled.",
+      "thresholds":          "Optional array for numerical tasks. Each entry: { value: number (km), direction: 'gt'|'lt', label: string }. Renders a vertical tick on the colour gradient at that distance and an example line in the thickness legend at the correct stroke width. 'gt' = '>' prefix, 'lt' = '<' prefix.",
+      "startNode":           "Optional IATA code. When set, that node is pre-highlighted green (.node--start) when the task loads so participants can find the reference airport instantly.",
+      "options":             "Required for multiple-choice only.",
+      "correctAnswers":      "Array of accepted answers. For select-nodes all selected airports must appear in this array.",
+      "diagram":             "Path to the dataset JSON."
     }
   },
 
@@ -40,7 +43,7 @@
           "id": "T_O1_E_Num",
           "taskType": "estimation",
           "condition": "numerical",
-          "encodings": ["baseline"],
+          "encodings": ["baseline", "color", "thickness"],
           "filter": {},
           "description": "Across the whole network, are most routes short (under 2000 km) or long (over 2000 km)?",
           "colorKeywords": [
@@ -48,6 +51,9 @@
             { "word": "long (over 2000 km)", "color": "#F5A623" }
           ],
           "answerType": "multiple-choice",
+          "thresholds": [
+            { "value": 2000, "direction": "lt", "label": "shorter than 2000 km" }
+          ],
           "options": ["Short", "Long"],
           "correctAnswers": ["Short"],
           "diagram": "data/sampled_data.json"
@@ -64,6 +70,7 @@
             { "word": "incoming", "color": "#7B68EE" },
             { "word": "outgoing", "color": "#EB9854"}
           ],
+          "startNode": "DEN",
           "answerType": "multiple-choice",
           "options": ["Incoming", "Outgoing"],
           "correctAnswers": ["Outgoing"],
@@ -97,6 +104,9 @@
             { "word": "group of three airports", "color": "#F5A623" },
             { "word": "longer than 5000 km", "color": "#2ca25f" }
           ],
+          "thresholds": [
+            { "value": 5000, "direction": "gt", "label": "longer than 5000 km" }
+          ],
           "answerType": "select-node",
           "correctAnswers": ["CDG"],
           "diagram": "data/sampled_data.json"
@@ -129,7 +139,9 @@
             { "word": "US-operated flight", "color": "#F5A623" },
             { "word": "UK-operated flight", "color": "#2ca25f" }
           ],
-          "answerType": "select-node",
+          "startNode": "DLA",
+          "answerType": "select-nodes",
+          "requiredSelections": 2,
           "correctAnswers": ["CDG"],
           "diagram": "data/sampled_data.json"
         },
@@ -141,11 +153,17 @@
           "filter": { "type": "deduplicate"},
           "description": "Start at MAN. Take a route longer than 4000 km, then a route shorter than 1000 km. Select both airports.",
           "colorKeywords": [
-            { "word": "X", "color": "#2ca25f" },
+            { "word": "MAN", "color": "#2ca25f" },
             { "word": "longer than 4000 km", "color": "#F5A623" },
             { "word": "shorter than 1000 km", "color": "#2ca25f" }
           ],
-          "answerType": "select-node",
+          "thresholds": [
+            { "value": 4000, "direction": "gt", "label": "longer than 4000 km" },
+            { "value": 1000, "direction": "lt", "label": "shorter than 1000 km" }
+          ],
+          "startNode": "MAN",
+          "answerType": "select-nodes",
+          "requiredSelections": 2,
           "correctAnswers": ["ERW", ""],
           "diagram": "data/sampled_data.json"
         },
@@ -161,7 +179,8 @@
             { "word": "two hops", "color": "#F5A623" },
             { "word": "Select each", "color": "#2ca25f" }
           ],
-          "answerType": "select-node",
+          "answerType": "select-nodes",
+          "requiredSelections": 2,
           "correctAnswers": ["CDG"],
           "diagram": "data/sampled_data.json"
         },

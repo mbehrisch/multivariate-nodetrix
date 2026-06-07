@@ -91,7 +91,8 @@ function getEncodings(task) {
 let tasks            = [];
 let currentTaskIndex = 0;
 let taskStartTime    = null;
-let selectedAnswer   = null;    // IATA string or MC option text
+let selectedAnswer   = null;    // IATA string or MC option text (single-select tasks)
+let selectedAnswers  = [];      // IATA array for select-nodes tasks
 let activeCondition  = null;    // condition currently rendered on the canvas
 let activeEncodings  = null;    // serialised encoding list for change-detection
 let activeFilter     = null;    // serialised filter spec for change-detection
@@ -158,7 +159,10 @@ async function init() {
 // ============================================================
 // encodings is an array of string keys, e.g. ['color', 'dashing'].
 // Only the listed encodings are applied; the rest are skipped.
-function applyConditionEncoding(cond, encodings) {
+// thresholds is an optional array of { value, direction, label } objects from
+// the task definition.  Only the numerical legend uses them; other conditions
+// ignore the parameter safely.
+function applyConditionEncoding(cond, encodings, thresholds = []) {
     const active = new Set(encodings);
 
     if (cond === 'baseline') {
@@ -174,7 +178,7 @@ function applyConditionEncoding(cond, encodings) {
     } else if (cond === 'numerical') {
         if (active.has('color'))     applyNumericalColouring();
         if (active.has('thickness')) applyNumericalThickness();
-        renderNumericalLegend(encodings);
+        renderNumericalLegend(encodings, thresholds);
 
     } else if (cond === 'directional') {
         if (active.has('gradient')) applyDirectionalGradient();
@@ -266,7 +270,7 @@ function rebuildForTask(task) {
         appState.sim.force('collide').radius(d => d.r + STUDY_NODE_R * 2);
     }
 
-    applyConditionEncoding(task.condition, encodings);
+    applyConditionEncoding(task.condition, encodings, task.thresholds ?? []);
 
     setSimulationState({
         alphaTarget:    0.01,
@@ -275,6 +279,26 @@ function rebuildForTask(task) {
         linkDistance:   STUDY_LINK_DIST,
     });
     setTimeout(() => { if (appState.sim) appState.sim.alphaTarget(0); }, 1500);
+}
+
+// ── Find the SVG <circle> element for a given graphology node id ─────────────
+function findNodeElement(nodeId) {
+    let found = null;
+    svg.selectAll('.node').each(function (d) {
+        if (d.id === nodeId) found = this;
+    });
+    return found;
+}
+
+// ── Pre-highlight the named starting airport ──────────────────────────────────
+// Uses class .node--start (defined in study.html) so the highlight survives
+// single-clicks — nl-builder's clearAllHighlights() only removes .node--highlighted.
+function highlightStartNode(iata) {
+    if (!iata) return;
+    // d spreads graph.getNodeAttributes(), so d.IATA is the airport code
+    svg.selectAll('.node').each(function (d) {
+        if (d.IATA === iata) this.classList.add('node--start');
+    });
 }
 
 function capitalise(str) {
@@ -288,6 +312,7 @@ function showTask(index) {
     currentTaskIndex = index;
     taskStartTime    = Date.now();
     selectedAnswer   = null;
+    selectedAnswers  = [];
 
     const task          = tasks[index];
     const taskEncodings = getEncodings(task);
@@ -311,10 +336,15 @@ function showTask(index) {
     renderProgressBar(index);
 
     // Clear all highlight classes left by the previous task
-    document.querySelectorAll('.node--highlighted, .edge--highlighted, .neighbor--highlighted')
-        .forEach(el => el.classList.remove(
-            'node--highlighted', 'edge--highlighted', 'neighbor--highlighted',
-        ));
+    document.querySelectorAll(
+        '.node--highlighted, .node--start, .node--answer-selected, .edge--highlighted, .neighbor--highlighted'
+    ).forEach(el => el.classList.remove(
+        'node--highlighted', 'node--start', 'node--answer-selected',
+        'edge--highlighted', 'neighbor--highlighted',
+    ));
+
+    // Pre-highlight the named starting airport so participants don't have to search for it
+    if (task.startNode) highlightStartNode(task.startNode);
 
     logEvent('task_start', {
         taskId:          task.id,
@@ -368,6 +398,36 @@ function renderAnswerArea(task) {
         btn.addEventListener('click', submitAnswer);
 
         area.appendChild(display);
+        area.appendChild(btn);
+
+    } else if (task.answerType === 'select-nodes') {
+        // Multi-node selection: participant double-clicks N airports.
+        // Submit enables once exactly the required number is chosen;
+        // double-clicking a selected node deselects it.
+        const required = task.requiredSelections ?? task.correctAnswers?.length ?? 2;
+
+        const display      = document.createElement('p');
+        display.id         = 'selected-nodes-display';
+        display.textContent = 'Selected: —';
+
+        const hint          = document.createElement('p');
+        hint.className      = 'text-muted';
+        hint.style.fontSize = '12px';
+        hint.style.margin   = '0 0 8px';
+        hint.textContent    =
+            `Double-click ${required} airport${required !== 1 ? 's' : ''} to answer. ` +
+            `Click again to deselect.`;
+
+        const btn       = document.createElement('button');
+        btn.id          = 'submit-btn';
+        btn.type        = 'button';
+        btn.textContent = `Submit (0 / ${required})`;
+        btn.disabled    = true;
+        btn.className   = 'btn btn-primary w-100 mt-2';
+        btn.addEventListener('click', submitAnswer);
+
+        area.appendChild(display);
+        area.appendChild(hint);
         area.appendChild(btn);
 
     } else if (task.answerType === 'multiple-choice') {
@@ -442,10 +502,59 @@ function renderProgressBar(currentIndex) {
 // Fired by nl-builder.js on double-click
 function onNodeSelected(event) {
     const { nodeId, label } = event.detail;
+    const task = tasks[currentTaskIndex];
+    if (!task) return;
+
+    // ── Multiple-choice: node double-clicks have no effect ───────────────────
+    // The answer is selected via radio buttons; clicking nodes must not
+    // accidentally enable the Submit button.
+    if (task.answerType === 'multiple-choice') return;
+
+    // ── select-nodes: toggle node in / out of the selection set ─────────────
+    if (task.answerType === 'select-nodes') {
+        const required = task.requiredSelections ?? task.correctAnswers?.length ?? 2;
+        const idx      = selectedAnswers.indexOf(label);
+        const nodeEl   = findNodeElement(nodeId);
+
+        if (idx >= 0) {
+            // Already in the set — remove it
+            selectedAnswers.splice(idx, 1);
+            if (nodeEl) nodeEl.classList.remove('node--answer-selected');
+        } else if (selectedAnswers.length < required) {
+            // Still room — add it
+            selectedAnswers.push(label);
+            if (nodeEl) nodeEl.classList.add('node--answer-selected');
+        }
+        // At capacity: silently ignore extra clicks (user must deselect first)
+
+        const display = document.getElementById('selected-nodes-display');
+        if (display) {
+            display.textContent = selectedAnswers.length > 0
+                ? `Selected: ${selectedAnswers.join(', ')}`
+                : 'Selected: —';
+        }
+        const btn = document.getElementById('submit-btn');
+        if (btn) {
+            btn.disabled    = selectedAnswers.length < required;
+            btn.textContent = `Submit (${selectedAnswers.length} / ${required})`;
+        }
+
+        logEvent('node_highlighted', {
+            taskId:           task.id,
+            nodeId,
+            nodeLabel:        label,
+            action:           idx >= 0 ? 'deselected' : 'selected',
+            currentSelection: [...selectedAnswers],
+            timestamp:        new Date().toISOString(),
+        });
+        return;
+    }
+
+    // ── select-node (default): single selection ──────────────────────────────
     selectedAnswer = label;
 
     logEvent('node_highlighted', {
-        taskId:    tasks[currentTaskIndex]?.id,
+        taskId:    task.id,
         nodeId,
         nodeLabel: label,
         timestamp: new Date().toISOString(),
@@ -467,12 +576,23 @@ function submitAnswer() {
     const correctSet = Array.isArray(task.correctAnswers)
         ? task.correctAnswers
         : [task.correctAnswer];
-    const isCorrect = correctSet.includes(selectedAnswer);
+
+    // select-nodes: every chosen airport must appear in the correct set
+    let submittedAnswer;
+    let isCorrect;
+    if (task.answerType === 'select-nodes') {
+        submittedAnswer = [...selectedAnswers];
+        isCorrect = selectedAnswers.length > 0
+            && selectedAnswers.every(a => correctSet.includes(a));
+    } else {
+        submittedAnswer = selectedAnswer;
+        isCorrect = correctSet.includes(selectedAnswer);
+    }
 
     logEvent('answer_submitted', {
         taskId:         task.id,
         answerType:     task.answerType,
-        selectedAnswer,
+        selectedAnswer: submittedAnswer,
         isCorrect,
         responseTimeMs,
     });
@@ -532,21 +652,40 @@ function renderCategoricalLegend(encodings) {
 
 // ── Numerical legend ──────────────────────────────────────────
 // Shows the colour bar, the thickness scale, or both.
-function renderNumericalLegend(encodings) {
+// When a task specifies thresholds (e.g. "longer than 4000 km"), the legend
+// adds:
+//   • a thin vertical tick line on the colour gradient at the exact position
+//   • a red "> 4000 km" / "< 1000 km" label directly below the bar
+//   • an example line in the thickness section drawn at the correct stroke width
+//
+// thresholds: array of { value: number, direction: 'gt'|'lt', label: string }
+//   value     — distance in km (must fall within the scale domain)
+//   direction — 'gt' renders ">", 'lt' renders "<" in the legend label
+//   label     — human-readable text used for the thickness example label
+function renderNumericalLegend(encodings, thresholds = []) {
     const el    = document.getElementById('study-legend');
     const scale = defineNumericalMapping();
     const [minVal, maxVal] = scale.domain();
-    const midVal  = Math.round((minVal + maxVal) / 2);
-    const colMin  = scale(minVal);
-    const colMax  = scale(maxVal);
+    const midVal = Math.round((minVal + maxVal) / 2);
+    const colMin = scale(minVal);
+    const colMax = scale(maxVal);
 
     const showColor     = encodings.includes('color');
     const showThickness = encodings.includes('thickness');
+    const hasThresh     = thresholds.length > 0;
 
-    // Compute SVG height dynamically so unused sections don't leave blank space
-    const svgHeight = (showColor ? 32 : 0) + (showThickness ? 30 : 0);
-    let colorY = 0;      // y-offset for the colour section
-    let thickY = showColor ? 32 : 0;  // y-offset for the thickness section
+    // ── SVG height ────────────────────────────────────────────────────────────
+    // colour section:    bar (12) + labels row (20) [+ threshold label row (18) if any]
+    // thickness section: lines+labels (30) [+ 20px per threshold example line if any]
+    const colorH  = showColor     ? (32 + (hasThresh ? 18 : 0)) : 0;
+    const thickH  = showThickness ? (30 + (hasThresh ? thresholds.length * 22 : 0)) : 0;
+    const svgH    = colorH + thickH;
+
+    const colorY  = 0;
+    const thickY  = colorH;
+
+    // ── Helper: normalised position on the [min, max] scale ──────────────────
+    const norm = v => Math.max(0.01, Math.min(0.99, (v - minVal) / (maxVal - minVal)));
 
     let svgContent = `
       <defs>
@@ -556,28 +695,72 @@ function renderNumericalLegend(encodings) {
         </linearGradient>
       </defs>`;
 
+    // ── Colour gradient section ───────────────────────────────────────────────
     if (showColor) {
         svgContent += `
         <rect x="0" y="${colorY}" width="280" height="12"
-              fill="url(#num-leg-grad)" rx="2"/>
-        <text x="0"   y="${colorY + 26}" font-size="10" fill="#555">${Math.round(minVal)} km</text>
-        <text x="140" y="${colorY + 26}" font-size="10" fill="#555" text-anchor="middle">${midVal} km</text>
-        <text x="280" y="${colorY + 26}" font-size="10" fill="#555" text-anchor="end">${Math.round(maxVal)} km</text>`;
+              fill="url(#num-leg-grad)" rx="2"/>`;
+
+        // Threshold tick lines through the bar
+        thresholds.forEach(th => {
+            const x = norm(th.value) * 280;
+            svgContent += `
+        <line x1="${x.toFixed(1)}" y1="${colorY}"
+              x2="${x.toFixed(1)}" y2="${colorY + 12}"
+              stroke="rgba(0,0,0,0.65)" stroke-width="1.5"/>`;
+        });
+
+        // Min / mid / max scale labels
+        svgContent += `
+        <text x="0"   y="${colorY + 26}" font-size="10" fill="#555">${Math.round(minVal).toLocaleString()} km</text>
+        <text x="140" y="${colorY + 26}" font-size="10" fill="#555" text-anchor="middle">${midVal.toLocaleString()} km</text>
+        <text x="280" y="${colorY + 26}" font-size="10" fill="#555" text-anchor="end">${Math.round(maxVal).toLocaleString()} km</text>`;
+
+        // Threshold labels in a second row, directly below their tick lines
+        if (hasThresh) {
+            thresholds.forEach(th => {
+                const x      = norm(th.value) * 280;
+                const prefix = th.direction === 'gt' ? '>' : th.direction === 'lt' ? '<' : '|';
+                const anchor = x < 60 ? 'start' : x > 220 ? 'end' : 'middle';
+                svgContent += `
+        <text x="${(x + (anchor === 'start' ? 2 : anchor === 'end' ? -2 : 0)).toFixed(1)}"
+              y="${colorY + 44}" font-size="9" fill="#aa0000"
+              font-weight="600" text-anchor="${anchor}">${prefix} ${th.value.toLocaleString()} km</text>`;
+            });
+        }
     }
 
+    // ── Thickness section ─────────────────────────────────────────────────────
+    // stroke-width values match strokeWidthScale.range([2, 8]) in numerical-edge.js
     if (showThickness) {
         svgContent += `
-        <line x1="0"   y1="${thickY + 6}" x2="80"  y2="${thickY + 6}" stroke="#555" stroke-width="1"/>
-        <line x1="100" y1="${thickY + 6}" x2="180" y2="${thickY + 6}" stroke="#555" stroke-width="3"/>
-        <line x1="200" y1="${thickY + 6}" x2="280" y2="${thickY + 6}" stroke="#555" stroke-width="5"/>
+        <line x1="0"   y1="${thickY + 6}" x2="80"  y2="${thickY + 6}" stroke="#555" stroke-width="2"/>
+        <line x1="100" y1="${thickY + 6}" x2="180" y2="${thickY + 6}" stroke="#555" stroke-width="5"/>
+        <line x1="200" y1="${thickY + 6}" x2="280" y2="${thickY + 6}" stroke="#555" stroke-width="8"/>
         <text x="40"  y="${thickY + 20}" font-size="10" fill="#555" text-anchor="middle">short</text>
         <text x="140" y="${thickY + 20}" font-size="10" fill="#555" text-anchor="middle">medium</text>
         <text x="240" y="${thickY + 20}" font-size="10" fill="#555" text-anchor="middle">long</text>`;
+
+        // Threshold example lines: one row per threshold, drawn at the exact
+        // computed stroke width so participants can match edges to the task condition.
+        // strokeWidth = 2 + t * 6  mirrors  strokeWidthScale.range([2, 8]).
+        if (hasThresh) {
+            thresholds.forEach((th, i) => {
+                const sw      = (2 + norm(th.value) * 6).toFixed(1);
+                const prefix  = th.direction === 'gt' ? '>' : th.direction === 'lt' ? '<' : '|';
+                const exY     = thickY + 32 + i * 22;
+                svgContent += `
+        <line x1="0" y1="${exY + 5}" x2="60" y2="${exY + 5}"
+              stroke="${scale(th.value)}" stroke-width="${sw}"/>
+        <text x="68" y="${exY + 9}" font-size="9" fill="#aa0000"
+              font-weight="600">${prefix} ${th.value.toLocaleString()} km</text>`;
+            });
+        }
     }
 
     el.innerHTML = `
       <p class="panel-label" style="margin-bottom:6px;">Route Distance (km)</p>
-      <svg width="300" height="${svgHeight}" style="display:block">${svgContent}</svg>`;
+      <svg width="300" height="${svgH}" style="display:block">${svgContent}</svg>`;
 }
 
 // ── Directional legend ────────────────────────────────────────

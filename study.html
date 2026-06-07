@@ -158,6 +158,30 @@
       stroke: #ff7f0e !important;
       stroke-width: 2px !important;
     }
+
+    /* ── Starting airport for navigation / attribute tasks ──────────── */
+    /* Applied automatically by highlightStartNode(); persists through  */
+    /* single-clicks because nl-builder only clears .node--highlighted. */
+    .node--start {
+      fill: #2ca25f !important;   /* green — matches "Start at" keyword colour */
+      stroke: #fff !important;
+      stroke-width: 2.5px !important;
+    }
+
+    /* ── Airports selected as the answer in select-nodes tasks ─────── */
+    /* Toggled by the onNodeSelected handler; cleared on task advance.  */
+    .node--answer-selected {
+      fill: #ff7f0e !important;   /* orange — matches edge-highlight colour */
+      stroke: #fff !important;
+      stroke-width: 2.5px !important;
+    }
+
+    /* Selected-nodes answer display (mirrors #selected-node-display) */
+    #selected-nodes-display {
+      font-size: 14px;
+      color: #444;
+      margin: 0 0 4px;
+    }
   </style>
 </head>
 

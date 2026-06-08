@@ -111,7 +111,7 @@ function showEdgeTooltip(event, d, fields = ['all']) {
     const showAll = fields.includes('all');
     const show    = f => showAll || fields.includes(f);
 
-    const lines = [`<strong>${srcLbl} → ${tgtLbl}</strong>`];
+    const lines = [`<strong>${srcLbl} - ${tgtLbl}</strong>`]; // Can change this to an arrow → for directional
     if (show('airline')  && d.airline)        lines.push(`Airline: ${d.airline}`);
     if (show('country')  && d.airlinecountry) lines.push(`Country: ${d.airlinecountry}`);
     if (show('distance') && d.distance_km)    lines.push(`Distance: ${Math.round(d.distance_km).toLocaleString()} km`);

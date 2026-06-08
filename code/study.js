@@ -19,7 +19,7 @@
 const COMPLETION_URL = 'REPLACE_WITH_PROLIFIC_URL';
 
 // ── Imports ──────────────────────────────────────────────────
-import { appState, svg, datasetSpec } from './main.js';
+import { appState, svg, datasetSpec, width, height } from './main.js';
 import { buildNodeLinkOnly }          from './building/nl-builder.js';
 import { applyForceLayout }           from './building/force-layout.js';
 import { setSimulationState }         from './utils.js';
@@ -61,7 +61,8 @@ const _p         = new URLSearchParams(window.location.search);
 const prolificPid = _p.get('PROLIFIC_PID') || 'PREVIEW';
 const studyId     = _p.get('STUDY_ID')     || 'PREVIEW';
 const sessionId   = _p.get('SESSION_ID')   || 'PREVIEW';
-const condition   = _p.get('condition')    || 'categorical';
+// Modality (between-subjects): 'categorical' | 'numerical' | 'directional'
+const modality    = _p.get('modality')     || 'categorical';
 // Latin-Square order: 1, 2, 3, or 4.  Defaults to 1 for local testing.
 const order       = _p.get('order')        || '1';
 
@@ -69,7 +70,7 @@ const sessionData = {
     prolificPid,
     studyId,
     sessionId,
-    condition,
+    modality,
     order,
     startTime: Date.now(),
 };
@@ -109,6 +110,7 @@ function getTooltipFields(task) {
 }
 
 // ── Mutable state ─────────────────────────────────────────────
+
 let tasks            = [];
 let currentTaskIndex = 0;
 let taskStartTime    = null;
@@ -132,6 +134,7 @@ const db           = getFirestore(_firebaseApp);
 
 // ── Logging ───────────────────────────────────────────────────
 // Schrijft elk event naar Firestore onder sessions/{prolificPid}/events.
+
 // Mislukte writes gaan naar console.warn — de studie gaat door.
 async function logEvent(eventName, data) {
     const payload = {
@@ -168,7 +171,8 @@ function waitForGraph() {
 async function init() {
     logEvent('page_load', {
         prolificPid: sessionData.prolificPid,
-        order:       sessionData.order,   // Latin-Square order (1–4)
+        modality:    sessionData.modality,  // between-subjects modality
+        order:       sessionData.order,     // Latin-Square order (1–4)
         timestamp:   new Date().toISOString(),
     });
 
@@ -178,11 +182,20 @@ async function init() {
         waitForGraph(),
     ]);
 
-    // Select the task list for this participant's Latin-Square order.
-    // Falls back to order 1 if the URL parameter is missing or invalid.
-    tasks = tasksData.orders?.[order]?.tasks
-         ?? tasksData.orders?.['1']?.tasks
-         ?? [];
+    // Build 16-task list from the new conditions/latinSquare structure.
+    // For each SV in the Latin Square order, add the 4 tasks in sequence TE1→TS4→TB1→TA2.
+    // Falls back to order 1 and modality 'categorical' if URL params are missing or invalid.
+    const svSequence = tasksData.latinSquare?.[order] ?? ['SV0','SV1','SV2','SV3'];
+    tasks = svSequence.flatMap(sv => {
+        const svData = tasksData.conditions?.[modality]?.[sv];
+        if (!svData) return [];
+        return ['TE1','TS4','TB1','TA2'].map(type => ({
+            ...svData.tasks[type],
+            encodings: svData.tasks[type].encodings ?? svData.encodings,
+            sv,
+            modality,
+        }));
+    });
 
     // ── Save original graph once so filters always start from full data ──
     appState._baseGraph = appState.graph;
@@ -307,6 +320,21 @@ function rebuildForTask(task) {
     svg.selectAll('*').remove();
 
     const { nodes, links } = buildNodeLinkOnly();
+
+    // ── Randomise initial node positions ─────────────────────────────────────
+    // nl-builder.js initialises every node at (x:0, y:0).  D3's force
+    // simulation is fully deterministic given the same starting state, so
+    // every rebuild would produce an identical layout.  Scattering nodes to
+    // random positions inside the canvas before the simulation starts ensures
+    // each task gets a genuinely different layout.
+    const PAD = 60;   // keep nodes away from the canvas edges initially
+    nodes.forEach(node => {
+        node.x  = PAD + Math.random() * (width  - 2 * PAD);
+        node.y  = PAD + Math.random() * (height - 2 * PAD);
+        node.vx = 0;
+        node.vy = 0;
+    });
+
     applyForceLayout(nodes, links);
 
     // ── Study-specific node size ──────────────────────────────────
@@ -549,10 +577,11 @@ function renderProgressBar(currentIndex) {
         bar.appendChild(seg);
     });
 
-    // "Task 2 of 4 · Numerical"
-    const task = tasks[currentIndex];
+    // "Task 2 of 16 · Categorical"
+    // All tasks in a session share one modality, so we use the session-level modality
+    // variable rather than task.condition (which is always the same across the session).
     document.getElementById('task-progress').textContent =
-        `Task ${currentIndex + 1} of ${tasks.length} · ${capitalise(task.condition)}`;
+        `Task ${currentIndex + 1} of ${tasks.length} · ${capitalise(modality)}`;
 }
 
 // ============================================================
@@ -640,7 +669,15 @@ function submitAnswer() {
     // select-nodes: every chosen airport must appear in the correct set
     let submittedAnswer;
     let isCorrect;
-    if (task.answerType === 'select-nodes') {
+    if (task.postHocCheck) {
+        // TS4 / structure tasks have no ground-truth correctAnswers — grade
+        // these manually in the post-processing script.  Log null so the
+        // Python analysis can distinguish "not yet graded" from wrong (false).
+        submittedAnswer = task.answerType === 'select-nodes'
+            ? [...selectedAnswers]
+            : selectedAnswer;
+        isCorrect = null;
+    } else if (task.answerType === 'select-nodes') {
         submittedAnswer = [...selectedAnswers];
         isCorrect = selectedAnswers.length > 0
             && selectedAnswers.every(a => correctSet.includes(a));

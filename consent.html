@@ -257,7 +257,7 @@
         <li>You will see a network graph of airport routes and answer <strong>4 tasks</strong>.</li>
         <li>Tasks vary in type: estimating a pattern, finding a specific airport, or navigating the network.</li>
         <li>Each task has a multiple-choice question or asks you to click directly on a node in the graph.</li>
-        <li>The study takes approximately <strong>10–20 minutes</strong>.</li>
+        <li>The study takes approximately <strong>10 to 20 minutes</strong>.</li>
         <li>There are no right or wrong answers that affect your reward — all responses are valid.</li>
       </ul>
     </div>
@@ -323,7 +323,7 @@
     </button>
 
     <div class="consent-footer">
-      <p>Vrije Universiteit Amsterdam &middot; Faculty of Science &middot; 2026</p>
+      <p>Utrecht University &middot; Faculty of Science &middot; 2026</p>
     </div>
 
   </div>
@@ -344,6 +344,11 @@
 
     startBtn.addEventListener('click', () => {
       if (!checkbox.checked) return;
+      // Prolific appends ?PROLIFIC_PID=...&STUDY_ID=...&SESSION_ID=...
+      // The study also expects &order=1 (Latin Square, 1–4) and &modality=categorical
+      // (between-subjects modality: categorical | numerical | directional).
+      // Example full URL:
+      //   study.html?PROLIFIC_PID={{%PROLIFIC_PID%}}&STUDY_ID={{%STUDY_ID%}}&SESSION_ID={{%SESSION_ID%}}&order=1&modality=categorical
       window.location.href = `study.html${params}`;
     });
 

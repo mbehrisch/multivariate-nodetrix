@@ -64,11 +64,12 @@
             "condition": "categorical",
             "encodings": ["baseline"],
             "filter": { "type": "deduplicate" },
-            "description": "Double-click a group of three airports whose mutual flights are all operated by the same country's airlines.",
+            "description": "Double-click a group of three airports where all flights between them are operated by airlines from the same country.",
             "colorKeywords": [
               { "word": "Double-click", "color": "#2ca25f" },
               { "word": "group of three airports", "color": "#F5A623" },
-              { "word": "same country's airlines", "color": "#F5A623" }
+              { "word": "are opreated", "color": "#F5A623" },
+              { "word": "from the same country", "color": "#F5A623"}
             ],
             "answerType": "select-nodes",
             "requiredSelections": 3,
@@ -102,11 +103,11 @@
             "condition": "categorical",
             "encodings": ["baseline"],
             "filter": { "type": "deduplicate" },
-            "description": "Airport BRU is highlighted. How many of its connected airports are reached via a Canada-operated airline?",
+            "description": "Airport BRU is highlighted. How many of its connected flights are Canada-operated?",
             "colorKeywords": [
               { "word": "BRU", "color": "#2ca25f" },
               { "word": "How many", "color": "#F5A623" },
-              { "word": "Canada-operated airline", "color": "#F5A623" }
+              { "word": "Canada-operated", "color": "#F5A623" }
             ],
             "startNode": "BRU",
             "answerType": "multiple-choice",
@@ -142,21 +143,23 @@
             "diagram": "data/sampled_data.json"
           },
           "TS4": {
-            "id": "T_Cat_SV1_TS4",
+            "id": "T_Cat_SV0_TS4",
             "taskType": "structure",
             "condition": "categorical",
-            "encodings": ["color"],
+            "encodings": ["baseline"],
             "filter": { "type": "deduplicate" },
-            "description": "Double-click a group of three airports whose mutual flights are all operated by the same country's airlines.",
+            "description": "Double-click a group of three airports where all flights between them are operated by airlines from the same country.",
             "colorKeywords": [
               { "word": "Double-click", "color": "#2ca25f" },
               { "word": "group of three airports", "color": "#F5A623" },
-              { "word": "same country's airlines", "color": "#F5A623" }
+              { "word": "are opreated", "color": "#F5A623" },
+              { "word": "from the same country", "color": "#F5A623"}
             ],
             "answerType": "select-nodes",
             "requiredSelections": 3,
             "correctAnswers": [],
             "postHocCheck": true,
+            "tooltipFields": ["route","country"],
             "diagram": "data/sampled_data.json"
           },
           "TB1": {
@@ -184,11 +187,11 @@
             "condition": "categorical",
             "encodings": ["color"],
             "filter": { "type": "deduplicate" },
-            "description": "Airport EWR is highlighted. How many of its connected airports are reached via a Canada-operated airline?",
+            "description": "Airport EWR is highlighted. How many of its connected flights are Canada-operated?",
             "colorKeywords": [
               { "word": "EWR", "color": "#2ca25f" },
               { "word": "How many", "color": "#F5A623" },
-              { "word": "Canada-operated airline", "color": "#F5A623" }
+              { "word": "Canada-operated", "color": "#F5A623" }
             ],
             "startNode": "EWR",
             "answerType": "multiple-choice",
@@ -224,21 +227,23 @@
             "diagram": "data/sampled_data.json"
           },
           "TS4": {
-            "id": "T_Cat_SV2_TS4",
+            "id": "T_Cat_SV0_TS4",
             "taskType": "structure",
             "condition": "categorical",
-            "encodings": ["dashing"],
+            "encodings": ["baseline"],
             "filter": { "type": "deduplicate" },
-            "description": "Double-click a group of three airports whose mutual flights are all operated by the same country's airlines.",
+            "description": "Double-click a group of three airports where all flights between them are operated by airlines from the same country.",
             "colorKeywords": [
               { "word": "Double-click", "color": "#2ca25f" },
               { "word": "group of three airports", "color": "#F5A623" },
-              { "word": "same country's airlines", "color": "#F5A623" }
+              { "word": "are opreated", "color": "#F5A623" },
+              { "word": "from the same country", "color": "#F5A623"}
             ],
             "answerType": "select-nodes",
             "requiredSelections": 3,
             "correctAnswers": [],
             "postHocCheck": true,
+            "tooltipFields": ["route","country"],
             "diagram": "data/sampled_data.json"
           },
           "TB1": {
@@ -266,11 +271,11 @@
             "condition": "categorical",
             "encodings": ["dashing"],
             "filter": { "type": "deduplicate" },
-            "description": "Airport DTW is highlighted. How many of its connected airports are reached via a Canada-operated airline?",
+            "description": "Airport DTW is highlighted. How many of its connected flights are Canada-operated?",
             "colorKeywords": [
               { "word": "DTW", "color": "#2ca25f" },
               { "word": "How many", "color": "#F5A623" },
-              { "word": "Canada-operated airline", "color": "#F5A623" }
+              { "word": "Canada-operated", "color": "#F5A623" }
             ],
             "startNode": "DTW",
             "answerType": "multiple-choice",
@@ -306,21 +311,23 @@
             "diagram": "data/sampled_data.json"
           },
           "TS4": {
-            "id": "T_Cat_SV3_TS4",
+            "id": "T_Cat_SV0_TS4",
             "taskType": "structure",
             "condition": "categorical",
-            "encodings": ["color","dashing"],
+            "encodings": ["baseline"],
             "filter": { "type": "deduplicate" },
-            "description": "Double-click a group of three airports whose mutual flights are all operated by the same country's airlines.",
+            "description": "Double-click a group of three airports where all flights between them are operated by airlines from the same country.",
             "colorKeywords": [
               { "word": "Double-click", "color": "#2ca25f" },
               { "word": "group of three airports", "color": "#F5A623" },
-              { "word": "same country's airlines", "color": "#F5A623" }
+              { "word": "are opreated", "color": "#F5A623" },
+              { "word": "from the same country", "color": "#F5A623"}
             ],
             "answerType": "select-nodes",
             "requiredSelections": 3,
             "correctAnswers": [],
             "postHocCheck": true,
+            "tooltipFields": ["route","country"],
             "diagram": "data/sampled_data.json"
           },
           "TB1": {
@@ -348,11 +355,11 @@
             "condition": "categorical",
             "encodings": ["color","dashing"],
             "filter": { "type": "deduplicate" },
-            "description": "Airport CLT is highlighted. How many of its connected airports are reached via a Canada-operated airline?",
+            "description": "Airport CLT is highlighted. How many of its connected flights are Canada-operated?",
             "colorKeywords": [
               { "word": "CLT", "color": "#2ca25f" },
               { "word": "How many", "color": "#F5A623" },
-              { "word": "Canada-operated airline", "color": "#F5A623" }
+              { "word": "Canada-operated", "color": "#F5A623" }
             ],
             "startNode": "CLT",
             "answerType": "multiple-choice",

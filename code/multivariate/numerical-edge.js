@@ -181,7 +181,7 @@ export function applyNumericalThickness(){
 
     const strokeWidthScale = d3.scaleLinear()
         .domain([minValue, maxValue])
-        .range([2, 8]);
+        .range([3, 10]);
 
     d3.selectAll(".link")
         .style("stroke-width", d => {

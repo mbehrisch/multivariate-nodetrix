@@ -304,7 +304,7 @@ function applyTaskFilter(graph, filter) {
 }
 
 // Study-specific layout constants (override the defaults from main.js / force-layout.js)
-const STUDY_NODE_R       = 15;   // visual radius; main.js nodeSize = 10
+const STUDY_NODE_R       = 20;   // visual radius; main.js nodeSize = 10
 const STUDY_CHARGE       = -250; // stronger repulsion → better spread
 const STUDY_LINK_DIST    = 70;   // longer edges → nodes further apart
 
@@ -416,7 +416,18 @@ function showTask(index) {
         activeCondition = task.condition;
         activeEncodings = encodingKey;
         activeFilter    = filterKey;
-        rebuildForTask(task);
+        rebuildForTask(task);   // includes applyConditionEncoding → legend update
+    } else {
+        // Same visualization (condition/encodings/filter unchanged) — no force-layout
+        // rebuild needed, but we still re-render the legend because individual tasks
+        // within the same SV block can have different thresholds
+        // (e.g. TB1 shows "> 4000 km" while TE1 shows nothing).
+        applyConditionEncoding(
+            task.condition,
+            getEncodings(task),
+            task.thresholds ?? [],
+            getTooltipFields(task),
+        );
     }
 
     renderTaskDescription(task);
@@ -837,9 +848,9 @@ function renderNumericalLegend(encodings, thresholds = []) {
     // stroke-width values match strokeWidthScale.range([2, 8]) in numerical-edge.js
     if (showThickness) {
         svgContent += `
-        <line x1="0"   y1="${thickY + 6}" x2="80"  y2="${thickY + 6}" stroke="#555" stroke-width="2"/>
-        <line x1="100" y1="${thickY + 6}" x2="180" y2="${thickY + 6}" stroke="#555" stroke-width="5"/>
-        <line x1="200" y1="${thickY + 6}" x2="280" y2="${thickY + 6}" stroke="#555" stroke-width="8"/>
+        <line x1="0"   y1="${thickY + 6}" x2="80"  y2="${thickY + 6}" stroke="#555" stroke-width="3"/>
+        <line x1="100" y1="${thickY + 6}" x2="180" y2="${thickY + 6}" stroke="#555" stroke-width="6"/>
+        <line x1="200" y1="${thickY + 6}" x2="280" y2="${thickY + 6}" stroke="#555" stroke-width="10"/>
         <text x="40"  y="${thickY + 20}" font-size="10" fill="#555" text-anchor="middle">short</text>
         <text x="140" y="${thickY + 20}" font-size="10" fill="#555" text-anchor="middle">medium</text>
         <text x="240" y="${thickY + 20}" font-size="10" fill="#555" text-anchor="middle">long</text>`;
@@ -855,8 +866,8 @@ function renderNumericalLegend(encodings, thresholds = []) {
         const exSectionY = colorH + thickBaseH + 4;   // 4px gap below last section
         thresholds.forEach((th, i) => {
             const sw     = showThickness
-                ? (2 + norm(th.value) * 6).toFixed(1)
-                : '2.5';
+                ? (3 + norm(th.value) * 7).toFixed(1)
+                : '3';
             const stroke = showColor ? scale(th.value) : '#333';
             const prefix = th.direction === 'gt' ? '>' : th.direction === 'lt' ? '<' : '|';
             const exY    = exSectionY + i * 22;

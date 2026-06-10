@@ -170,7 +170,6 @@ function findNodeElement(nodeId) {
 }
 
 function clearHighlights() {
-    svg.classed('has-highlight', false);
     document.querySelectorAll('.node--highlighted,.node--start,.node--answer-selected,.edge--highlighted,.neighbor--highlighted')
         .forEach(el => el.classList.remove('node--highlighted','node--start','node--answer-selected','edge--highlighted','neighbor--highlighted'));
 }
@@ -516,6 +515,7 @@ function runStep(step) {
             
             const taskIdx = demoTasks.indexOf(task);
             renderProgressBar(taskIdx);
+            
             document.getElementById('answer-area').innerHTML = '';
             document.getElementById('task-progress').textContent =
                 `Practice task ${taskIdx + 1} of 4`;

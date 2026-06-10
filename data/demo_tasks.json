@@ -1,0 +1,167 @@
+{
+  "categorical": [
+    {
+      "id": "DEMO-CAT-TE1",
+      "type": "TE1",
+      "condition": "categorical",
+      "encodings": ["color", "dashing", "baseline"],
+      "description": "Of France and China, which country's airlines operate the most routes in this network?",
+      "answerType": "multiple-choice",
+      "options": ["France", "China"],
+      "correctAnswers": ["France"],
+      "explanation": "France operates the most routes in this network. You could count by using the edge colour or dash pattern from the legend to identify France-operated routes."
+    },
+    {
+      "id": "DEMO-CAT-TS4",
+      "type": "TS4",
+      "condition": "categorical",
+      "encodings": ["color", "dashing", "baseline"],
+      "description": "Double-click a group of three airports whose mutual flights are all operated by the same country's airlines.",
+      "answerType": "select-nodes",
+      "requiredSelections": 3,
+      "correctAnswers": [],
+      "postHocCheck": true,
+      "explanation": "In the real study, your answer will be reviewed by the researcher. Any valid group of three mutually connected airports sharing one colour and dash pattern is correct."
+    },
+    {
+      "id": "DEMO-CAT-TB1",
+      "type": "TB1",
+      "condition": "categorical",
+      "encodings": ["color", "dashing", "baseline"],
+      "description": "Start at OUA. Take a France-operated flight, then a Canada-operated flight. Select both airports you land on.",
+      "answerType": "select-nodes",
+      "requiredSelections": 2,
+      "startNode": "OUA",
+      "correctAnswers": ["CDG", "YYZ"],
+      "colorKeywords": [{"word": "OUA", "color": "#2ca25f"}],
+      "explanation": "From OUA, the only France-operated connection leads to CDG. From CDG, the only Canada-operated connection leads to YYZ. The correct airports are CDG and YYZ."
+    },
+    {
+      "id": "DEMO-CAT-TA2",
+      "type": "TA2",
+      "condition": "categorical",
+      "encodings": ["color", "dashing", "baseline"],
+      "description": "Airport DLA is highlighted. How many of its connected airports are reached via a France-operated airline?",
+      "answerType": "multiple-choice",
+      "startNode": "DLA",
+      "options": ["1", "2", "3", "4"],
+      "correctAnswers": ["2"],
+      "colorKeywords": [{"word": "DLA", "color": "#2ca25f"}],
+      "explanation": "DLA has exactly two France-operated connections: CDG and SSG. You can identify them by matching the colour and dash pattern of the edges from DLA against the legend."
+    }
+  ],
+
+  "numerical": [
+    {
+      "id": "DEMO-NUM-TE1",
+      "type": "TE1",
+      "condition": "numerical",
+      "encodings": ["color", "thickness", "baseline"],
+      "description": "Are most routes in this network short (under 2000 km) or long (over 2000 km)?",
+      "answerType": "multiple-choice",
+      "options": ["Short (< 2000 km)", "Long (> 2000 km)"],
+      "correctAnswers": ["Short (< 2000 km)"],
+      "thresholds": [{"value": 2000, "direction": "gt", "label": "threshold"}],
+      "explanation": "Most routes are short — 139 out of 205 unique routes are under 2000 km. The graph is dominated by thin, cool-coloured edges, which represent shorter distances."
+    },
+    {
+      "id": "DEMO-NUM-TS4",
+      "type": "TS4",
+      "condition": "numerical",
+      "encodings": ["color", "thickness", "baseline"],
+      "description": "Double-click a cluster of three airports that are all mutually connected by routes longer than 5000 km.",
+      "answerType": "select-nodes",
+      "requiredSelections": 3,
+      "correctAnswers": [],
+      "postHocCheck": true,
+      "thresholds": [{"value": 5000, "direction": "gt", "label": "long"}],
+      "explanation": "In the real study, your answer will be reviewed by the researcher. Look for a triangle of three airports connected by thick, warm-coloured edges — those represent long routes."
+    },
+    {
+      "id": "DEMO-NUM-TB1",
+      "type": "TB1",
+      "condition": "numerical",
+      "encodings": ["color", "thickness", "baseline"],
+      "description": "Start at EWR. Take a route longer than 9000 km, then a route shorter than 1000 km. Select both airports you land on.",
+      "answerType": "select-nodes",
+      "requiredSelections": 2,
+      "startNode": "EWR",
+      "thresholds": [
+        {"value": 9000, "direction": "gt", "label": "long"},
+        {"value": 1000, "direction": "lt", "label": "short"}
+      ],
+      "correctAnswers": ["PVG", "PEK", "CSX", "DOY", "XIY"],
+      "colorKeywords": [{"word": "EWR", "color": "#2ca25f"}],
+      "explanation": "From EWR, two routes exceed 9000 km: to PVG (11,883 km) and PEK (10,993 km). From PVG, short connections include CSX and DOY. From PEK, short connections include DOY and XIY."
+    },
+    {
+      "id": "DEMO-NUM-TA2",
+      "type": "TA2",
+      "condition": "numerical",
+      "encodings": ["color", "thickness", "baseline"],
+      "description": "Airport EWR is highlighted. Double-click the connected airport that is furthest away.",
+      "answerType": "select-node",
+      "startNode": "EWR",
+      "correctAnswers": ["PVG"],
+      "colorKeywords": [{"word": "EWR", "color": "#2ca25f"}],
+      "explanation": "EWR–PVG is 11,883 km — the longest edge from EWR. Look for the thickest, warmest-coloured edge from the highlighted airport."
+    }
+  ],
+
+  "directional": [
+    {
+      "id": "DEMO-DIR-TE1",
+      "type": "TE1",
+      "condition": "directional",
+      "encodings": ["gradient", "taper", "arrows", "baseline"],
+      "filter": {"type": "deduplicate"},
+      "description": "Does airport LYS have more incoming or outgoing flights overall?",
+      "answerType": "multiple-choice",
+      "options": ["Incoming", "Outgoing"],
+      "correctAnswers": ["Incoming"],
+      "explanation": "LYS has more incoming than outgoing flights. You can see this because more arrows point towards LYS than away from it — or because the wide/green end of most edges is not at LYS."
+    },
+    {
+      "id": "DEMO-DIR-TS4",
+      "type": "TS4",
+      "condition": "directional",
+      "encodings": ["gradient", "taper", "arrows", "baseline"],
+      "filter": {"type": "deduplicate"},
+      "description": "Double-click a chain of three airports where each flight points from one to the next (A → B → C).",
+      "answerType": "select-nodes",
+      "requiredSelections": 3,
+      "correctAnswers": [],
+      "postHocCheck": true,
+      "explanation": "In the real study, your answer will be reviewed by the researcher. Look for a chain A → B → C where every arrow or taper points forward along the chain."
+    },
+    {
+      "id": "DEMO-DIR-TB1",
+      "type": "TB1",
+      "condition": "directional",
+      "encodings": ["gradient", "taper", "arrows", "baseline"],
+      "filter": {"type": "deduplicate"},
+      "description": "Start at NNG. Follow the flight direction for two hops. Select each airport you reach.",
+      "answerType": "select-nodes",
+      "requiredSelections": 2,
+      "startNode": "NNG",
+      "correctAnswers": ["SHA", "SZX", "XIY", "PEK", "YYZ", "PVG"],
+      "demoAnyCorrect": true,
+      "colorKeywords": [{"word": "NNG", "color": "#2ca25f"}],
+      "explanation": "From NNG you can fly to SHA, SZX, XIY, or PEK (hop 1). Each connects onward — any valid two-hop directed path is correct. Well done!"
+    },
+    {
+      "id": "DEMO-DIR-TA2",
+      "type": "TA2",
+      "condition": "directional",
+      "encodings": ["gradient", "taper", "arrows", "baseline"],
+      "filter": {"type": "deduplicate"},
+      "description": "Airport LGW is highlighted. How many flights depart FROM LGW?",
+      "answerType": "multiple-choice",
+      "startNode": "LGW",
+      "options": ["4", "7", "10", "13"],
+      "correctAnswers": ["7"],
+      "colorKeywords": [{"word": "LGW", "color": "#2ca25f"}],
+      "explanation": "LGW has 7 outgoing directed edges. Count the edges where the arrowhead points away from LGW, the wide end of the taper is at LGW, or the edge starts with the green gradient at LGW."
+    }
+  ]
+}

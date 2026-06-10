@@ -146,7 +146,7 @@
             "id": "T_Cat_SV0_TS4",
             "taskType": "structure",
             "condition": "categorical",
-            "encodings": ["baseline"],
+            "encodings": ["color"],
             "filter": { "type": "deduplicate" },
             "description": "Double-click a group of three airports where all flights between them are operated by airlines from the same country.",
             "colorKeywords": [
@@ -230,7 +230,7 @@
             "id": "T_Cat_SV0_TS4",
             "taskType": "structure",
             "condition": "categorical",
-            "encodings": ["baseline"],
+            "encodings": ["dashing"],
             "filter": { "type": "deduplicate" },
             "description": "Double-click a group of three airports where all flights between them are operated by airlines from the same country.",
             "colorKeywords": [
@@ -314,7 +314,7 @@
             "id": "T_Cat_SV0_TS4",
             "taskType": "structure",
             "condition": "categorical",
-            "encodings": ["baseline"],
+            "encodings": ["color", "dashing"],
             "filter": { "type": "deduplicate" },
             "description": "Double-click a group of three airports where all flights between them are operated by airlines from the same country.",
             "colorKeywords": [

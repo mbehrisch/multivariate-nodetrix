@@ -138,48 +138,32 @@
       font-size: 11px;
     }
 
-    /* ── Node highlight (toggled by nl-builder.js on single-click) ── */
-    .node--highlighted {
-      stroke: #ff7f0e !important;
-      stroke-width: 3px !important;
-    }
-
-    /* Edges connected to the highlighted node */
-    .edge--highlighted {
-      stroke: #ff7f0e !important;
-      stroke-opacity: 1 !important;
-      stroke-width: 3.5px !important;
-    }
-
-    /* Taper polygons in directional mode (fill-based, not stroke-based) */
-    .taper-link.edge--highlighted {
-      fill: #ff7f0e !important;
-      opacity: 0.9 !important;
-    }
-
-    /* Neighbouring nodes of the highlighted node */
-    .neighbor--highlighted {
-      fill: #ffe0b2 !important;
-      stroke: #ff7f0e !important;
-      stroke-width: 2px !important;
-    }
-
-    /* ── Starting airport for navigation / attribute tasks ──────────── */
-    /* Applied automatically by highlightStartNode(); persists through  */
-    /* single-clicks because nl-builder only clears .node--highlighted. */
+    /* ── Starting airport for navigation / attribute tasks ── */
     .node--start {
-      fill: #2ca25f !important;   /* green — matches "Start at" keyword colour */
+      fill: #2ca25f !important;
       stroke: #fff !important;
       stroke-width: 2.5px !important;
     }
 
-    /* ── Airports selected as the answer in select-nodes tasks ─────── */
-    /* Toggled by the onNodeSelected handler; cleared on task advance.  */
+    /* ── Airports selected as the answer in select-nodes tasks ── */
     .node--answer-selected {
-      fill: #ff7f0e !important;   /* orange — matches edge-highlight colour */
+      fill: #ff7f0e !important;
       stroke: #fff !important;
       stroke-width: 2.5px !important;
     }
+
+    /* ── Candidate-group node colours (TS4 tasks) ── */
+    .node--cand-a { fill: #4e79a7 !important; stroke: #fff !important; stroke-width: 2.5px !important; }
+    .node--cand-b { fill: #e15759 !important; stroke: #fff !important; stroke-width: 2.5px !important; }
+    .node--cand-c { fill: #59a14f !important; stroke: #fff !important; stroke-width: 2.5px !important; }
+
+    /* ── Single-click highlight: dim everything outside the selection ── */
+    svg.has-highlight .node:not(.node--highlighted):not(.neighbor--highlighted):not(.node--start):not(.node--answer-selected) { opacity: 0.12; pointer-events: none; }
+    svg.has-highlight .NLlabel:not(.node--highlighted):not(.neighbor--highlighted) { opacity: 0.12; pointer-events: none; }
+    svg.has-highlight .NLlink:not(.edge--highlighted),
+    svg.has-highlight .taper-link:not(.edge--highlighted),
+    svg.has-highlight .arrow-link:not(.edge--highlighted),
+    svg.has-highlight .edge-tooltip-hitarea:not(.edge--highlighted) { opacity: 0.08; pointer-events: none; }
 
     /* Selected-nodes answer display (mirrors #selected-node-display) */
     #selected-nodes-display {
@@ -204,6 +188,7 @@
       <div id="task-description">Loading…</div>
 
       <p class="panel-label">Legend</p>
+      <div id="candidate-group-legend" style="display:none; margin-bottom:14px;"></div>
       <div id="study-legend"></div>
 
       <div id="task-progress"></div>

@@ -360,6 +360,13 @@ function rebuildForTask(task) {
 
     applyConditionEncoding(task.condition, encodings, task.thresholds ?? [], getTooltipFields(task));
 
+    // ── Pre-highlight candidate groups for TS4 tasks ─────────────────────────
+    // Rings are added now and kept in sync via the simulation tick handler, so
+    // they track node positions while the force layout is still settling.
+    if (task.candidateGroups) {
+        renderCandidateGroups(task.candidateGroups);
+    }
+
     setSimulationState({
         alphaTarget:    0.01,
         velocityDecay:  0.4,
@@ -394,6 +401,57 @@ function capitalise(str) {
 }
 
 // ============================================================
+//  Candidate-group highlighting (TS4 tasks)
+// ============================================================
+const CAND_CLASSES = ['node--cand-a', 'node--cand-b', 'node--cand-c'];
+const CAND_COLORS  = ['#4e79a7', '#e15759', '#59a14f'];
+const CAND_LABELS  = ['A', 'B', 'C'];
+
+// Remove group colours from nodes and hide the panel legend.
+function clearCandidateGroups() {
+    svg.selectAll('.node--cand-a, .node--cand-b, .node--cand-c').each(function () {
+        this.classList.remove('node--cand-a', 'node--cand-b', 'node--cand-c');
+    });
+    const panelEl = document.getElementById('candidate-group-legend');
+    if (panelEl) { panelEl.innerHTML = ''; panelEl.style.display = 'none'; }
+}
+
+// Colour the candidate airport nodes and add a "Candidate Groups" entry to
+// the left panel legend.  No SVG overlays — node fill is set via CSS class.
+function renderCandidateGroups(groups) {
+    clearCandidateGroups();
+    if (!groups || !groups.length) return;
+
+    // Colour each node that belongs to a candidate group
+    groups.forEach((group, gi) => {
+        svg.selectAll('.node').each(function (d) {
+            if (d.IATA && group.includes(d.IATA)) {
+                this.classList.add(CAND_CLASSES[gi]);
+            }
+        });
+    });
+
+    // Show group legend in the left panel
+    const panelEl = document.getElementById('candidate-group-legend');
+    if (!panelEl) return;
+
+    let html = '<p class="panel-label" style="margin-bottom:6px;">Candidate Groups</p>';
+    html += '<ul class="study-legend-list">';
+    groups.forEach((group, gi) => {
+        html += `
+          <li>
+            <svg width="18" height="18" style="flex-shrink:0">
+              <circle cx="9" cy="9" r="8" fill="${CAND_COLORS[gi]}"/>
+            </svg>
+            <span style="font-weight:600;">Group ${CAND_LABELS[gi]}</span>
+          </li>`;
+    });
+    html += '</ul>';
+    panelEl.innerHTML = html;
+    panelEl.style.display = 'block';
+}
+
+// ============================================================
 //  Task flow
 // ============================================================
 function showTask(index) {
@@ -408,6 +466,9 @@ function showTask(index) {
     const encodingKey   = [...taskEncodings].sort().join(',');
     const filterKey     = JSON.stringify(task.filter ?? null);
 
+    // ── Always clear candidate group rings before rendering the new task ───────
+    clearCandidateGroups();
+
     // ── Rebuild when condition, encodings, OR filter changes ────
     // (also fires on the very first call, when all three are null)
     if (task.condition !== activeCondition ||
@@ -416,7 +477,7 @@ function showTask(index) {
         activeCondition = task.condition;
         activeEncodings = encodingKey;
         activeFilter    = filterKey;
-        rebuildForTask(task);   // includes applyConditionEncoding → legend update
+        rebuildForTask(task);   // includes applyConditionEncoding + candidate rings
     } else {
         // Same visualization (condition/encodings/filter unchanged) — no force-layout
         // rebuild needed, but we still re-render the legend because individual tasks
@@ -428,6 +489,10 @@ function showTask(index) {
             task.thresholds ?? [],
             getTooltipFields(task),
         );
+        // No simulation running for same-SV tasks — add candidate rings immediately.
+        if (task.candidateGroups) {
+            renderCandidateGroups(task.candidateGroups);
+        }
     }
 
     renderTaskDescription(task);
@@ -435,6 +500,7 @@ function showTask(index) {
     renderProgressBar(index);
 
     // Clear all highlight classes left by the previous task
+    svg.classed('has-highlight', false);
     document.querySelectorAll(
         '.node--highlighted, .node--start, .node--answer-selected, .edge--highlighted, .neighbor--highlighted'
     ).forEach(el => el.classList.remove(

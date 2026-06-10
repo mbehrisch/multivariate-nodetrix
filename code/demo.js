@@ -170,8 +170,56 @@ function findNodeElement(nodeId) {
 }
 
 function clearHighlights() {
+    svg.classed('has-highlight', false);
     document.querySelectorAll('.node--highlighted,.node--start,.node--answer-selected,.edge--highlighted,.neighbor--highlighted')
         .forEach(el => el.classList.remove('node--highlighted','node--start','node--answer-selected','edge--highlighted','neighbor--highlighted'));
+}
+
+// ── Candidate-group highlighting (mirrors study.js) ───────────
+const CAND_CLASSES = ['node--cand-a', 'node--cand-b', 'node--cand-c'];
+const CAND_COLORS  = ['#4e79a7', '#e15759', '#59a14f'];
+const CAND_LABELS  = ['A', 'B', 'C'];
+
+function clearCandidateGroups() {
+    svg.selectAll('.node--cand-a, .node--cand-b, .node--cand-c').each(function () {
+        this.classList.remove('node--cand-a', 'node--cand-b', 'node--cand-c');
+    });
+    if (appState.sim) appState.sim.on('tick.candidateRings', null);
+    const panelEl = document.getElementById('candidate-group-legend');
+    if (panelEl) { panelEl.innerHTML = ''; panelEl.style.display = 'none'; }
+}
+
+function renderCandidateGroups(groups) {
+    clearCandidateGroups();
+    if (!groups || !groups.length) return;
+
+    // Colour each node that belongs to a candidate group
+    groups.forEach((group, gi) => {
+        svg.selectAll('.node').each(function (d) {
+            if (d.IATA && group.includes(d.IATA)) {
+                this.classList.add(CAND_CLASSES[gi]);
+            }
+        });
+    });
+
+    // Show group legend in the left panel
+    const panelEl = document.getElementById('candidate-group-legend');
+    if (!panelEl) return;
+
+    let html = '<p class="panel-label" style="margin-bottom:6px;">Candidate Groups</p>';
+    html += '<ul class="study-legend-list">';
+    groups.forEach((group, gi) => {
+        html += `
+          <li>
+            <svg width="18" height="18" style="flex-shrink:0">
+              <circle cx="9" cy="9" r="8" fill="${CAND_COLORS[gi]}"/>
+            </svg>
+            <span style="font-weight:600;">Group ${CAND_LABELS[gi]}</span>
+          </li>`;
+    });
+    html += '</ul>';
+    panelEl.innerHTML = html;
+    panelEl.style.display = 'block';
 }
 
 function escapeHtml(s) {
@@ -200,7 +248,7 @@ function buildGuideSteps(tasks) {
                  to get familiar with the interface.</p>
               <p>You will learn how to read the graph, use the legend, and answer the four types of tasks.
                  This practice uses the <strong>${cap(modality)}</strong> encoding.</p>
-              <p>There are <strong>4 practice tasks</strong>. Take your time — there is no time limit on the practice.</p>
+              <p>There are <strong>4 practice tasks</strong>. Take your time, there is no time limit on the practice.</p>
               <button class="demo-modal-btn" id="demo-action-btn">Start Practice →</button>`;
         },
     });
@@ -252,16 +300,16 @@ function buildGuideSteps(tasks) {
         ],
         TS4: [
             { target: 'graph',
-              title: 'Finding a Group',
-              text:  'Look for a cluster of three airports that are all directly connected to each other. All edges between them should share the same visual property.' },
+              title: 'Three Candidate Groups',
+              text:  'Three groups of airports are highlighted on the graph — Group A (blue), Group B (red), and Group C (green). Examine the edges within each group using the legend to find which group matches the task condition.' },
             { target: 'graph',
               title: 'Double-Click to Select',
-              text:  'Double-click an airport to select it — it turns orange. Double-click it again to deselect. Select exactly 3 airports, then press Submit.' },
+              text:  'Double-click an airport to select it, it turns orange. Double-click it again to deselect. Select exactly 3 airports from the correct group, then press Submit.' },
         ],
         TB1: [
             { target: 'graph',
               title: 'Your Starting Airport',
-              text:  'The green airport is your starting point. Find it on the graph first — it is highlighted automatically.' },
+              text:  'The green airport is your starting point. Find it on the graph first, it is highlighted automatically.' },
             { target: 'study-legend',
               title: 'Follow the Encoding',
               text:  'Use the legend to identify which edges match the required airline / distance / direction for each hop.' },
@@ -459,9 +507,13 @@ function runStep(step) {
             const task = step.taskIntroFor;
             rebuildForTask(task);
             applyEncodings(task);
-            clearHighlights();
-            if (task.startNode) highlightStartNode(task.startNode);
             renderTaskDescription(task);
+            renderAnswerArea(task);
+            clearHighlights();
+            clearCandidateGroups();
+            if (task.startNode) highlightStartNode(task.startNode);
+            if (task.candidateGroups) renderCandidateGroups(task.candidateGroups);
+            
             const taskIdx = demoTasks.indexOf(task);
             renderProgressBar(taskIdx);
             document.getElementById('answer-area').innerHTML = '';
@@ -473,6 +525,7 @@ function runStep(step) {
         if (step.isEncodingIntro && demoTasks.length > 0) {
             rebuildForTask(demoTasks[0]);
             applyEncodings(demoTasks[0]);
+            renderAnswerArea(demoTasks[0]);
         }
 
         const badge = `Step ${guideStepCount}`;
@@ -501,8 +554,11 @@ function startDemoTask(task, taskNum) {
 
     rebuildForTask(task);
     applyEncodings(task);
+    renderAnswerArea(task);
     clearHighlights();
+    clearCandidateGroups();
     if (task.startNode) highlightStartNode(task.startNode);
+    if (task.candidateGroups) renderCandidateGroups(task.candidateGroups);
 
     renderTaskDescription(task);
     renderAnswerArea(task);
@@ -787,9 +843,11 @@ async function init() {
     svg.selectAll('*').remove();
 
     // Pre-build graph with the first task's filter
-    // so the interface tour already shows the encoding
+    // so the interface tour already shows the encoding and task description
     rebuildForTask(demoTasks[0]);
     applyEncodings(demoTasks[0]);
+    renderTaskDescription(demoTasks[0]);
+    renderAnswerArea(demoTasks[0]);
 
     // Wire up node selection
     document.addEventListener('study:nodeSelected', onNodeSelected);

@@ -65,12 +65,21 @@
     /* ── Edge / node styles (same as study.html) ── */
     .link { stroke-width: 3px; }
     .NLlabel { font-size: 11px; }
-    .node--highlighted  { stroke: #ff7f0e !important; stroke-width: 3px !important; }
-    .edge--highlighted  { stroke: #ff7f0e !important; stroke-opacity: 1 !important; stroke-width: 3.5px !important; }
-    .taper-link.edge--highlighted { fill: #ff7f0e !important; opacity: 0.9 !important; }
-    .neighbor--highlighted { fill: #ffe0b2 !important; stroke: #ff7f0e !important; stroke-width: 2px !important; }
     .node--start { fill: #2ca25f !important; stroke: #fff !important; stroke-width: 2.5px !important; }
     .node--answer-selected { fill: #ff7f0e !important; stroke: #fff !important; stroke-width: 2.5px !important; }
+
+    /* ── Candidate-group node colours (TS4 tasks) ── */
+    .node--cand-a { fill: #4e79a7 !important; stroke: #fff !important; stroke-width: 2.5px !important; }
+    .node--cand-b { fill: #e15759 !important; stroke: #fff !important; stroke-width: 2.5px !important; }
+    .node--cand-c { fill: #59a14f !important; stroke: #fff !important; stroke-width: 2.5px !important; }
+
+    /* ── Single-click highlight: dim everything outside the selection ── */
+    svg.has-highlight .node:not(.node--highlighted):not(.neighbor--highlighted):not(.node--start):not(.node--answer-selected) { opacity: 0.12; pointer-events: none; }
+    svg.has-highlight .NLlabel:not(.node--highlighted):not(.neighbor--highlighted) { opacity: 0.12; pointer-events: none; }
+    svg.has-highlight .NLlink:not(.edge--highlighted),
+    svg.has-highlight .taper-link:not(.edge--highlighted),
+    svg.has-highlight .arrow-link:not(.edge--highlighted),
+    svg.has-highlight .edge-tooltip-hitarea:not(.edge--highlighted) { opacity: 0.08; pointer-events: none; }
 
     /* ═══════════════════════════════════════════════
        DEMO OVERLAY SYSTEM
@@ -191,6 +200,7 @@
       <div id="task-description">Loading…</div>
 
       <p class="panel-label">Legend</p>
+      <div id="candidate-group-legend" style="display:none; margin-bottom:14px;"></div>
       <div id="study-legend"></div>
 
       <div id="answer-area"></div>

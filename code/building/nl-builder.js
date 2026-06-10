@@ -8,51 +8,53 @@ let _clickTimer = null;
 // ── Visual-highlight helpers (used by the click handler below) ──
 
 function clearAllHighlights() {
+    svg.classed('has-highlight', false);
     d3.selectAll('.node--highlighted').classed('node--highlighted', false);
-    // Reset inline styles set on taper polygons before removing the class,
-    // so the simulation's presentation-attribute fill is restored.
+    d3.selectAll('.neighbor--highlighted').classed('neighbor--highlighted', false);
+    // Reset any inline styles on taper polygons that may have been set previously
     d3.selectAll('.edge--highlighted')
         .classed('edge--highlighted', false)
         .style('fill', null)
         .style('opacity', null);
-    d3.selectAll('.neighbor--highlighted').classed('neighbor--highlighted', false);
 }
 
 function highlightNodeAndNeighbors(el, nodeId) {
-    // Highlight the clicked node itself
     d3.select(el).classed('node--highlighted', true);
 
-    // Walk all edges, highlight connected ones and collect neighbor IDs
     const neighborIds = new Set();
     d3.selectAll('.NLlink').each(function (d) {
         const srcId = typeof d.source === 'object' ? d.source.id : d.source;
         const tgtId = typeof d.target === 'object' ? d.target.id : d.target;
-
         if (srcId === nodeId || tgtId === nodeId) {
             d3.select(this).classed('edge--highlighted', true);
-
-            // In directional-tapering mode the path is hidden; highlight the
-            // taper polygon that replaced it instead.
             const taperId = d3.select(this).attr('data-taper-id');
-            if (taperId) {
-                // Taper polygons use fill (not stroke), so inline styles are
-                // needed to beat the simulation's presentation-attribute fill.
-                d3.select(`#${taperId}`)
-                    .classed('edge--highlighted', true)
-                    .style('fill', '#ff7f0e')
-                    .style('opacity', '0.9');
-            }
-
+            if (taperId) d3.select(`#${taperId}`).classed('edge--highlighted', true);
             neighborIds.add(srcId === nodeId ? tgtId : srcId);
         }
     });
 
-    // Highlight all neighboring nodes
     d3.selectAll('.node').each(function (d) {
         if (d.id !== nodeId && neighborIds.has(d.id)) {
             d3.select(this).classed('neighbor--highlighted', true);
         }
     });
+
+    // Apply same classes to labels so the CSS dimming can target them
+    d3.selectAll('.NLlabel').each(function (d) {
+        if (d.id === nodeId) d3.select(this).classed('node--highlighted', true);
+        else if (neighborIds.has(d.id)) d3.select(this).classed('neighbor--highlighted', true);
+    });
+
+    // Also highlight taper polygons, arrow markers and hit areas for adjacent edges
+    d3.selectAll('.NLlink.edge--highlighted').each(function () {
+        const sel = d3.select(this);
+        const arrowId   = sel.attr('data-arrow-id');
+        const hitareaId = sel.attr('data-hitarea-id');
+        if (arrowId)   d3.select(`#${arrowId}`).classed('edge--highlighted', true);
+        if (hitareaId) d3.select(`#${hitareaId}`).classed('edge--highlighted', true);
+    });
+
+    svg.classed('has-highlight', true);
 }
 
 // Builds nodes, establishes node-node paths and node-matrix paths

@@ -512,11 +512,9 @@ function runStep(step) {
             clearCandidateGroups();
             if (task.startNode) highlightStartNode(task.startNode);
             if (task.candidateGroups) renderCandidateGroups(task.candidateGroups);
-            
+
             const taskIdx = demoTasks.indexOf(task);
             renderProgressBar(taskIdx);
-            
-            document.getElementById('answer-area').innerHTML = '';
             document.getElementById('task-progress').textContent =
                 `Practice task ${taskIdx + 1} of 4`;
         }
@@ -525,7 +523,6 @@ function runStep(step) {
         if (step.isEncodingIntro && demoTasks.length > 0) {
             rebuildForTask(demoTasks[0]);
             applyEncodings(demoTasks[0]);
-            renderAnswerArea(demoTasks[0]);
         }
 
         const badge = `Step ${guideStepCount}`;

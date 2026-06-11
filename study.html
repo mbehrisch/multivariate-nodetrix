@@ -156,10 +156,14 @@
     .node--cand-a { fill: #4e79a7 !important; stroke: #fff !important; stroke-width: 2.5px !important; }
     .node--cand-b { fill: #e15759 !important; stroke: #fff !important; stroke-width: 2.5px !important; }
     .node--cand-c { fill: #59a14f !important; stroke: #fff !important; stroke-width: 2.5px !important; }
+    /* Selected candidate nodes: keep group colour, show orange ring */
+    .node--cand-a.node--answer-selected { fill: #4e79a7 !important; stroke: #ff7f0e !important; stroke-width: 5px !important; }
+    .node--cand-b.node--answer-selected { fill: #e15759 !important; stroke: #ff7f0e !important; stroke-width: 5px !important; }
+    .node--cand-c.node--answer-selected { fill: #59a14f !important; stroke: #ff7f0e !important; stroke-width: 5px !important; }
 
     /* ── Single-click highlight: dim everything outside the selection ── */
     svg.has-highlight .node:not(.node--highlighted):not(.neighbor--highlighted):not(.node--start):not(.node--answer-selected) { opacity: 0.12; pointer-events: none; }
-    svg.has-highlight .NLlabel:not(.node--highlighted):not(.neighbor--highlighted) { opacity: 0.12; pointer-events: none; }
+    svg.has-highlight .NLlabel:not(.node--highlighted):not(.neighbor--highlighted):not(.node--start):not(.node--answer-selected) { opacity: 0.12; pointer-events: none; }
     svg.has-highlight .NLlink:not(.edge--highlighted),
     svg.has-highlight .taper-link:not(.edge--highlighted),
     svg.has-highlight .arrow-link:not(.edge--highlighted),

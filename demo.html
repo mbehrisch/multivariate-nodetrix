@@ -72,10 +72,14 @@
     .node--cand-a { fill: #4e79a7 !important; stroke: #fff !important; stroke-width: 2.5px !important; }
     .node--cand-b { fill: #e15759 !important; stroke: #fff !important; stroke-width: 2.5px !important; }
     .node--cand-c { fill: #59a14f !important; stroke: #fff !important; stroke-width: 2.5px !important; }
+    /* Selected candidate nodes: keep group colour, show orange ring */
+    .node--cand-a.node--answer-selected { fill: #4e79a7 !important; stroke: #ff7f0e !important; stroke-width: 5px !important; }
+    .node--cand-b.node--answer-selected { fill: #e15759 !important; stroke: #ff7f0e !important; stroke-width: 5px !important; }
+    .node--cand-c.node--answer-selected { fill: #59a14f !important; stroke: #ff7f0e !important; stroke-width: 5px !important; }
 
     /* ── Single-click highlight: dim everything outside the selection ── */
     svg.has-highlight .node:not(.node--highlighted):not(.neighbor--highlighted):not(.node--start):not(.node--answer-selected) { opacity: 0.12; pointer-events: none; }
-    svg.has-highlight .NLlabel:not(.node--highlighted):not(.neighbor--highlighted) { opacity: 0.12; pointer-events: none; }
+    svg.has-highlight .NLlabel:not(.node--highlighted):not(.neighbor--highlighted):not(.node--start):not(.node--answer-selected) { opacity: 0.12; pointer-events: none; }
     svg.has-highlight .NLlink:not(.edge--highlighted),
     svg.has-highlight .taper-link:not(.edge--highlighted),
     svg.has-highlight .arrow-link:not(.edge--highlighted),
@@ -95,7 +99,7 @@
 
     #demo-modal-card {
       background: #fff; border-radius: 12px;
-      padding: 36px 40px; max-width: 520px; width: 90%;
+      padding: 36px 40px; max-width: 620px; width: 90%;
       box-shadow: 0 12px 48px rgba(0,0,0,0.35);
     }
     #demo-modal-card h2 {
@@ -138,10 +142,10 @@
     }
     #demo-tooltip.hidden { display: none; }
     #demo-tooltip h4 {
-      font-size: 14px; font-weight: 700; margin: 0 0 8px; color: #111;
+      font-size: 18px; font-weight: 700; margin: 0 0 8px; color: #111;
     }
     #demo-tooltip p {
-      font-size: 13px; line-height: 1.55; color: #444; margin: 0 0 14px;
+      font-size: 16px; line-height: 1.55; color: #444; margin: 0 0 14px;
     }
     #demo-tooltip-btn {
       display: block; width: 100%; padding: 8px 0;
@@ -191,7 +195,7 @@
   <div id="study-shell">
 
     <div id="study-left">
-      <div id="demo-banner">🎓 Practice Round</div>
+      <div id="demo-banner">Practice Round</div>
 
       <div id="study-progress-bar"></div>
       <div id="task-progress"></div>

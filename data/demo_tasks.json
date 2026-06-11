@@ -11,8 +11,8 @@
       "description": "Of France and China, which country's airlines operate the most routes in this network?",
       "answerType": "multiple-choice",
       "options": ["France", "China"],
-      "correctAnswers": ["France"],
-      "explanation": "France operates the most routes in this network. You could count by using the edge colour or dash pattern from the legend to identify France-operated routes."
+      "correctAnswers": ["China"],
+      "explanation": "China operates the most routes in this network. You could count by using the edge colour or dash pattern from the legend to identify China-operated routes."
     },
     {
       "id": "DEMO-CAT-TS4",
@@ -63,11 +63,11 @@
       "answerType": "multiple-choice",
       "startNode": "DLA",
       "options": ["1", "2", "3", "4"],
-      "correctAnswers": ["2"],
+      "correctAnswers": ["1"],
       "colorKeywords": [
         {"word": "DLA", "color": "#2ca25f"}
       ],
-      "explanation": "DLA has exactly two France-operated connections: CDG and SSG. You can identify them by matching the colour and dash pattern of the edges from DLA against the legend."
+      "explanation": "DLA has exactly one France-operated connections: CDG. You can identify it by matching the colour and dash pattern of the edges from DLA against the legend."
     }
   ],
   "numerical": [

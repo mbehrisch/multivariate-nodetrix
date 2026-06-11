@@ -33,8 +33,8 @@ export function applyForceLayout(nodes, links, dummyMap) {
     function ticked() {
         //Move nodes and their labels within width and height
         svg.selectAll(".node")
-            .attr("cx", d => d.x = Math.max(nodeSize, Math.min(width - nodeSize, d.x)))
-            .attr("cy", d => d.y = Math.max(nodeSize + NODE_TOP_PADDING, Math.min(height - nodeSize, d.y)));
+            .attr("cx", d => d.x = Math.max(d.r || nodeSize, Math.min(width  - (d.r || nodeSize), d.x)))
+            .attr("cy", d => d.y = Math.max((d.r || nodeSize) + NODE_TOP_PADDING, Math.min(height - (d.r || nodeSize), d.y)));
 
         svg.selectAll(".NLlabel")
             .attr("x", d => d.x)

@@ -102,8 +102,10 @@ function rebuildForTask(task) {
 
     const { nodes, links } = buildNodeLinkOnly();
 
-    const PAD = 60;
+    // Set r BEFORE applyForceLayout so the tick-handler clamps to the right radius
+    const PAD = STUDY_NODE_R * 3;
     nodes.forEach(node => {
+        node.r  = STUDY_NODE_R;
         node.x  = PAD + Math.random() * (width  - 2 * PAD);
         node.y  = PAD + Math.random() * (height - 2 * PAD);
         node.vx = 0; node.vy = 0;
@@ -112,12 +114,11 @@ function rebuildForTask(task) {
 
     appState.studyNodeR = STUDY_NODE_R;
     svg.selectAll('.node')
-        .each(d => { d.r = STUDY_NODE_R; })
         .attr('r', STUDY_NODE_R)
         .on('mouseover', null).on('mousemove', null).on('mouseleave', null);
 
     if (appState.sim) {
-        appState.sim.force('collide').radius(d => d.r + STUDY_NODE_R * 2);
+        appState.sim.force('collide').radius(d => d.r * 3);
         // Freeze nodes after layout settles
         appState.sim.on('end.demoFreeze', () => {
             svg.selectAll('.node').each(d => { d.fx = d.x; d.fy = d.y; });
@@ -129,7 +130,7 @@ function rebuildForTask(task) {
         alphaTarget: 0.01, velocityDecay: 0.4,
         chargeStrength: STUDY_CHARGE, linkDistance: STUDY_LINK_DIST,
     });
-    setTimeout(() => { if (appState.sim) appState.sim.alphaTarget(0); }, 1500);
+    setTimeout(() => { if (appState.sim) appState.sim.alphaTarget(0); }, 3000);
 }
 
 // ── Apply encodings + render legend ───────────────────────────
@@ -170,6 +171,7 @@ function findNodeElement(nodeId) {
 }
 
 function clearHighlights() {
+    svg.classed('has-highlight', false);
     document.querySelectorAll('.node--highlighted,.node--start,.node--answer-selected,.edge--highlighted,.neighbor--highlighted')
         .forEach(el => el.classList.remove('node--highlighted','node--start','node--answer-selected','edge--highlighted','neighbor--highlighted'));
 }
@@ -241,7 +243,6 @@ function buildGuideSteps(tasks) {
         render() {
             const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
             return `
-              <span class="feedback-icon">👋</span>
               <h2>Welcome to the Practice Round</h2>
               <p>Before the real study begins, you will complete a <strong>short practice session</strong>
                  to get familiar with the interface.</p>
@@ -256,7 +257,7 @@ function buildGuideSteps(tasks) {
     steps.push({
         type: 'guide', target: 'graph',
         title: 'The Network Graph',
-        text:  'Each circle represents an airport. Lines between circles are direct flight routes. You can click an airport to highlight it and its connections.',
+        text:  'Each circle represents an airport. Lines between circles are direct flight routes. You can click an airport to only see that airport and its connections.',
     });
     steps.push({
         type: 'guide', target: 'task-description',
@@ -286,7 +287,23 @@ function buildGuideSteps(tasks) {
         textHtml:      encIntroText[modality] || '',
     });
 
-    // ── 3. Four demo tasks ─────────────────────────────────────
+    // ── 3. Study design overview ──────────────────────────────
+    steps.push({
+        type:    'guide',
+        target:  'study-legend',
+        title:   'Four Versions of the Study',
+        textHtml:
+            'The real study has <strong>four versions</strong>, each using a different edge encoding:' +
+            '<ol style="margin:8px 0 0 16px;padding:0;line-height:1.7">' +
+            '<li><strong>Tooltip only</strong>: no colour or dashing; hover over an edge to see its data</li>' +
+            '<li><strong>Colour</strong>: edge colour encodes the property</li>' +
+            '<li><strong>Dashing</strong>: dash pattern encodes the property</li>' +
+            '<li><strong>Colour + Dashing</strong>: both colour and dash pattern are used</li>' +
+            '</ol>' +
+            '<p style="margin:8px 0 0">You will only ever see <strong>one version</strong> per question. During the study you will see all four versions.',
+    });
+
+    // ── 4. Four demo tasks ─────────────────────────────────────
     const typeLabels = { TE1: 'Estimation', TS4: 'Structure', TB1: 'Browsing', TA2: 'Attribute' };
     const preStepsByType = {
         TE1: [
@@ -300,7 +317,7 @@ function buildGuideSteps(tasks) {
         TS4: [
             { target: 'graph',
               title: 'Three Candidate Groups',
-              text:  'Three groups of airports are highlighted on the graph — Group A (blue), Group B (red), and Group C (green). Examine the edges within each group using the legend to find which group matches the task condition.' },
+              text:  'Three groups of airports are highlighted on the graph: Group A (blue), Group B (red), and Group C (green). Examine the edges within each group using the legend to find which group matches the task condition.' },
             { target: 'graph',
               title: 'Double-Click to Select',
               text:  'Double-click an airport to select it, it turns orange. Double-click it again to deselect. Select exactly 3 airports from the correct group, then press Submit.' },
@@ -311,10 +328,10 @@ function buildGuideSteps(tasks) {
               text:  'The green airport is your starting point. Find it on the graph first, it is highlighted automatically.' },
             { target: 'study-legend',
               title: 'Follow the Encoding',
-              text:  'Use the legend to identify which edges match the required airline / distance / direction for each hop.' },
+              text:  'Use the legend to identify which edges match the required airline for each hop.' },
             { target: 'answer-area',
               title: 'Select Both Airports',
-              text:  'Double-click the airport you land on after each hop. You need to select 2 airports total — one per hop.' },
+              text:  'Double-click the airport you land on after each hop. You need to select 2 airports total, one per hop.' },
         ],
         TA2: [
             { target: 'graph',
@@ -339,7 +356,7 @@ function buildGuideSteps(tasks) {
                 type:    'guide',
                 target:  ps.target,
                 title:   pi === 0
-                    ? `Task ${i + 1} of 4 — ${typeLabels[typeKey] || typeKey}`
+                    ? `Task ${i + 1} of 4: ${typeLabels[typeKey] || typeKey}`
                     : ps.title,
                 text: pi === 0
                     ? `${ps.text}`
@@ -405,25 +422,28 @@ function showTooltip(targetId, title, html, stepBadge) {
     document.getElementById('demo-step-badge').textContent     = stepBadge || '';
     tip.classList.remove('hidden');
 
-    // Position tooltip: prefer right of target; fall back to below
-    if (!el) { tip.style.left = '50%'; tip.style.top = '50%'; return; }
-    const r    = el.getBoundingClientRect();
-    const tW   = 320, tH = 160; // approximate tooltip dims
-    const vW   = window.innerWidth, vH = window.innerHeight;
+    // Position after browser has laid out the content so we get the real height
+    requestAnimationFrame(() => {
+        if (!el) { tip.style.left = '50%'; tip.style.top = '50%'; return; }
+        const r  = el.getBoundingClientRect();
+        const tW = tip.offsetWidth  || 310;
+        const tH = tip.offsetHeight || 200;
+        const vW = window.innerWidth, vH = window.innerHeight;
 
-    let left, top;
-    if (r.right + tW + 16 < vW) {
-        left = r.right + 16;
-        top  = Math.max(16, Math.min(r.top, vH - tH - 16));
-    } else if (r.left - tW - 16 > 0) {
-        left = r.left - tW - 16;
-        top  = Math.max(16, Math.min(r.top, vH - tH - 16));
-    } else {
-        left = Math.max(16, r.left);
-        top  = r.bottom + 16 < vH ? r.bottom + 16 : r.top - tH - 16;
-    }
-    tip.style.left = `${left}px`;
-    tip.style.top  = `${top}px`;
+        let left, top;
+        if (r.right + tW + 16 < vW) {
+            left = r.right + 16;
+            top  = Math.max(16, Math.min(r.top + r.height / 2 - tH / 2, vH - tH - 16));
+        } else if (r.left - tW - 16 > 0) {
+            left = r.left - tW - 16;
+            top  = Math.max(16, Math.min(r.top + r.height / 2 - tH / 2, vH - tH - 16));
+        } else {
+            left = Math.max(16, r.left);
+            top  = r.bottom + 16 < vH ? r.bottom + 16 : r.top - tH - 16;
+        }
+        tip.style.left = `${left}px`;
+        tip.style.top  = `${top}px`;
+    });
 }
 
 function hideTooltip() { $tooltip().classList.add('hidden'); }
@@ -459,7 +479,7 @@ function showFeedback(task, isCorrect) {
 
     const icon     = effectivelyCorrect ? '✅' : '💡';
     const hClass   = effectivelyCorrect ? 'correct-header' : 'incorrect-header';
-    const headline = effectivelyCorrect ? 'Well done!' : 'Not quite — here\'s the answer:';
+    const headline = effectivelyCorrect ? 'Well done!' : 'Not quite here\'s the answer:';
     const btnClass = effectivelyCorrect ? 'demo-modal-btn correct-btn' : 'demo-modal-btn';
     const btnLabel = guideIndex < guideSteps.length - 1 ? 'Next practice task →' : 'Continue →';
 
@@ -833,6 +853,21 @@ async function init() {
         return;
     }
 
+    // ── Trim graph to a demo-sized subset ────────────────────────
+    // All nodes referenced in demo_tasks.json, plus a handful of
+    // well-connected extras so the graph looks visually rich.
+    const DEMO_IATAS = new Set([
+        // Required — appear in candidateGroups, startNode or correctAnswers
+        'ATL','BOD','BRU','CDG','CSX','DLA','DOY','EWR','FRA','LGW',
+        'LYS','MAN','NCE','NNG','OUA','PEK','PVG','SHA','SZX','XIY',
+        'YAM','YQT','YSB','YYZ',
+        // Extras — well-connected hubs for visual context
+        'DFW','LAX','CAN','DTW','IAH','ABJ',
+    ]);
+    appState.graph.forEachNode((key, attrs) => {
+        if (!DEMO_IATAS.has(attrs.IATA)) appState.graph.dropNode(key);
+    });
+
     appState._baseGraph = appState.graph;
 
     // Stop whatever main.js rendered
@@ -845,6 +880,9 @@ async function init() {
     applyEncodings(demoTasks[0]);
     renderTaskDescription(demoTasks[0]);
     renderAnswerArea(demoTasks[0]);
+    renderProgressBar(0);
+    document.getElementById('task-progress').textContent =
+                `Practice task 1 of 4`;
 
     // Wire up node selection
     document.addEventListener('study:nodeSelected', onNodeSelected);

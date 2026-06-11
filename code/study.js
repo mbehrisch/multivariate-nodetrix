@@ -327,8 +327,10 @@ function rebuildForTask(task) {
     // every rebuild would produce an identical layout.  Scattering nodes to
     // random positions inside the canvas before the simulation starts ensures
     // each task gets a genuinely different layout.
-    const PAD = 60;   // keep nodes away from the canvas edges initially
+    // Set r BEFORE applyForceLayout so the tick-handler clamps to the right radius
+    const PAD = STUDY_NODE_R * 3;
     nodes.forEach(node => {
+        node.r  = STUDY_NODE_R;
         node.x  = PAD + Math.random() * (width  - 2 * PAD);
         node.y  = PAD + Math.random() * (height - 2 * PAD);
         node.vx = 0;
@@ -337,25 +339,20 @@ function rebuildForTask(task) {
 
     applyForceLayout(nodes, links);
 
-    // ── Study-specific node size ──────────────────────────────────
-    // Overwrite the radius that nl-builder set to nodeSize (10 px).
-    // We also store it in appState so directional-edge.js can use the
-    // correct value when placing arrowheads at the node circumference.
     appState.studyNodeR = STUDY_NODE_R;
     svg.selectAll('.node')
-        .each(d => { d.r = STUDY_NODE_R; })
         .attr('r', STUDY_NODE_R)
-        // ── Disable node-hover tooltip (not needed in the study) ──────────────
-        // nl-builder.js attaches mouseover/mousemove/mouseleave for node tooltips;
-        // null them out so hovering over a node doesn't pop up anything.  Double-
-        // click (study:nodeSelected) is still dispatched and handled normally.
         .on('mouseover', null)
         .on('mousemove', null)
         .on('mouseleave', null);
 
     // Update the running collision force so nodes don't overlap
     if (appState.sim) {
-        appState.sim.force('collide').radius(d => d.r + STUDY_NODE_R * 2);
+        appState.sim.force('collide').radius(d => d.r * 3);
+        appState.sim.on('end.studyFreeze', () => {
+            svg.selectAll('.node').each(d => { d.fx = d.x; d.fy = d.y; });
+            if (appState.sim) appState.sim.on('end.studyFreeze', null);
+        });
     }
 
     applyConditionEncoding(task.condition, encodings, task.thresholds ?? [], getTooltipFields(task));
@@ -373,7 +370,7 @@ function rebuildForTask(task) {
         chargeStrength: STUDY_CHARGE,
         linkDistance:   STUDY_LINK_DIST,
     });
-    setTimeout(() => { if (appState.sim) appState.sim.alphaTarget(0); }, 1500);
+    setTimeout(() => { if (appState.sim) appState.sim.alphaTarget(0); }, 3000);
 }
 
 // ── Find the SVG <circle> element for a given graphology node id ─────────────

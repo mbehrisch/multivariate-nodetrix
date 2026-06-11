@@ -47,12 +47,7 @@ export function nodeDragged(event) {
 export function nodeDragEnded(event) {
     const sim = appState.sim;  // Access simulation from appState
 
-    if (!event.active) {
-        setSimulationState(SIM_DRAG_RELEASE);
-        setTimeout(() => sim.alphaTarget(0), SIM_RELEASE_COOLDOWN_MS);
-    }
-
-    // Reset dragged node position
+    // Fix the dragged node at its dropped position
     event.subject.fx = event.subject.x;
     event.subject.fy = event.subject.y;
 
@@ -60,8 +55,14 @@ export function nodeDragEnded(event) {
     svg.selectAll(".node").classed("highlighted", false);
     svg.selectAll(".matrix").classed("matrixHighlighted", false);
 
+    // In nodeLink-only mode (study/demo) don't reheat the sim — all nodes stay put
     if (appState.visualizationMode === 'nodeLink') {
         return;
+    }
+
+    if (!event.active) {
+        setSimulationState(SIM_DRAG_RELEASE);
+        setTimeout(() => sim.alphaTarget(0), SIM_RELEASE_COOLDOWN_MS);
     }
 
     //Find if there is an overlapping node upon release

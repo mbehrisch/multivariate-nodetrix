@@ -41,16 +41,15 @@
             "filter": {
               "type": "deduplicate"
             },
-            "description": "Of France, China, the UK and Germany, which country's airlines operate the most routes?",
+            "description": "Of France, China and Germany, which country's airlines operate the most routes?",
             "colorKeywords": [
               {"word": "France", "color": "#F5A623"},
               {"word": "China", "color": "#F5A623"},
-              {"word": "the UK", "color": "#F5A623"},
               {"word": "Germany", "color": "#F5A623"},
               {"word": "the most routes", "color": "#2ca25f"}
             ],
             "answerType": "multiple-choice",
-            "options": ["France", "China", "UK", "Germany"],
+            "options": ["France", "China", "Germany"],
             "correctAnswers": ["France"],
             "tooltipFields": ["route", "country"],
             "diagram": "data/sampled_data.json"
@@ -137,16 +136,15 @@
             "filter": {
               "type": "deduplicate"
             },
-            "description": "Of the United States, Canada, the UK and Germany, which country's airlines operate the most routes?",
+            "description": "Of the United States, Canada and the UK, which country's airlines operate the most routes?",
             "colorKeywords": [
               {"word": "United States", "color": "#F5A623"},
               {"word": "Canada", "color": "#F5A623"},
               {"word": "the UK", "color": "#F5A623"},
-              {"word": "Germany", "color": "#F5A623"},
               {"word": "the most routes", "color": "#2ca25f"}
             ],
             "answerType": "multiple-choice",
-            "options": ["United States", "Canada", "UK", "Germany"],
+            "options": ["United States", "Canada", "UK"],
             "correctAnswers": ["United States"],
             "diagram": "data/sampled_data.json"
           },
@@ -232,16 +230,15 @@
             "filter": {
               "type": "deduplicate"
             },
-            "description": "Of China, Canada, the UK and Germany, which country's airlines operate the most routes?",
+            "description": "Of China, Canada and Germany, which country's airlines operate the most routes?",
             "colorKeywords": [
               {"word": "China", "color": "#F5A623"},
               {"word": "Canada", "color": "#F5A623"},
-              {"word": "the UK", "color": "#F5A623"},
               {"word": "Germany", "color": "#F5A623"},
               {"word": "the most routes", "color": "#2ca25f"}
             ],
             "answerType": "multiple-choice",
-            "options": ["China", "Canada", "UK", "Germany"],
+            "options": ["China", "Canada", "Germany"],
             "correctAnswers": ["China"],
             "diagram": "data/sampled_data.json"
           },
@@ -327,16 +324,15 @@
             "filter": {
               "type": "deduplicate"
             },
-            "description": "Of France, the United States, Canada and the UK, which country's airlines operate the most routes?",
+            "description": "Of France, the United States and the UK, which country's airlines operate the most routes?",
             "colorKeywords": [
               {"word": "France", "color": "#F5A623"},
               {"word": "the United States", "color": "#F5A623"},
-              {"word": "Canada", "color": "#F5A623"},
               {"word": "the UK", "color": "#F5A623"},
               {"word": "the most routes", "color": "#2ca25f"}
             ],
             "answerType": "multiple-choice",
-            "options": ["France", "United States", "Canada", "UK"],
+            "options": ["France", "United States", "UK"],
             "correctAnswers": ["France"],
             "diagram": "data/sampled_data.json"
           },

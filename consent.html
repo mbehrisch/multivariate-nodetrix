@@ -344,12 +344,12 @@
 
     startBtn.addEventListener('click', () => {
       if (!checkbox.checked) return;
-      // Prolific appends ?PROLIFIC_PID=...&STUDY_ID=...&SESSION_ID=...
-      // The study also expects &order=1 (Latin Square, 1–4) and &modality=categorical
-      // (between-subjects modality: categorical | numerical | directional).
-      // Example full URL:
-      //   study.html?PROLIFIC_PID={{%PROLIFIC_PID%}}&STUDY_ID={{%STUDY_ID%}}&SESSION_ID={{%SESSION_ID%}}&order=1&modality=categorical
-      window.location.href = `study.html${params}`;
+      // Forward to the practice round first; demo.html hands off to study.html
+      // at the end, preserving these params. Prolific appends PROLIFIC_PID/
+      // STUDY_ID/SESSION_ID; modality defaults to categorical and order is
+      // derived from the PID, so neither needs to be in the URL.
+      // Example: demo.html?PROLIFIC_PID={{%PROLIFIC_PID%}}&STUDY_ID={{%STUDY_ID%}}&SESSION_ID={{%SESSION_ID%}}&modality=categorical
+      window.location.href = `demo.html${params}`;
     });
 
     // ── Block participants on small screens ─────────────────────

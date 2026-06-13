@@ -128,13 +128,18 @@
       margin: 0 0 10px;
     }
 
-    /* ── Base edge thickness (overrides NodeTrixStyle.css default of 1px) ── */
-    .link {
+    /* ── Base edge thickness ──────────────────────────────────────────────
+       Scoped under #graph (id+class specificity) so these win over the bundled
+       NodeTrixStyle.css rules (.link{stroke-width:1}, .label{font-size:6px}),
+       which load AFTER this inline block in the production build and would
+       otherwise override equal-specificity selectors. No !important, so the
+       numerical-thickness encoding (set via inline .style) still takes priority. */
+    #graph .NLlink {
       stroke-width: 3px;
     }
 
     /* ── Node labels: bigger in the study than in the main interface ── */
-    .NLlabel {
+    #graph .NLlabel {
       font-size: 11px;
     }
 

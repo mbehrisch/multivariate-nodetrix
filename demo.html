@@ -63,8 +63,10 @@
     #task-progress { font-size: 12px; color: #999; margin-bottom: 20px; }
 
     /* ── Edge / node styles (same as study.html) ── */
-    .link { stroke-width: 3px; }
-    .NLlabel { font-size: 11px; }
+    /* Scoped under #graph so it wins over bundled NodeTrixStyle.css (.link{1px}),
+       which loads after this inline block in the production build. */
+    #graph .NLlink { stroke-width: 3px; }
+    #graph .NLlabel { font-size: 11px; }
     .node--start { fill: #2ca25f !important; stroke: #fff !important; stroke-width: 2.5px !important; }
     .node--answer-selected { fill: #ff7f0e !important; stroke: #fff !important; stroke-width: 2.5px !important; }
 

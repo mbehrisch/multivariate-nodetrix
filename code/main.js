@@ -27,21 +27,6 @@ export const svg = d3.select("#graph").append("svg")
 export const tooltip = d3.select("body").append("div")
     .attr("id", "tooltip");
 
-// Keep the viewBox locked to the panel's REAL rendered size so the drawing
-// scale stays 1:1 everywhere. The initial width/height above are measured once
-// at module load; if that measurement differs from the actual size when the SVG
-// renders (which happens because CSS/layout timing differs between the Vite dev
-// server and the production build), the frozen viewBox gets scaled and nodes/
-// labels/edges appear uniformly smaller or larger. A ResizeObserver fires once
-// immediately (correcting any initial mismatch) and again on every resize.
-const syncViewBox = () => {
-    const r = graphDiv.getBoundingClientRect();
-    if (r.width > 0 && r.height > 0) {
-        svg.attr("viewBox", `0 0 ${r.width} ${r.height}`);
-    }
-};
-new ResizeObserver(syncViewBox).observe(graphDiv);
-
 //Define specifications of the dataset. These are to be attributes of nodes and edges as depicted below
 export const datasetSpec = {
     label: "IATA",  //For the flight data the IATA attribute is the label

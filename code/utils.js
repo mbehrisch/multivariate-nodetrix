@@ -9,6 +9,16 @@ import { applyCategoricalColouring, applyCategoricalDashing } from './multivaria
 import { applyNumericalCategoriesColours, applyNumericalColouring } from './multivariate/numerical-edge.js';
 import { applyDirectionalGradient, applyDirectionalTaper } from './multivariate/directional-edge.js';
 
+// Deterministically map a Prolific PID to a Latin-square order (1–4).
+// Hashing the PID keeps counterbalancing roughly balanced across participants
+// and — crucially — stable across browser reloads (same PID → same order).
+export function deriveOrder(pid) {
+    const s = String(pid || '');
+    let h = 0;
+    for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+    return (h % 4) + 1;
+}
+
 // Simulation parameters used after a (re)build settles
 const SIM_REST = {
     alphaTarget: 0.01,

@@ -22,7 +22,7 @@ const COMPLETION_URL = 'REPLACE_WITH_PROLIFIC_URL';
 import { appState, svg, datasetSpec, width, height } from './main.js';
 import { buildNodeLinkOnly }          from './building/nl-builder.js';
 import { applyForceLayout }           from './building/force-layout.js';
-import { setSimulationState }         from './utils.js';
+import { setSimulationState, deriveOrder } from './utils.js';
 
 import {
     applyCategoricalColouring,
@@ -63,8 +63,14 @@ const studyId     = _p.get('STUDY_ID')     || 'PREVIEW';
 const sessionId   = _p.get('SESSION_ID')   || 'PREVIEW';
 // Modality (between-subjects): 'categorical' | 'numerical' | 'directional'
 const modality    = _p.get('modality')     || 'categorical';
-// Latin-Square order: 1, 2, 3, or 4.  Defaults to 1 for local testing.
-const order       = _p.get('order')        || '1';
+// Latin-Square order: 1–4. An explicit ?order= wins (for manual testing);
+// otherwise it's derived from the PID so counterbalancing is balanced across
+// participants and stable across reloads. (Prolific can't vary URL params per
+// participant, so we do it in code rather than running four separate studies.)
+const order       = _p.get('order')        || String(deriveOrder(prolificPid));
+
+// localStorage key for reload-resume (scoped to this participant)
+const PROGRESS_KEY = `study_progress_${prolificPid}`;
 
 const sessionData = {
     prolificPid,
@@ -209,7 +215,13 @@ async function init() {
 
     // ── Start task flow (showTask handles first build) ────────
     if (tasks.length > 0) {
-        showTask(0);
+        // Reload-resume: pick up where the participant left off if they refreshed.
+        let resumeAt = 0;
+        try {
+            const saved = parseInt(localStorage.getItem(PROGRESS_KEY), 10);
+            if (Number.isInteger(saved) && saved > 0 && saved < tasks.length) resumeAt = saved;
+        } catch (_) {}
+        showTask(resumeAt);
     } else {
         document.getElementById('task-description').textContent =
             'No tasks found in tasks.json.';
@@ -456,6 +468,9 @@ function showTask(index) {
     taskStartTime    = Date.now();
     selectedAnswer   = null;
     selectedAnswers  = [];
+
+    // Persist progress so a browser refresh resumes on this task (see init()).
+    try { localStorage.setItem(PROGRESS_KEY, String(index)); } catch (_) {}
 
     const task          = tasks[index];
     const taskEncodings = getEncodings(task);
@@ -779,7 +794,20 @@ function submitAnswer() {
             tasksCompleted: tasks.length,
             timestamp:      new Date().toISOString(),
         });
-        window.location.href = COMPLETION_URL;
+        // Study finished — clear the resume marker so a later reload won't re-enter.
+        try { localStorage.removeItem(PROGRESS_KEY); } catch (_) {}
+
+        // Guard: until COMPLETION_URL is set to the real Prolific link, don't
+        // navigate to a dead URL — show an on-screen confirmation instead.
+        if (!COMPLETION_URL || COMPLETION_URL === 'REPLACE_WITH_PROLIFIC_URL') {
+            console.warn('[STUDY] COMPLETION_URL not set — staying on page.');
+            document.getElementById('task-description').innerHTML =
+                '<strong>Thank you!</strong> The study is complete. ' +
+                '(Completion redirect is not configured yet.)';
+            document.getElementById('answer-area').innerHTML = '';
+        } else {
+            window.location.href = COMPLETION_URL;
+        }
     }
 }
 

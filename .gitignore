@@ -31,3 +31,12 @@ pnpm-debug.log*
 # OS
 .DS_Store
 Thumbs.db
+
+# Analysis: never commit credentials or exported study data
+# Broad catch-alls so a typo'd filename (e.g. serviceAccout.json) can't slip through.
+analysis/*.json
+**/serviceAcco*t.json
+**/*service*ccount*.json
+analysis/study_data.csv
+analysis/study_data_synthetic.csv
+analysis/output/

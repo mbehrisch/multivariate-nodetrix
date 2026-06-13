@@ -15,7 +15,7 @@
 import { appState, svg, datasetSpec, width, height } from './main.js';
 import { buildNodeLinkOnly }   from './building/nl-builder.js';
 import { applyForceLayout }    from './building/force-layout.js';
-import { setSimulationState }  from './utils.js';
+import { setSimulationState, deriveOrder } from './utils.js';
 
 import {
     applyCategoricalColouring,
@@ -48,7 +48,9 @@ const prolificPid = _p.get('PROLIFIC_PID') || 'PREVIEW';
 const studyId     = _p.get('STUDY_ID')     || 'PREVIEW';
 const sessionId   = _p.get('SESSION_ID')   || 'PREVIEW';
 const modality    = _p.get('modality')     || 'categorical';
-const order       = _p.get('order')        || '1';
+// Same order-derivation as study.js so the URL handed to study.html matches
+// what study.js would compute (explicit ?order= still wins for manual testing).
+const order       = _p.get('order')        || String(deriveOrder(prolificPid));
 
 // URL to redirect to after the demo is complete
 const STUDY_URL = `study.html?modality=${encodeURIComponent(modality)}&order=${encodeURIComponent(order)}&PROLIFIC_PID=${encodeURIComponent(prolificPid)}&STUDY_ID=${encodeURIComponent(studyId)}&SESSION_ID=${encodeURIComponent(sessionId)}`;

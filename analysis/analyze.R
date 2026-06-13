@@ -1,0 +1,291 @@
+# ============================================================
+#  analyze.R — Edge-encoding pilot analysis
+#
+#  Input : analysis/study_data.csv  (one row per answer_submitted; see
+#          export_firestore.mjs).  Columns: participant, order, modality, sv,
+#          task_type, task_id, answer_type, selected_answer, is_correct,
+#          rt_logged_ms, rt_derived_ms, n_highlights, *_iso, completed.
+#
+#  IV  : sv (SV0=baseline tooltip, SV1/SV2=single channel, SV3=dual-redundant),
+#        within-subjects, 4 levels.  task_type (TE1/TS4/TB1/TA2) within-subjects.
+#  DVs : accuracy (proportion correct) and response time (ms), per participant x sv.
+#
+#  Design notes baked in:
+#   - 1 trial per sv x task_type cell  -> NO within-cell trimming (not applicable).
+#     RT outliers handled by a fast-guess floor + visual inspection; report
+#     mean AND median + bootstrap CI.
+#   - RT computed over ALL trials (correct + incorrect); also split by correctness.
+#   - Primary tests: Friedman + Wilcoxon post-hoc (Holm) + effect sizes (estimation
+#     style).  Secondary: RM-ANOVA.  Optional (run if N large enough): 2-way
+#     sv x task_type and binomial GLMM.
+# ============================================================
+
+library(tidyverse)
+library(effectsize)   # eta_squared
+library(emmeans)      # post-hoc EMMs for the ANOVA route
+
+# ── Config ────────────────────────────────────────────────────
+CFG <- list(
+  csv             = Sys.getenv("STUDY_CSV", "study_data_synthetic.csv"),
+  out_dir         = "analysis/output",
+  exclude_preview = TRUE,    # drop the local PREVIEW session(s); set FALSE to test locally
+  require_complete = TRUE,   # drop participants without study_complete / missing tasks
+  n_expected_tasks = 16,     # 4 sv x 4 task types
+  rt_floor_ms     = 1000,    # fast-guess floor (Q5)
+  rt_ceiling_ms   = NA,      # NA = no hard cap; slow trials are flagged for inspection
+  chance_exclude  = FALSE,   # if TRUE, drop participants at/below chance accuracy
+  glmm_min_n      = 25,      # run binomial GLMM only at/above this many participants
+  twoway_min_n    = 25,      # run 2-way sv x task_type RM-ANOVA only at/above this N
+  boot_R          = 2000,    # bootstrap resamples for CIs
+  seed            = 42
+)
+set.seed(CFG$seed)
+dir.create(CFG$out_dir, showWarnings = FALSE, recursive = TRUE)
+
+SV_LEVELS   <- c("SV0", "SV1", "SV2", "SV3")
+TYPE_LEVELS <- c("TE1", "TS4", "TB1", "TA2")
+# Chance level per task type (multiple-choice option counts / node-selection ~ small)
+# Used only for the below-chance participant flag; adjust if option counts differ.
+CHANCE <- c(TE1 = 1/4, TA2 = 1/4, TS4 = NA, TB1 = NA)  # NA = selection tasks, no simple chance
+
+# ── Helpers ───────────────────────────────────────────────────
+se <- function(x) sd(x, na.rm = TRUE) / sqrt(sum(!is.na(x)))
+
+# Percentile bootstrap CI for a statistic (default mean) of a vector
+boot_ci <- function(x, stat = mean, R = CFG$boot_R, conf = 0.95) {
+  x <- x[!is.na(x)]
+  if (length(x) < 2) return(c(lo = NA, hi = NA))
+  bs <- replicate(R, stat(sample(x, replace = TRUE)))
+  setNames(quantile(bs, c((1 - conf) / 2, 1 - (1 - conf) / 2)), c("lo", "hi"))
+}
+
+# Kendall's W effect size for a Friedman test (k conditions, n blocks)
+kendalls_w <- function(chisq, n, k) chisq / (n * (k - 1))
+
+# ── 1. Load & shape ───────────────────────────────────────────
+raw <- read_csv(CFG$csv, show_col_types = FALSE) %>%
+  mutate(
+    participant = as.factor(participant),
+    sv          = factor(sv, levels = SV_LEVELS),
+    task_type   = factor(task_type, levels = TYPE_LEVELS),
+    # is_correct exported as ""/NA when ungraded (postHocCheck); coerce to logical
+    is_correct  = suppressWarnings(as.logical(is_correct)),
+    rt_logged_ms  = suppressWarnings(as.numeric(rt_logged_ms)),
+    rt_derived_ms = suppressWarnings(as.numeric(rt_derived_ms))
+  )
+
+if (CFG$exclude_preview) raw <- raw %>% filter(participant != "PREVIEW")
+
+message(sprintf("Loaded %d trials, %d participant(s).",
+                nrow(raw), n_distinct(raw$participant)))
+
+# ── 2. Cleaning / exclusions ─────────────────────────────────
+# 2a. Completeness: keep participants with study_complete AND all expected tasks
+complete_ids <- raw %>%
+  group_by(participant) %>%
+  summarise(n_tasks = n_distinct(task_id),
+            completed = any(completed %in% c(TRUE, "true", "True")),
+            .groups = "drop") %>%
+  filter(!CFG$require_complete | (completed & n_tasks >= CFG$n_expected_tasks)) %>%
+  pull(participant)
+
+dropped_incomplete <- setdiff(levels(droplevels(raw$participant)), as.character(complete_ids))
+if (length(dropped_incomplete))
+  message("Dropped (incomplete): ", paste(dropped_incomplete, collapse = ", "))
+
+dat <- raw %>% filter(participant %in% complete_ids) %>% droplevels()
+
+# 2b. Below-chance flag (MC tasks only; informational unless chance_exclude=TRUE)
+chance_tbl <- dat %>%
+  filter(!is.na(is_correct), task_type %in% names(CHANCE[!is.na(CHANCE)])) %>%
+  group_by(participant) %>%
+  summarise(acc_mc = mean(is_correct), .groups = "drop") %>%
+  mutate(below_chance = acc_mc <= mean(CHANCE[!is.na(CHANCE)]))
+print(chance_tbl)
+if (CFG$chance_exclude) {
+  keep <- chance_tbl %>% filter(!below_chance) %>% pull(participant)
+  dat  <- dat %>% filter(participant %in% keep) %>% droplevels()
+  message("Below-chance exclusion ON.")
+}
+
+# 2c. RT plausibility flags (do NOT silently drop; report, then floor-filter)
+dat <- dat %>%
+  mutate(
+    rt_too_fast = rt_logged_ms < CFG$rt_floor_ms,
+    rt_too_slow = if (is.na(CFG$rt_ceiling_ms)) FALSE else rt_logged_ms > CFG$rt_ceiling_ms
+  )
+message(sprintf("Trials below %d ms floor: %d (flagged & removed from RT).",
+                CFG$rt_floor_ms, sum(dat$rt_too_fast, na.rm = TRUE)))
+
+# RT analysis set: drop impossible-fast trials; keep correct AND incorrect
+rt_dat <- dat %>% filter(!rt_too_fast, !rt_too_slow)
+
+# RT cross-check: logged vs derived
+if (any(!is.na(dat$rt_derived_ms))) {
+  cc <- dat %>% filter(!is.na(rt_logged_ms), !is.na(rt_derived_ms))
+  message(sprintf("RT cross-check: r(logged, derived) = %.3f over %d trials.",
+                  cor(cc$rt_logged_ms, cc$rt_derived_ms), nrow(cc)))
+}
+
+N <- n_distinct(dat$participant)
+message(sprintf("Analysis N = %d participant(s).", N))
+
+# ── 3. Dependent variables (per participant x sv) ─────────────
+# Accuracy over all gradable trials; RT central tendency (mean + median).
+acc_ps <- dat %>%
+  filter(!is.na(is_correct)) %>%
+  group_by(participant, sv) %>%
+  summarise(accuracy = mean(is_correct), n_trials = n(), .groups = "drop")
+
+rt_ps <- rt_dat %>%
+  group_by(participant, sv) %>%
+  summarise(mean_rt = mean(rt_logged_ms, na.rm = TRUE),
+            median_rt = median(rt_logged_ms, na.rm = TRUE),
+            .groups = "drop")
+
+# Per participant x sv x task_type (descriptive / interaction plots)
+acc_pst <- dat %>%
+  filter(!is.na(is_correct)) %>%
+  group_by(participant, sv, task_type) %>%
+  summarise(accuracy = mean(is_correct), .groups = "drop")
+rt_pst <- rt_dat %>%
+  group_by(participant, sv, task_type) %>%
+  summarise(mean_rt = mean(rt_logged_ms, na.rm = TRUE), .groups = "drop")
+
+# Condition-level summary with bootstrap CIs (estimation style)
+summarise_dv <- function(df, value) {
+  value <- rlang::ensym(value)
+  df %>% group_by(sv) %>%
+    summarise(
+      mean = mean(!!value, na.rm = TRUE),
+      median = median(!!value, na.rm = TRUE),
+      se = se(!!value),
+      ci_lo = boot_ci(!!value)["lo"],
+      ci_hi = boot_ci(!!value)["hi"],
+      .groups = "drop")
+}
+acc_summary <- summarise_dv(acc_ps, accuracy)
+rt_summary  <- summarise_dv(rt_ps, mean_rt)
+message("\n-- Accuracy by SV --");  print(acc_summary)
+message("\n-- RT (ms) by SV --");   print(rt_summary)
+write_csv(acc_summary, file.path(CFG$out_dir, "summary_accuracy.csv"))
+write_csv(rt_summary,  file.path(CFG$out_dir, "summary_rt.csv"))
+
+# ── 4. Statistical tests ─────────────────────────────────────
+# Friedman needs complete blocks (every participant present in every sv).
+to_complete <- function(df, value) {
+  v <- rlang::as_string(rlang::ensym(value))
+  df %>% select(participant, sv, all_of(v)) %>%
+    pivot_wider(names_from = sv, values_from = all_of(v)) %>%
+    drop_na() %>% pivot_longer(-participant, names_to = "sv", values_to = v) %>%
+    mutate(sv = factor(sv, levels = SV_LEVELS))
+}
+
+run_friedman <- function(df, value, label) {
+  v <- rlang::as_string(rlang::ensym(value))
+  cc <- to_complete(df, !!rlang::ensym(value))
+  k  <- nlevels(cc$sv); n <- n_distinct(cc$participant)
+  ft <- friedman.test(cc[[v]], groups = cc$sv, blocks = cc$participant)
+  w  <- kendalls_w(unname(ft$statistic), n, k)
+  cat(sprintf("\n=== Friedman: %s (n=%d) ===\n", label, n))
+  print(ft); cat(sprintf("Kendall's W = %.3f\n", w))
+  # Post-hoc: pairwise Wilcoxon signed-rank, Holm-corrected
+  pw <- pairwise.wilcox.test(cc[[v]], cc$sv, paired = TRUE,
+                             p.adjust.method = "holm", exact = FALSE)
+  print(pw)
+  invisible(list(friedman = ft, W = w, posthoc = pw))
+}
+
+fried_acc <- run_friedman(acc_ps, accuracy, "Accuracy ~ SV")
+fried_rt  <- run_friedman(rt_ps,  mean_rt,  "Response time ~ SV")
+
+# Secondary: one-way RM-ANOVA (matches your MAR2 aov(...+Error(participant/sv)) style)
+run_rm_anova <- function(df, value, label) {
+  v <- rlang::as_string(rlang::ensym(value))
+  cc <- to_complete(df, !!rlang::ensym(value))
+  names(cc)[names(cc) == v] <- "y"   # fixed name → literal formula (emmeans-safe)
+  cat(sprintf("\n=== RM-ANOVA: %s ===\n", label))
+  fit <- aov(y ~ sv + Error(participant/sv), data = cc)
+  print(summary(fit))
+  print(eta_squared(fit, partial = TRUE))
+  cat("\n-- Pairwise paired t-tests (Holm) --\n")
+  print(pairwise.t.test(cc$y, cc$sv, paired = TRUE, p.adjust.method = "holm"))
+  invisible(fit)
+}
+anova_acc <- run_rm_anova(acc_ps, accuracy, "Accuracy ~ SV")
+anova_rt  <- run_rm_anova(rt_ps,  mean_rt,  "Response time ~ SV")
+
+# Optional: 2-way sv x task_type RM-ANOVA (only if N is adequate)
+if (N >= CFG$twoway_min_n) {
+  cat("\n=== 2-way RM-ANOVA: RT ~ sv * task_type ===\n")
+  fit2 <- aov(mean_rt ~ sv * task_type + Error(participant/(sv * task_type)), data = rt_pst)
+  print(summary(fit2)); print(eta_squared(fit2, partial = TRUE))
+} else {
+  message(sprintf("\n[skipped] 2-way sv x task_type RM-ANOVA (N=%d < %d). Task type reported descriptively.",
+                  N, CFG$twoway_min_n))
+}
+
+# Optional: trial-level binomial GLMM for accuracy (more powerful; needs lme4 + larger N)
+if (N >= CFG$glmm_min_n && requireNamespace("lme4", quietly = TRUE)) {
+  cat("\n=== GLMM: is_correct ~ sv + (1|participant) ===\n")
+  g <- lme4::glmer(is_correct ~ sv + (1 | participant),
+                   data = dat %>% filter(!is.na(is_correct)), family = binomial)
+  print(summary(g))
+  print(emmeans(g, ~ sv, type = "response"))
+} else {
+  message(sprintf("[skipped] binomial GLMM (N=%d < %d or lme4 missing).", N, CFG$glmm_min_n))
+}
+
+# ── 5. Visualisations ────────────────────────────────────────
+theme_set(theme_bw(base_size = 13))
+save_plot <- function(p, name, w = 7, h = 5)
+  ggsave(file.path(CFG$out_dir, name), p, width = w, height = h, dpi = 150)
+
+# 5a. Accuracy distribution by SV (box + participant points)
+p_acc <- ggplot(acc_ps, aes(sv, accuracy)) +
+  geom_boxplot(outlier.shape = NA, width = 0.5, fill = "grey92") +
+  geom_jitter(width = 0.12, height = 0, alpha = 0.6, size = 2) +
+  labs(x = "Encoding level", y = "Accuracy (proportion correct)")
+save_plot(p_acc, "accuracy_by_sv.png")
+
+# 5b. RT distribution by SV
+p_rt <- ggplot(rt_ps, aes(sv, mean_rt)) +
+  geom_boxplot(outlier.shape = NA, width = 0.5, fill = "grey92") +
+  geom_jitter(width = 0.12, height = 0, alpha = 0.6, size = 2) +
+  labs(x = "Encoding level", y = "Mean response time (ms)")
+save_plot(p_rt, "rt_by_sv.png")
+
+# 5c. Within-subject trajectories (spaghetti)
+p_spag_acc <- ggplot(acc_ps, aes(sv, accuracy, group = participant)) +
+  geom_line(alpha = 0.3) + geom_point(alpha = 0.5) +
+  stat_summary(aes(group = 1), fun = mean, geom = "line", linewidth = 1.2, colour = "firebrick") +
+  labs(x = "Encoding level", y = "Accuracy", title = "Per-participant accuracy")
+save_plot(p_spag_acc, "accuracy_spaghetti.png")
+
+# 5d. sv x task_type interaction (mean +/- SE)
+inter_rt <- rt_pst %>% group_by(sv, task_type) %>%
+  summarise(m = mean(mean_rt, na.rm = TRUE), se = se(mean_rt), .groups = "drop")
+p_inter <- ggplot(inter_rt, aes(sv, m, colour = task_type, group = task_type)) +
+  geom_point(size = 2) + geom_line() +
+  geom_errorbar(aes(ymin = m - se, ymax = m + se), width = 0.15) +
+  labs(x = "Encoding level", y = "Mean RT (ms)", colour = "Task type",
+       title = "SV x task type (RT)")
+save_plot(p_inter, "interaction_rt.png")
+
+# 5e. RT by correctness (since incorrect trials are kept)
+p_corr <- rt_dat %>% filter(!is.na(is_correct)) %>%
+  ggplot(aes(sv, rt_logged_ms, fill = is_correct)) +
+  geom_boxplot(outlier.alpha = 0.3) +
+  labs(x = "Encoding level", y = "RT (ms)", fill = "Correct")
+save_plot(p_corr, "rt_by_correctness.png")
+
+# 5f. Validation scatter: logged vs derived RT
+if (any(!is.na(dat$rt_derived_ms))) {
+  p_val <- ggplot(dat, aes(rt_logged_ms, rt_derived_ms)) +
+    geom_abline(slope = 1, intercept = 0, linetype = 2, colour = "grey50") +
+    geom_point(alpha = 0.5) +
+    labs(x = "Logged RT (ms)", y = "Derived RT (ms)", title = "RT cross-check")
+  save_plot(p_val, "rt_validation.png")
+}
+
+message("\nDone. Figures + summaries written to ", CFG$out_dir)

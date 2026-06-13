@@ -5,6 +5,9 @@ node_modules/
 dist/
 dist-ssr/
 
+# Firebase CLI cache
+.firebase/
+
 # Vite cache
 .vite/
 *.local

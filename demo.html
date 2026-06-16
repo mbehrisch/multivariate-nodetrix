@@ -79,6 +79,18 @@
     .node--cand-b.node--answer-selected { fill: #e15759 !important; stroke: #ff7f0e !important; stroke-width: 5px !important; }
     .node--cand-c.node--answer-selected { fill: #59a14f !important; stroke: #ff7f0e !important; stroke-width: 5px !important; }
 
+    /* ── Per-task confidence rating (inline in the answer area) ── */
+    #confidence-area { margin-top: 14px; padding-top: 12px; border-top: 1px dashed #ddd; }
+    .conf-label { font-size: 13px; font-weight: 600; margin: 0 0 6px; color: #333; }
+    .conf-scale { display: flex; gap: 6px; }
+    .conf-btn {
+      flex: 1; padding: 8px 0; border: 1px solid #ccc; background: #fff;
+      border-radius: 6px; cursor: pointer; font-size: 14px; color: #333;
+    }
+    .conf-btn:hover { background: #5681f7; }
+    .conf-btn--active { background: #2563eb; color: #fff; border-color: #2563eb; }
+    .conf-ends { display: flex; justify-content: space-between; font-size: 10px; color: #999; margin-top: 3px; }
+
     /* ── Single-click highlight: dim everything outside the selection ── */
     svg.has-highlight .node:not(.node--highlighted):not(.neighbor--highlighted):not(.node--start):not(.node--answer-selected) { opacity: 0.12; pointer-events: none; }
     svg.has-highlight .NLlabel:not(.node--highlighted):not(.neighbor--highlighted):not(.node--start):not(.node--answer-selected) { opacity: 0.12; pointer-events: none; }

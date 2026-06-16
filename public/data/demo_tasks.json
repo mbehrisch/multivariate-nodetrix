@@ -62,7 +62,7 @@
       "description": "Airport DLA is highlighted. How many of its connected airports are reached via a France-operated airline?",
       "answerType": "multiple-choice",
       "startNode": "DLA",
-      "options": ["1", "2", "3", "4"],
+      "options": ["0", "1", "2", "3"],
       "correctAnswers": ["1"],
       "colorKeywords": [
         {"word": "DLA", "color": "#2ca25f"}

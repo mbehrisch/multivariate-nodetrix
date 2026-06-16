@@ -18,6 +18,7 @@ import { fileURLToPath } from 'node:url';
 // ── Config ────────────────────────────────────────────────────
 const CFG = {
   out:            fileURLToPath(new URL('./study_data_synthetic.csv', import.meta.url)),
+  outRatings:     fileURLToPath(new URL('./study_ratings_synthetic.csv', import.meta.url)),
   nParticipants:  40,   // your Prolific target
   nIncomplete:    2,    // participants who quit early (no study_complete) → should be dropped
   nBelowChance:   1,    // participant guessing randomly → flagged below-chance
@@ -56,7 +57,10 @@ const pick = arr => arr[Math.floor(rand() * arr.length)];
 
 // ── Build rows ────────────────────────────────────────────────
 const rows = [];
+const ratingRows = [];   // end-of-study condition ratings (completers only)
 let fastGuessLeft = CFG.nFastGuessTrials;
+// Planted mean readability/preference per encoding (richer → higher)
+const RATE_SV = { SV0: 2.4, SV1: 3.6, SV2: 3.4, SV3: 4.3 };
 const t0 = Date.now() - 1000 * 60 * 60 * 24; // ~yesterday
 
 for (let p = 1; p <= CFG.nParticipants; p++) {
@@ -64,6 +68,7 @@ for (let p = 1; p <= CFG.nParticipants; p++) {
   const order      = ((p - 1) % 4) + 1;            // even spread over the 4 Latin orders
   const accU       = gauss(0, 0.5);                // participant accuracy intercept
   const rtU        = gauss(0, 0.15);               // participant RT intercept (multiplicative)
+  const rateU      = gauss(0, 0.5);                // participant subjective-rating intercept
   const incomplete = p <= CFG.nIncomplete;
   const belowChance = p > CFG.nIncomplete && p <= CFG.nIncomplete + CFG.nBelowChance;
 
@@ -98,6 +103,11 @@ for (let p = 1; p <= CFG.nParticipants; p++) {
         ? (correct ? MC_OPTIONS[type][0] : pick(MC_OPTIONS[type].slice(1)))
         : NODE_ANSWERS[type].join('|');
 
+      // Confidence (1–5): higher when correct and with richer encodings.
+      const confBump = { SV0: -0.4, SV1: 0.2, SV2: 0.2, SV3: 0.5 }[sv];
+      let confidence = (correct ? 4.0 : 2.5) + confBump + (belowChance ? -0.8 : 0) + gauss(0, 0.8);
+      confidence = Math.max(1, Math.min(5, Math.round(confidence)));
+
       rows.push({
         participant:    pid,
         order,
@@ -108,12 +118,27 @@ for (let p = 1; p <= CFG.nParticipants; p++) {
         answer_type:    isMC ? 'multiple-choice' : 'select-nodes',
         selected_answer: selected,
         is_correct:     correct ? 'TRUE' : 'FALSE',
+        confidence,
         rt_logged_ms:   rt,
         rt_derived_ms:  rt + Math.round(gauss(0, 40)),     // ~matches logged (tests cross-check)
         n_highlights:   Math.round(2 + rand() * 6),
         task_start_iso: new Date(startMs).toISOString(),
         answer_iso:     new Date(ansMs).toISOString(),
         completed:      incomplete ? 'false' : 'true',
+      });
+    }
+  }
+
+  // End-of-study condition ratings — only completers submit these.
+  if (!incomplete) {
+    const clampR = x => Math.max(1, Math.min(5, Math.round(x)));
+    for (const sv of SV_LEVELS) {
+      ratingRows.push({
+        participant: pid,
+        modality:    'categorical',
+        sv,
+        readability: clampR(RATE_SV[sv] + rateU + gauss(0, 0.6)),
+        preference:  clampR(RATE_SV[sv] * 0.95 + rateU + gauss(0, 0.6)),
       });
     }
   }
@@ -132,3 +157,11 @@ writeFileSync(CFG.out, csv + '\n', 'utf8');
 console.log(`Wrote ${rows.length} rows for ${CFG.nParticipants} participants → ${CFG.out}`);
 console.log(`  ${CFG.nIncomplete} incomplete, ${CFG.nBelowChance} below-chance, ` +
             `${CFG.nFastGuessTrials - fastGuessLeft} fast-guess trials injected.`);
+
+// Second file: condition ratings (matches export_firestore.mjs → study_ratings.csv)
+const rHeader = ['participant', 'modality', 'sv', 'readability', 'preference'];
+const rCsv = [rHeader.join(',')]
+  .concat(ratingRows.map(r => rHeader.map(h => csvCell(r[h])).join(',')))
+  .join('\n');
+writeFileSync(CFG.outRatings, rCsv + '\n', 'utf8');
+console.log(`Wrote ${ratingRows.length} condition-rating rows → ${CFG.outRatings}`);

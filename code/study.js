@@ -22,7 +22,7 @@ const COMPLETION_URL = 'https://app.prolific.com/submissions/complete?cc=C3OC2I8
 import { appState, svg, datasetSpec, width, height } from './main.js';
 import { buildNodeLinkOnly }          from './building/nl-builder.js';
 import { applyForceLayout }           from './building/force-layout.js';
-import { setSimulationState, deriveOrder } from './utils.js';
+import { setSimulationState, deriveOrder, buildConfidenceBlock } from './utils.js';
 
 import {
     applyCategoricalColouring,
@@ -122,6 +122,7 @@ let currentTaskIndex = 0;
 let taskStartTime    = null;
 let selectedAnswer   = null;    // IATA string or MC option text (single-select tasks)
 let selectedAnswers  = [];      // IATA array for select-nodes tasks
+let selectedConfidence = null;  // 1–5 confidence rating for the current task
 let activeCondition  = null;    // condition currently rendered on the canvas
 let activeEncodings  = null;    // serialised encoding list for change-detection
 let activeFilter     = null;    // serialised filter spec for change-detection
@@ -166,8 +167,10 @@ async function logEvent(eventName, data) {
 // requestAnimationFrame so we don't block the browser.
 function waitForGraph() {
     return new Promise(resolve => {
-        const poll = () => (appState.graph ? resolve() : requestAnimationFrame(poll));
-        requestAnimationFrame(poll);
+        // setTimeout (not requestAnimationFrame) so init still completes if the
+        // tab is backgrounded during load — rAF is paused in hidden tabs.
+        const poll = () => (appState.graph ? resolve() : setTimeout(poll, 50));
+        poll();
     });
 }
 
@@ -251,6 +254,11 @@ function applyConditionEncoding(cond, encodings, thresholds = [], tooltipFields 
         if (active.has('color'))   applyCategoricalColouring(datasetSpec.categoricalVar);
         if (active.has('dashing')) applyCategoricalDashing(datasetSpec.categoricalVar);
         renderCategoricalLegend(encodings);
+        // Snapshot colour/dash mappings as they appear (accumulate, never clear)
+        // so the end-of-study rating samples have them even after a later
+        // dashing-only block resets the live colour map.
+        Object.assign(ratingEncSnapshot.color, categoricalColorMap);
+        Object.assign(ratingEncSnapshot.dash,  categoricalDashMap);
 
     } else if (cond === 'numerical') {
         if (active.has('color'))     applyNumericalColouring();
@@ -413,8 +421,6 @@ function capitalise(str) {
 //  Candidate-group highlighting (TS4 tasks)
 // ============================================================
 const CAND_CLASSES = ['node--cand-a', 'node--cand-b', 'node--cand-c'];
-const CAND_COLORS  = ['#4e79a7', '#e15759', '#59a14f'];
-const CAND_LABELS  = ['A', 'B', 'C'];
 
 // Remove group colours from nodes and hide the panel legend.
 function clearCandidateGroups() {
@@ -425,13 +431,15 @@ function clearCandidateGroups() {
     if (panelEl) { panelEl.innerHTML = ''; panelEl.style.display = 'none'; }
 }
 
-// Colour the candidate airport nodes and add a "Candidate Groups" entry to
-// the left panel legend.  No SVG overlays — node fill is set via CSS class.
+// Colour the candidate airport nodes (blue / red / green) so the three groups
+// are visible on the graph. The left-panel "Candidate Groups" legend is
+// intentionally omitted: the task text already says "three groups are
+// highlighted" and never refers to them by name, so the swatches were just
+// clutter. The node fill is set via CSS class — no SVG overlays.
 function renderCandidateGroups(groups) {
     clearCandidateGroups();
     if (!groups || !groups.length) return;
 
-    // Colour each node that belongs to a candidate group
     groups.forEach((group, gi) => {
         svg.selectAll('.node').each(function (d) {
             if (d.IATA && group.includes(d.IATA)) {
@@ -439,25 +447,6 @@ function renderCandidateGroups(groups) {
             }
         });
     });
-
-    // Show group legend in the left panel
-    const panelEl = document.getElementById('candidate-group-legend');
-    if (!panelEl) return;
-
-    let html = '<p class="panel-label" style="margin-bottom:6px;">Candidate Groups</p>';
-    html += '<ul class="study-legend-list">';
-    groups.forEach((group, gi) => {
-        html += `
-          <li>
-            <svg width="18" height="18" style="flex-shrink:0">
-              <circle cx="9" cy="9" r="8" fill="${CAND_COLORS[gi]}"/>
-            </svg>
-            <span style="font-weight:600;">Group ${CAND_LABELS[gi]}</span>
-          </li>`;
-    });
-    html += '</ul>';
-    panelEl.innerHTML = html;
-    panelEl.style.display = 'block';
 }
 
 // ============================================================
@@ -468,6 +457,7 @@ function showTask(index) {
     taskStartTime    = Date.now();
     selectedAnswer   = null;
     selectedAnswers  = [];
+    selectedConfidence = null;
 
     // Persist progress so a browser refresh resumes on this task (see init()).
     try { localStorage.setItem(PROGRESS_KEY, String(index)); } catch (_) {}
@@ -561,26 +551,14 @@ function renderAnswerArea(task) {
     area.innerHTML = '';
 
     if (task.answerType === 'select-node') {
-        // Show selected-node label + disabled Submit button.
-        // Button is enabled when a node is double-clicked.
+        // Show selected-node label; Submit gated by updateSubmitState().
         const display      = document.createElement('p');
         display.id         = 'selected-node-display';
         display.textContent = 'Selected: —';
-
-        const btn       = document.createElement('button');
-        btn.id          = 'submit-btn';
-        btn.textContent = 'Submit';
-        btn.disabled    = true;
-        btn.className   = 'btn btn-primary w-100 mt-2';
-        btn.addEventListener('click', submitAnswer);
-
         area.appendChild(display);
-        area.appendChild(btn);
 
     } else if (task.answerType === 'select-nodes') {
         // Multi-node selection: participant double-clicks N airports.
-        // Submit enables once exactly the required number is chosen;
-        // double-clicking a selected node deselects it.
         const required = task.requiredSelections ?? task.correctAnswers?.length ?? 2;
 
         const display      = document.createElement('p');
@@ -595,21 +573,11 @@ function renderAnswerArea(task) {
             `Double-click ${required} airport${required !== 1 ? 's' : ''} to answer. ` +
             `Click again to deselect.`;
 
-        const btn       = document.createElement('button');
-        btn.id          = 'submit-btn';
-        btn.type        = 'button';
-        btn.textContent = `Submit (0 / ${required})`;
-        btn.disabled    = true;
-        btn.className   = 'btn btn-primary w-100 mt-2';
-        btn.addEventListener('click', submitAnswer);
-
         area.appendChild(display);
         area.appendChild(hint);
-        area.appendChild(btn);
 
     } else if (task.answerType === 'multiple-choice') {
-        // Render radio buttons then a disabled Submit button.
-        // Button is enabled when a radio is selected.
+        // Radio buttons; selecting one sets the answer and re-checks Submit.
         const form = document.createElement('form');
         form.id    = 'mc-form';
 
@@ -625,8 +593,7 @@ function renderAnswerArea(task) {
             input.className   = 'form-check-input';
             input.addEventListener('change', () => {
                 selectedAnswer = opt;
-                const btn = document.getElementById('submit-btn');
-                if (btn) btn.disabled = false;
+                updateSubmitState();
             });
 
             const lbl       = document.createElement('label');
@@ -639,17 +606,47 @@ function renderAnswerArea(task) {
             form.appendChild(wrapper);
         });
 
-        const btn       = document.createElement('button');
-        btn.id          = 'submit-btn';
-        btn.type        = 'button';
-        btn.textContent = 'Submit';
-        btn.disabled    = true;
-        btn.className   = 'btn btn-primary w-100 mt-3';
-        btn.addEventListener('click', submitAnswer);
-
         area.appendChild(form);
-        area.appendChild(btn);
     }
+
+    // ── Confidence rating (required for every task) ──────────────────────────
+    area.appendChild(buildConfidenceBlock(value => {
+        selectedConfidence = value;
+        updateSubmitState();
+    }));
+
+    // ── Single Submit button, gated on BOTH a valid answer and confidence ────
+    const btn       = document.createElement('button');
+    btn.id          = 'submit-btn';
+    btn.type        = 'button';
+    btn.textContent = 'Submit';
+    btn.disabled    = true;
+    btn.className   = 'btn btn-primary w-100 mt-3';
+    btn.addEventListener('click', submitAnswer);
+    area.appendChild(btn);
+
+    updateSubmitState();
+}
+
+// True once the participant has given a complete answer for this task.
+function hasValidAnswer(task) {
+    if (task.answerType === 'select-nodes') {
+        const required = task.requiredSelections ?? task.correctAnswers?.length ?? 2;
+        return selectedAnswers.length >= required;
+    }
+    return selectedAnswer != null;
+}
+
+// Enable Submit only when there's a valid answer AND a confidence rating.
+function updateSubmitState() {
+    const task = tasks[currentTaskIndex];
+    const btn  = document.getElementById('submit-btn');
+    if (!btn || !task) return;
+    if (task.answerType === 'select-nodes') {
+        const required = task.requiredSelections ?? task.correctAnswers?.length ?? 2;
+        btn.textContent = `Submit (${selectedAnswers.length} / ${required})`;
+    }
+    btn.disabled = !(hasValidAnswer(task) && selectedConfidence != null);
 }
 
 // ── Progress bar: one coloured segment per task ───────────────
@@ -711,11 +708,7 @@ function onNodeSelected(event) {
                 ? `Selected: ${selectedAnswers.join(', ')}`
                 : 'Selected: —';
         }
-        const btn = document.getElementById('submit-btn');
-        if (btn) {
-            btn.disabled    = selectedAnswers.length < required;
-            btn.textContent = `Submit (${selectedAnswers.length} / ${required})`;
-        }
+        updateSubmitState();
 
         logEvent('node_highlighted', {
             taskId:           task.id,
@@ -741,8 +734,7 @@ function onNodeSelected(event) {
     const display = document.getElementById('selected-node-display');
     if (display) display.textContent = `Selected: ${label}`;
 
-    const btn = document.getElementById('submit-btn');
-    if (btn) btn.disabled = false;
+    updateSubmitState();
 }
 
 function submitAnswer() {
@@ -780,6 +772,7 @@ function submitAnswer() {
         answerType:     task.answerType,
         selectedAnswer: submittedAnswer,
         isCorrect,
+        confidence:     selectedConfidence,   // 1–5 Likert
         responseTimeMs,
     });
 
@@ -788,27 +781,167 @@ function submitAnswer() {
     if (nextIndex < tasks.length) {
         showTask(nextIndex);
     } else {
-        // All tasks done → log completion and redirect to Prolific
-        logEvent('study_complete', {
-            totalTimeMs:    Date.now() - sessionData.startTime,
-            tasksCompleted: tasks.length,
-            timestamp:      new Date().toISOString(),
-        });
-        // Study finished — clear the resume marker so a later reload won't re-enter.
-        try { localStorage.removeItem(PROGRESS_KEY); } catch (_) {}
-
-        // Guard: until COMPLETION_URL is set to the real Prolific link, don't
-        // navigate to a dead URL — show an on-screen confirmation instead.
-        if (!COMPLETION_URL || COMPLETION_URL === 'https://app.prolific.com/submissions/complete?cc=C3OC2I8H') {
-            console.warn('[STUDY] COMPLETION_URL not set — staying on page.');
-            document.getElementById('task-description').innerHTML =
-                '<strong>Thank you!</strong> The study is complete. ' +
-                '(Completion redirect is not configured yet.)';
-            document.getElementById('answer-area').innerHTML = '';
-        } else {
-            window.location.href = COMPLETION_URL;
-        }
+        // All tasks done → ask the participant to rate the 4 encodings, then finish.
+        showConditionRatings();
     }
+}
+
+// Log completion and hand back to Prolific (called after the condition ratings).
+function completeStudy() {
+    logEvent('study_complete', {
+        totalTimeMs:    Date.now() - sessionData.startTime,
+        tasksCompleted: tasks.length,
+        timestamp:      new Date().toISOString(),
+    });
+    // Clear the resume marker so a later reload won't re-enter the study.
+    try { localStorage.removeItem(PROGRESS_KEY); } catch (_) {}
+
+    // Guard against the unset placeholder so we never navigate to a dead URL.
+    if (!COMPLETION_URL || COMPLETION_URL === 'REPLACE_WITH_PROLIFIC_URL') {
+        console.warn('[STUDY] COMPLETION_URL not set — staying on page.');
+        document.body.innerHTML =
+            '<div style="max-width:560px;margin:80px auto;font:16px/1.6 system-ui;text-align:center;">' +
+            '<h2>Thank you!</h2><p>The study is complete. ' +
+            '(Completion redirect is not configured yet.)</p></div>';
+    } else {
+        window.location.href = COMPLETION_URL;
+    }
+}
+
+// ============================================================
+//  End-of-study condition ratings
+// ============================================================
+// One scrollable page: each of the 4 encodings (SV0–SV3) shown with a visual
+// example + two 5-point Likert questions (readability, preference). Participants
+// never saw the "SV" labels, so the visual sample is what identifies each style.
+
+// Accumulated colour/dash mappings captured during the study (see
+// applyConditionEncoding). Survives later dashing-only blocks that reset the
+// live categoricalColorMap, so the rating samples always have real values.
+const ratingEncSnapshot = { color: {}, dash: {} };
+
+// Up to 3 real airline countries from the captured mappings, so the rating
+// samples use the EXACT colours/dash patterns participants saw.
+function ratingSampleCountries() {
+    const all = Object.keys(ratingEncSnapshot.color).length
+        ? Object.keys(ratingEncSnapshot.color)
+        : Object.keys(ratingEncSnapshot.dash);
+    const preferred = all.filter(c => c !== 'Other');
+    const pick = (preferred.length >= 3 ? preferred : all).slice(0, 3);
+    return pick.length ? pick : ['France', 'China', 'United States'];
+}
+
+// One labelled mini sample edge styled by the active channel(s).
+function ratingSampleEdge(country, useColor, useDash) {
+    const color = useColor ? (ratingEncSnapshot.color[country] || '#555555') : '#555555';
+    const dash  = useDash  ? (ratingEncSnapshot.dash[country]  || 'none')     : 'none';
+    // 'butt' caps for dashed lines so the gaps stay visible (round caps fill
+    // the small gaps and make all the patterns look solid).
+    const cap   = (dash && dash !== 'none') ? 'butt' : 'round';
+    return `<span class="rate-eg">
+       <svg width="88" height="12" viewBox="0 0 88 12" xmlns="http://www.w3.org/2000/svg">
+         <line x1="2" y1="6" x2="86" y2="6" stroke="${color}" stroke-width="4"
+               stroke-dasharray="${dash}" stroke-linecap="${cap}"/>
+       </svg><span class="rate-eg-lbl">${country}</span></span>`;
+}
+
+// Sample block per style: tooltip-only shows a neutral edge + a mock tooltip of
+// what hovering reveals; the others show the 3 country samples in the channel(s).
+function ratingSampleBlock(useColor, useDash, tooltipOnly) {
+    if (tooltipOnly) {
+        return `<span class="rate-eg">
+           <svg width="88" height="12" viewBox="0 0 88 12" xmlns="http://www.w3.org/2000/svg">
+             <line x1="2" y1="6" x2="86" y2="6" stroke="#999" stroke-width="4" stroke-linecap="round"/>
+           </svg><span class="rate-eg-lbl">hover →</span></span>
+           <span class="rate-tooltip-mock">
+             <span class="ttl-route">DLA – SSG</span>
+             <span class="ttl-country">Country: France</span>
+           </span>`;
+    }
+    return ratingSampleCountries().map(c => ratingSampleEdge(c, useColor, useDash)).join('');
+}
+
+function ratingConditions() {
+    return [
+        { sv: 'SV0', label: 'Style A', desc: 'No colour or pattern, hover an edge to read it.',
+          samples: ratingSampleBlock(false, false, true) },
+        { sv: 'SV1', label: 'Style B', desc: 'Colour shows the airline country.',
+          samples: ratingSampleBlock(true, false, false) },
+        { sv: 'SV2', label: 'Style C', desc: 'Dash pattern shows the airline country.',
+          samples: ratingSampleBlock(false, true, false) },
+        { sv: 'SV3', label: 'Style D', desc: 'Colour + dash show the airline country.',
+          samples: ratingSampleBlock(true, true, false) },
+    ];
+}
+
+const RATING_ASPECTS = [
+    { key: 'readability', q: 'Easy to read the routes?',     lo: 'Very hard', hi: 'Very easy' },
+    { key: 'preference',  q: 'Pleasant to work with?',       lo: 'Not at all', hi: 'Very pleasant' },
+];
+
+function showConditionRatings() {
+    const conditions = ratingConditions();
+    // ratings[sv][aspect] = 1–5
+    const ratings = {};
+    conditions.forEach(c => { ratings[c.sv] = { readability: null, preference: null }; });
+    const totalNeeded = conditions.length * RATING_ASPECTS.length;
+
+    const overlay = document.createElement('div');
+    overlay.id = 'ratings-overlay';
+
+    const ratingRow = (sv, aspect) =>
+        `<div class="rate-row">
+           <span class="rate-q">${aspect.q}</span>
+           <span class="rate-lo">${aspect.lo}</span>
+           <span class="rate-scale" data-sv="${sv}" data-aspect="${aspect.key}">
+             ${[1,2,3,4,5].map(n => `<button type="button" class="rate-btn" data-value="${n}">${n}</button>`).join('')}
+           </span>
+           <span class="rate-hi">${aspect.hi}</span>
+         </div>`;
+
+    const conditionBlock = c =>
+        `<div class="rate-condition">
+           <div class="rate-condition-head">
+             <span class="rate-cname">${c.label}</span>
+             <span class="rate-cdesc">${c.desc}</span>
+           </div>
+           <div class="rate-samples">${c.samples}</div>
+           ${RATING_ASPECTS.map(a => ratingRow(c.sv, a)).join('')}
+         </div>`;
+
+    overlay.innerHTML =
+        `<div class="ratings-card">
+           <h2>Almost done — rate the visual styles</h2>
+           <p>You saw flight routes drawn in four styles. The samples show the real
+              colours / patterns you saw. Rate each style (all questions required).</p>
+           ${conditions.map(conditionBlock).join('')}
+           <button type="button" id="ratings-submit" class="btn btn-primary w-100" disabled>
+             Finish</button>
+         </div>`;
+
+    document.body.appendChild(overlay);
+
+    // Click handling via delegation
+    overlay.addEventListener('click', e => {
+        const btn = e.target.closest('.rate-btn');
+        if (!btn) return;
+        const scale  = btn.parentElement;
+        const sv     = scale.dataset.sv;
+        const aspect = scale.dataset.aspect;
+        scale.querySelectorAll('.rate-btn').forEach(b => b.classList.remove('rate-btn--active'));
+        btn.classList.add('rate-btn--active');
+        ratings[sv][aspect] = Number(btn.dataset.value);
+
+        const done = Object.values(ratings)
+            .reduce((s, r) => s + (r.readability != null) + (r.preference != null), 0);
+        document.getElementById('ratings-submit').disabled = done < totalNeeded;
+    });
+
+    document.getElementById('ratings-submit').addEventListener('click', () => {
+        logEvent('condition_ratings', { ratings, timestamp: new Date().toISOString() });
+        overlay.remove();
+        completeStudy();
+    });
 }
 
 // ============================================================

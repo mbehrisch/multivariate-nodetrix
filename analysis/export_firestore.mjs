@@ -27,6 +27,7 @@ import { fileURLToPath } from 'node:url';
 // ── Config ────────────────────────────────────────────────────
 const SERVICE_ACCOUNT_PATH = process.env.GOOGLE_APPLICATION_CREDENTIALS || './serviceAccount.json';
 const OUTPUT_CSV           = fileURLToPath(new URL('./study_data.csv', import.meta.url));
+const OUTPUT_RATINGS_CSV   = fileURLToPath(new URL('./study_ratings.csv', import.meta.url));
 const EVENTS_GROUP         = 'events';   // collectionGroup name under sessions/{pid}
 const MODALITY_MAP         = { Cat: 'categorical', Num: 'numerical', Dir: 'directional' };
 
@@ -72,9 +73,25 @@ async function main() {
     });
 
     const rows = [];
+    const ratingRows = [];   // one row per participant × condition (end-of-study ratings)
     for (const [pid, events] of byPid) {
         const pageLoad  = events.find(e => e.event === 'page_load');
         const completed = events.some(e => e.event === 'study_complete');
+
+        // End-of-study condition ratings (latest condition_ratings event wins)
+        const ratingEv = events.filter(e => e.event === 'condition_ratings')
+            .sort((a, b) => eventTime(a) - eventTime(b)).pop();
+        if (ratingEv && ratingEv.ratings) {
+            for (const [sv, r] of Object.entries(ratingEv.ratings)) {
+                ratingRows.push({
+                    participant: pid,
+                    modality:    pageLoad?.modality ?? '',
+                    sv,
+                    readability: r?.readability ?? '',
+                    preference:  r?.preference ?? '',
+                });
+            }
+        }
 
         // Index task_start by taskId (keep the latest start if a task repeats)
         const startByTask = new Map();
@@ -114,6 +131,7 @@ async function main() {
                 answer_type:   ans.answerType ?? '',
                 selected_answer: ans.selectedAnswer,                 // string or array
                 is_correct:    ans.isCorrect === null ? '' : ans.isCorrect, // ''=ungraded
+                confidence:    ans.confidence ?? '',                 // 1–5 Likert
                 rt_logged_ms:  ans.responseTimeMs ?? '',
                 rt_derived_ms: rtDerived,
                 n_highlights:  highlightsByTask.get(taskId) || 0,
@@ -138,7 +156,15 @@ async function main() {
         .join('\n');
 
     writeFileSync(OUTPUT_CSV, csv + '\n', 'utf8');
-    console.log(`Wrote ${rows.length} rows for ${byPid.size} participant(s) → ${OUTPUT_CSV}`);
+    console.log(`Wrote ${rows.length} trial rows for ${byPid.size} participant(s) → ${OUTPUT_CSV}`);
+
+    // Second file: end-of-study condition ratings (long format)
+    const rHeader = ['participant', 'modality', 'sv', 'readability', 'preference'];
+    const rCsv = [rHeader.join(',')]
+        .concat(ratingRows.map(r => rHeader.map(h => csvCell(r[h])).join(',')))
+        .join('\n');
+    writeFileSync(OUTPUT_RATINGS_CSV, rCsv + '\n', 'utf8');
+    console.log(`Wrote ${ratingRows.length} condition-rating rows → ${OUTPUT_RATINGS_CSV}`);
 }
 
 main().catch(err => { console.error(err); process.exit(1); });

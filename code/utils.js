@@ -9,6 +9,31 @@ import { applyCategoricalColouring, applyCategoricalDashing } from './multivaria
 import { applyNumericalCategoriesColours, applyNumericalColouring } from './multivariate/numerical-edge.js';
 import { applyDirectionalGradient, applyDirectionalTaper } from './multivariate/directional-edge.js';
 
+// Build the inline 5-point confidence widget shown in the answer area after each
+// task. `onChange(value)` is called with 1–5 when the participant picks a level.
+// Returns the DOM element (caller appends it). Pure DOM — no module state.
+export function buildConfidenceBlock(onChange) {
+    const wrap = document.createElement('div');
+    wrap.id = 'confidence-area';
+    wrap.innerHTML =
+        '<p class="conf-label">How confident are you in your answer?</p>' +
+        '<div class="conf-scale" role="radiogroup" aria-label="Confidence">' +
+        [1, 2, 3, 4, 5].map(n =>
+            `<button type="button" class="conf-btn" data-conf="${n}" aria-label="${n}">${n}</button>`
+        ).join('') +
+        '</div>' +
+        '<div class="conf-ends"><span>Not at all confident</span><span>Very confident</span></div>';
+
+    wrap.querySelectorAll('.conf-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            wrap.querySelectorAll('.conf-btn').forEach(b => b.classList.remove('conf-btn--active'));
+            btn.classList.add('conf-btn--active');
+            onChange(Number(btn.dataset.conf));
+        });
+    });
+    return wrap;
+}
+
 // Deterministically map a Prolific PID to a Latin-square order (1–4).
 // Hashing the PID keeps counterbalancing roughly balanced across participants
 // and — crucially — stable across browser reloads (same PID → same order).

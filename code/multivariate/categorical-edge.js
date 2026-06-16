@@ -140,8 +140,11 @@ export function defineCategoricalMapping(categoricalVar){
     const matrixCategoricals = d3.selectAll(".cellPositive").data().map(d => d.attributes[categoricalVar]);
     const categories = Array.from(new Set([...linkCategoricals, ...matrixCategoricals])).filter(c => c != null);
 
-    // Build color map: use fixed palette, fall back for unknown countries
-    categoricalColorMap = {};
+    // Build color map: use fixed palette, fall back for unknown countries.
+    // Clear in place (don't reassign) so importers' live bindings stay valid —
+    // with this project's circular imports a reassigned `export let` doesn't
+    // propagate to other modules in the production bundle.
+    Object.keys(categoricalColorMap).forEach(k => delete categoricalColorMap[k]);
     let fallbackIndex = 0;
     categories.forEach(category => {
         categoricalColorMap[category] = COUNTRY_COLOR_MAP[category]

@@ -40,6 +40,5 @@ Thumbs.db
 analysis/*.json
 **/serviceAcco*t.json
 **/*service*ccount*.json
-analysis/study_data.csv
-analysis/study_data_synthetic.csv
+analysis/study_*.csv
 analysis/output/

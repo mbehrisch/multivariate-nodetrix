@@ -15,7 +15,7 @@
 import { appState, svg, datasetSpec, width, height } from './main.js';
 import { buildNodeLinkOnly }   from './building/nl-builder.js';
 import { applyForceLayout }    from './building/force-layout.js';
-import { setSimulationState, deriveOrder } from './utils.js';
+import { setSimulationState, deriveOrder, buildConfidenceBlock } from './utils.js';
 
 import {
     applyCategoricalColouring,
@@ -66,13 +66,16 @@ let guideSteps      = [];   // flat array of all guide/task steps
 let guideIndex      = 0;    // current position in guideSteps
 let selectedAnswer  = null;
 let selectedAnswers = [];
+let selectedConfidence = null;
 let activeFilter    = null; // tracks whether graph needs rebuilding
 
 // ── Wait for graph ────────────────────────────────────────────
 function waitForGraph() {
     return new Promise(resolve => {
-        const poll = () => (appState.graph ? resolve() : requestAnimationFrame(poll));
-        requestAnimationFrame(poll);
+        // setTimeout (not rAF, which is paused in hidden tabs) so load completes
+        // even if the participant backgrounds the tab during startup.
+        const poll = () => (appState.graph ? resolve() : setTimeout(poll, 50));
+        poll();
     });
 }
 
@@ -180,8 +183,6 @@ function clearHighlights() {
 
 // ── Candidate-group highlighting (mirrors study.js) ───────────
 const CAND_CLASSES = ['node--cand-a', 'node--cand-b', 'node--cand-c'];
-const CAND_COLORS  = ['#4e79a7', '#e15759', '#59a14f'];
-const CAND_LABELS  = ['A', 'B', 'C'];
 
 function clearCandidateGroups() {
     svg.selectAll('.node--cand-a, .node--cand-b, .node--cand-c').each(function () {
@@ -192,11 +193,12 @@ function clearCandidateGroups() {
     if (panelEl) { panelEl.innerHTML = ''; panelEl.style.display = 'none'; }
 }
 
+// Colour the candidate nodes only; the left-panel group legend is omitted to
+// match the real study (the task text already says "three groups are highlighted").
 function renderCandidateGroups(groups) {
     clearCandidateGroups();
     if (!groups || !groups.length) return;
 
-    // Colour each node that belongs to a candidate group
     groups.forEach((group, gi) => {
         svg.selectAll('.node').each(function (d) {
             if (d.IATA && group.includes(d.IATA)) {
@@ -204,25 +206,6 @@ function renderCandidateGroups(groups) {
             }
         });
     });
-
-    // Show group legend in the left panel
-    const panelEl = document.getElementById('candidate-group-legend');
-    if (!panelEl) return;
-
-    let html = '<p class="panel-label" style="margin-bottom:6px;">Candidate Groups</p>';
-    html += '<ul class="study-legend-list">';
-    groups.forEach((group, gi) => {
-        html += `
-          <li>
-            <svg width="18" height="18" style="flex-shrink:0">
-              <circle cx="9" cy="9" r="8" fill="${CAND_COLORS[gi]}"/>
-            </svg>
-            <span style="font-weight:600;">Group ${CAND_LABELS[gi]}</span>
-          </li>`;
-    });
-    html += '</ul>';
-    panelEl.innerHTML = html;
-    panelEl.style.display = 'block';
 }
 
 function escapeHtml(s) {
@@ -314,7 +297,7 @@ function buildGuideSteps(tasks) {
               text:  'Look at the legend to understand what the edge properties represent. This will help you estimate quantities across the network.' },
             { target: 'answer-area',
               title: 'Multiple Choice',
-              text:  'Click one of the options, then press Submit to confirm your answer.' },
+              text:  'Click one of the options, then fill in your confidence and press Submit to confirm your answer.' },
         ],
         TS4: [
             { target: 'graph',
@@ -570,6 +553,7 @@ function runStep(step) {
 function startDemoTask(task, taskNum) {
     selectedAnswer  = null;
     selectedAnswers = [];
+    selectedConfidence = null;
 
     rebuildForTask(task);
     applyEncodings(task);
@@ -636,11 +620,7 @@ function onNodeSelected(event) {
         const display = document.getElementById('selected-nodes-display');
         if (display) display.textContent = selectedAnswers.length > 0
             ? `Selected: ${selectedAnswers.join(', ')}` : 'Selected: —';
-        const btn = document.getElementById('submit-btn');
-        if (btn) {
-            btn.disabled    = selectedAnswers.length < required;
-            btn.textContent = `Submit (${selectedAnswers.length} / ${required})`;
-        }
+        updateSubmitState();
         return;
     }
 
@@ -648,8 +628,7 @@ function onNodeSelected(event) {
     selectedAnswer = label;
     const display = document.getElementById('selected-node-display');
     if (display) display.textContent = `Selected: ${label}`;
-    const btn = document.getElementById('submit-btn');
-    if (btn) btn.disabled = false;
+    updateSubmitState();
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -673,11 +652,7 @@ function renderAnswerArea(task) {
         const display      = document.createElement('p');
         display.id         = 'selected-node-display';
         display.textContent = 'Selected: —';
-        const btn = document.createElement('button');
-        btn.id = 'submit-btn'; btn.textContent = 'Submit';
-        btn.disabled = true; btn.className = 'btn btn-primary w-100 mt-2';
-        btn.addEventListener('click', submitAnswer);
-        area.appendChild(display); area.appendChild(btn);
+        area.appendChild(display);
 
     } else if (task.answerType === 'select-nodes') {
         const required = task.requiredSelections ?? task.correctAnswers?.length ?? 2;
@@ -687,12 +662,7 @@ function renderAnswerArea(task) {
         hint.className = 'text-muted';
         hint.style.cssText = 'font-size:12px;margin:0 0 8px';
         hint.textContent = `Double-click ${required} airport${required !== 1 ? 's' : ''} to answer. Click again to deselect.`;
-        const btn = document.createElement('button');
-        btn.id = 'submit-btn'; btn.type = 'button';
-        btn.textContent = `Submit (0 / ${required})`; btn.disabled = true;
-        btn.className = 'btn btn-primary w-100 mt-2';
-        btn.addEventListener('click', submitAnswer);
-        area.appendChild(display); area.appendChild(hint); area.appendChild(btn);
+        area.appendChild(display); area.appendChild(hint);
 
     } else if (task.answerType === 'multiple-choice') {
         const form = document.createElement('form'); form.id = 'mc-form';
@@ -703,19 +673,54 @@ function renderAnswerArea(task) {
             input.id = `mc-opt-${i}`; input.value = opt; input.className = 'form-check-input';
             input.addEventListener('change', () => {
                 selectedAnswer = opt;
-                const b = document.getElementById('submit-btn');
-                if (b) b.disabled = false;
+                updateSubmitState();
             });
             const lbl = document.createElement('label');
             lbl.htmlFor = `mc-opt-${i}`; lbl.textContent = opt; lbl.className = 'form-check-label';
             wrapper.appendChild(input); wrapper.appendChild(lbl); form.appendChild(wrapper);
         });
-        const btn = document.createElement('button');
-        btn.id = 'submit-btn'; btn.type = 'button'; btn.textContent = 'Submit';
-        btn.disabled = true; btn.className = 'btn btn-primary w-100 mt-3';
-        btn.addEventListener('click', submitAnswer);
-        area.appendChild(form); area.appendChild(btn);
+        area.appendChild(form);
     }
+
+    // Confidence rating (required, mirrors the real study)
+    area.appendChild(buildConfidenceBlock(value => {
+        selectedConfidence = value;
+        updateSubmitState();
+    }));
+
+    const btn = document.createElement('button');
+    btn.id = 'submit-btn'; btn.type = 'button'; btn.textContent = 'Submit';
+    btn.disabled = true; btn.className = 'btn btn-primary w-100 mt-3';
+    btn.addEventListener('click', submitAnswer);
+    area.appendChild(btn);
+
+    updateSubmitState();
+}
+
+// Current task in the demo flow (works during both task steps and pre-task guide steps).
+function currentDemoTask() {
+    const step = guideSteps[guideIndex];
+    return step ? (step.task || step.taskIntroFor || null) : null;
+}
+
+function hasValidAnswer(task) {
+    if (task.answerType === 'select-nodes') {
+        const required = task.requiredSelections ?? task.correctAnswers?.length ?? 2;
+        return selectedAnswers.length >= required;
+    }
+    return selectedAnswer != null;
+}
+
+// Enable Submit only with a valid answer AND a confidence rating.
+function updateSubmitState() {
+    const task = currentDemoTask();
+    const btn  = document.getElementById('submit-btn');
+    if (!btn || !task) return;
+    if (task.answerType === 'select-nodes') {
+        const required = task.requiredSelections ?? task.correctAnswers?.length ?? 2;
+        btn.textContent = `Submit (${selectedAnswers.length} / ${required})`;
+    }
+    btn.disabled = !(hasValidAnswer(task) && selectedConfidence != null);
 }
 
 function renderProgressBar(activeIdx) {

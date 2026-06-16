@@ -27,6 +27,7 @@ library(emmeans)      # post-hoc EMMs for the ANOVA route
 # ── Config ────────────────────────────────────────────────────
 CFG <- list(
   csv             = Sys.getenv("STUDY_CSV", "study_data_synthetic.csv"),
+  ratings_csv     = Sys.getenv("STUDY_RATINGS_CSV", "study_ratings_synthetic.csv"),
   out_dir         = "analysis/output",
   exclude_preview = TRUE,    # drop the local PREVIEW session(s); set FALSE to test locally
   require_complete = TRUE,   # drop participants without study_complete / missing tasks
@@ -70,6 +71,7 @@ raw <- read_csv(CFG$csv, show_col_types = FALSE) %>%
     task_type   = factor(task_type, levels = TYPE_LEVELS),
     # is_correct exported as ""/NA when ungraded (postHocCheck); coerce to logical
     is_correct  = suppressWarnings(as.logical(is_correct)),
+    confidence  = suppressWarnings(as.numeric(confidence)),   # 1–5 Likert
     rt_logged_ms  = suppressWarnings(as.numeric(rt_logged_ms)),
     rt_derived_ms = suppressWarnings(as.numeric(rt_derived_ms))
   )
@@ -199,6 +201,24 @@ run_friedman <- function(df, value, label) {
 fried_acc <- run_friedman(acc_ps, accuracy, "Accuracy ~ SV")
 fried_rt  <- run_friedman(rt_ps,  mean_rt,  "Response time ~ SV")
 
+# ── Per-task confidence (1–5 Likert) ─────────────────────────
+if ("confidence" %in% names(dat) && any(!is.na(dat$confidence))) {
+  conf_ps <- dat %>%
+    filter(!is.na(confidence)) %>%
+    group_by(participant, sv) %>%
+    summarise(confidence = mean(confidence), .groups = "drop")
+  conf_summary <- summarise_dv(conf_ps, confidence)
+  message("\n-- Confidence by SV --"); print(conf_summary)
+  write_csv(conf_summary, file.path(CFG$out_dir, "summary_confidence.csv"))
+  fried_conf <- run_friedman(conf_ps, confidence, "Confidence ~ SV")
+
+  # Confidence split by correctness (calibration check)
+  cat("\n-- Mean confidence by correctness --\n")
+  print(dat %>% filter(!is.na(confidence), !is.na(is_correct)) %>%
+          group_by(is_correct) %>%
+          summarise(mean_conf = mean(confidence), n = n(), .groups = "drop"))
+}
+
 # Secondary: one-way RM-ANOVA (matches your MAR2 aov(...+Error(participant/sv)) style)
 run_rm_anova <- function(df, value, label) {
   v <- rlang::as_string(rlang::ensym(value))
@@ -286,6 +306,54 @@ if (any(!is.na(dat$rt_derived_ms))) {
     geom_point(alpha = 0.5) +
     labs(x = "Logged RT (ms)", y = "Derived RT (ms)", title = "RT cross-check")
   save_plot(p_val, "rt_validation.png")
+}
+
+# 5g. Confidence by SV (boxplot + participant points)
+if (exists("conf_ps")) {
+  p_conf <- ggplot(conf_ps, aes(sv, confidence)) +
+    geom_boxplot(outlier.shape = NA, width = 0.5, fill = "grey92") +
+    geom_jitter(width = 0.12, height = 0, alpha = 0.6, size = 2) +
+    labs(x = "Encoding level", y = "Mean confidence (1–5)")
+  save_plot(p_conf, "confidence_by_sv.png")
+}
+
+# ── 6. End-of-study condition ratings (readability, preference) ──────────
+if (file.exists(CFG$ratings_csv)) {
+  ratings <- read_csv(CFG$ratings_csv, show_col_types = FALSE) %>%
+    mutate(participant = as.factor(participant),
+           sv          = factor(sv, levels = SV_LEVELS),
+           readability = suppressWarnings(as.numeric(readability)),
+           preference  = suppressWarnings(as.numeric(preference)))
+  if (CFG$exclude_preview) ratings <- ratings %>% filter(participant != "PREVIEW")
+  ratings <- ratings %>% filter(participant %in% complete_ids) %>% droplevels()
+
+  message(sprintf("\nLoaded condition ratings for %d participant(s).",
+                  n_distinct(ratings$participant)))
+
+  for (asp in c("readability", "preference")) {
+    s <- ratings %>% group_by(sv) %>%
+      summarise(mean = mean(.data[[asp]], na.rm = TRUE),
+                median = median(.data[[asp]], na.rm = TRUE),
+                se = se(.data[[asp]]), .groups = "drop")
+    message(sprintf("\n-- %s rating by SV --", asp)); print(s)
+    write_csv(s, file.path(CFG$out_dir, paste0("summary_rating_", asp, ".csv")))
+    df2 <- ratings %>% transmute(participant, sv, val = .data[[asp]])
+    run_friedman(df2, val, paste0(asp, " ~ SV"))
+  }
+
+  # Grouped bar: mean rating per condition for each aspect
+  p_rate <- ratings %>%
+    pivot_longer(c(readability, preference), names_to = "aspect", values_to = "score") %>%
+    group_by(sv, aspect) %>%
+    summarise(m = mean(score, na.rm = TRUE), se = se(score), .groups = "drop") %>%
+    ggplot(aes(sv, m, fill = aspect)) +
+    geom_col(position = position_dodge(0.7), width = 0.6) +
+    geom_errorbar(aes(ymin = m - se, ymax = m + se), position = position_dodge(0.7), width = 0.2) +
+    labs(x = "Encoding level", y = "Mean rating (1–5)", fill = "Aspect",
+         title = "Subjective ratings by encoding")
+  save_plot(p_rate, "ratings_by_sv.png")
+} else {
+  message("\n[skipped] condition ratings — '", CFG$ratings_csv, "' not found.")
 }
 
 message("\nDone. Figures + summaries written to ", CFG$out_dir)

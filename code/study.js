@@ -16,7 +16,7 @@
 // ============================================================
 
 // ── Prolific completion URL (replace before going live) ──────
-const COMPLETION_URL = 'REPLACE_WITH_PROLIFIC_URL';
+const COMPLETION_URL = 'https://app.prolific.com/submissions/complete?cc=C3OC2I8H';
 
 // ── Imports ──────────────────────────────────────────────────
 import { appState, svg, datasetSpec, width, height } from './main.js';
@@ -799,7 +799,7 @@ function submitAnswer() {
 
         // Guard: until COMPLETION_URL is set to the real Prolific link, don't
         // navigate to a dead URL — show an on-screen confirmation instead.
-        if (!COMPLETION_URL || COMPLETION_URL === 'REPLACE_WITH_PROLIFIC_URL') {
+        if (!COMPLETION_URL || COMPLETION_URL === 'https://app.prolific.com/submissions/complete?cc=C3OC2I8H') {
             console.warn('[STUDY] COMPLETION_URL not set — staying on page.');
             document.getElementById('task-description').innerHTML =
                 '<strong>Thank you!</strong> The study is complete. ' +

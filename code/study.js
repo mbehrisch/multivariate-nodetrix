@@ -235,7 +235,7 @@ async function init() {
 
     // Build 16-task list from the new conditions/latinSquare structure.
     // For each SV in the Latin Square order, add the 4 tasks in sequence TE1→TS4→TB1→TA2.
-    // Falls back to order 1 and modality 'categorical' if URL params are missing or invalid.
+    // Falls back to the SV0→SV3 sequence if `order` somehow isn't a valid key.
     const svSequence = tasksData.latinSquare?.[order] ?? ['SV0','SV1','SV2','SV3'];
     tasks = svSequence.flatMap(sv => {
         const svData = tasksData.conditions?.[modality]?.[sv];
@@ -972,7 +972,7 @@ function showConditionRatings() {
 
     overlay.innerHTML =
         `<div class="ratings-card">
-           <h2>Almost done — rate the visual styles</h2>
+           <h2>Almost done, rate the visual styles</h2>
            <p>You saw flight routes drawn in four styles. The samples show the real
               colours / patterns you saw. Rate each style (all questions required).</p>
            ${conditions.map(conditionBlock).join('')}

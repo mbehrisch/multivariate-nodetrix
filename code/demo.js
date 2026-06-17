@@ -100,8 +100,8 @@ const firebaseConfig = {
 const _firebaseApp = initializeApp(firebaseConfig);
 const db           = getFirestore(_firebaseApp);
 
-// Write one event to demo_sessions/{prolificPid}/events. Failed writes only
-// warn — the practice round must never block on logging.
+// Write one event to demo_sessions/{prolificPid}/demo_events. Failed writes
+// only warn — the practice round must never block on logging.
 async function logEvent(eventName, data) {
     const payload = {
         event:      eventName,

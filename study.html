@@ -183,6 +183,14 @@
 
     /* ── Per-task confidence rating (inline in the answer area) ── */
     #confidence-area { margin-top: 14px; padding-top: 12px; border-top: 1px dashed #ddd; }
+    /* Collapsed until the participant has given a valid answer, so the
+       confidence question doesn't compete with the task itself. */
+    #confidence-area.confidence-area--hidden { display: none; }
+    #confidence-area.confidence-area--reveal { animation: confReveal 0.28s ease both; }
+    @keyframes confReveal {
+      from { opacity: 0; transform: translateY(-8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
     .conf-label { font-size: 13px; font-weight: 600; margin: 0 0 6px; color: #333; }
     .conf-scale { display: flex; gap: 6px; }
     .conf-btn {

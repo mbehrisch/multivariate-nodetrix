@@ -15,7 +15,12 @@
 import { appState, svg, datasetSpec, width, height } from './main.js';
 import { buildNodeLinkOnly }   from './building/nl-builder.js';
 import { applyForceLayout }    from './building/force-layout.js';
-import { setSimulationState, deriveOrder, buildConfidenceBlock } from './utils.js';
+import { setSimulationState, deriveOrder, buildConfidenceBlock, setConfidenceVisible } from './utils.js';
+
+// ── Firebase (same project as the real study; demo events go to a SEPARATE
+//    top-level collection so practice data never mixes with analysis data) ──
+import { initializeApp }                    from 'firebase/app';
+import { getFirestore, collection, addDoc } from 'firebase/firestore';
 
 import {
     applyCategoricalColouring,
@@ -68,6 +73,48 @@ let selectedAnswer  = null;
 let selectedAnswers = [];
 let selectedConfidence = null;
 let activeFilter    = null; // tracks whether graph needs rebuilding
+let taskStartTime   = null; // ms timestamp when the current demo task started
+
+const demoStartTime = Date.now();
+
+// ── Firebase logging (separate collection from the real study) ────────────────
+// Practice events go to demo_sessions/{prolificPid}/demo_events. Two layers of
+// isolation from the real study's sessions/{pid}/events:
+//   1. different parent collection (demo_sessions)
+//   2. different leaf name (demo_events, NOT events)
+// (2) is the important one: analysis/export_firestore.mjs reads via
+// db.collectionGroup('events'), which matches every subcollection named
+// `events` regardless of parent — so a leaf called `events` here WOULD be
+// pulled into the analysis. `demo_events` is never matched by that query.
+// Each event also carries phase:'demo' as a belt-and-suspenders filter.
+const firebaseConfig = {
+    apiKey:            'AIzaSyBZxE7j3daMk405fI-HxfaGDCvZS2V-wyU',
+    authDomain:        'edge-encoding-study.firebaseapp.com',
+    projectId:         'edge-encoding-study',
+    storageBucket:     'edge-encoding-study.firebasestorage.app',
+    messagingSenderId: '382157431323',
+    appId:             '1:382157431323:web:ddd6f62e9344f99bc10ebe',
+};
+const _firebaseApp = initializeApp(firebaseConfig);
+const db           = getFirestore(_firebaseApp);
+
+// Write one event to demo_sessions/{prolificPid}/events. Failed writes only
+// warn — the practice round must never block on logging.
+async function logEvent(eventName, data) {
+    const payload = {
+        event:      eventName,
+        phase:      'demo',
+        prolificPid, studyId, sessionId, modality, order,
+        ...data,
+        serverTime: new Date().toISOString(),
+    };
+    console.log('[DEMO]', eventName, payload);
+    try {
+        await addDoc(collection(db, 'demo_sessions', prolificPid, 'demo_events'), payload);
+    } catch (err) {
+        console.warn('[DEMO] Firestore write failed:', err);
+    }
+}
 
 // ── Wait for graph ────────────────────────────────────────────
 function waitForGraph() {
@@ -491,8 +538,14 @@ function advanceStep() {
     if (guideIndex < guideSteps.length) {
         runStep(guideSteps[guideIndex]);
     } else {
-        // All steps done — go to the real study
-        window.location.href = STUDY_URL;
+        // All steps done — log completion, then go to the real study. Await the
+        // write (via finally) so it lands before navigation cancels in-flight
+        // requests; logEvent swallows its own errors so we always navigate.
+        logEvent('demo_complete', {
+            totalTimeMs:    Date.now() - demoStartTime,
+            tasksCompleted: demoTasks.length,
+            timestamp:      new Date().toISOString(),
+        }).finally(() => { window.location.href = STUDY_URL; });
     }
 }
 
@@ -554,6 +607,7 @@ function startDemoTask(task, taskNum) {
     selectedAnswer  = null;
     selectedAnswers = [];
     selectedConfidence = null;
+    taskStartTime   = Date.now();
 
     rebuildForTask(task);
     applyEncodings(task);
@@ -569,6 +623,15 @@ function startDemoTask(task, taskNum) {
 
     document.getElementById('task-progress').textContent =
         `Practice task ${taskNum} of 4`;
+
+    logEvent('task_start', {
+        taskId:          task.id,
+        taskType:        task.type,
+        taskNum,
+        condition:       task.condition,
+        taskDescription: task.description,
+        timestamp:       new Date().toISOString(),
+    });
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -579,6 +642,10 @@ function submitAnswer() {
     const correctSet = Array.isArray(task.correctAnswers)
         ? task.correctAnswers
         : [task.correctAnswer];
+
+    const submittedAnswer = task.answerType === 'select-nodes'
+        ? [...selectedAnswers]
+        : selectedAnswer;
 
     let isCorrect;
     if (task.postHocCheck || task.demoAnyCorrect) {
@@ -591,6 +658,16 @@ function submitAnswer() {
     } else {
         isCorrect = correctSet.includes(selectedAnswer);
     }
+
+    logEvent('answer_submitted', {
+        taskId:         task.id,
+        taskType:       task.type,
+        answerType:     task.answerType,
+        selectedAnswer: submittedAnswer,
+        isCorrect,
+        confidence:     selectedConfidence,                // 1–5 Likert
+        responseTimeMs: taskStartTime ? Date.now() - taskStartTime : null,
+    });
 
     showFeedback(task, isCorrect);
 }
@@ -621,6 +698,15 @@ function onNodeSelected(event) {
         if (display) display.textContent = selectedAnswers.length > 0
             ? `Selected: ${selectedAnswers.join(', ')}` : 'Selected: —';
         updateSubmitState();
+
+        logEvent('node_highlighted', {
+            taskId:           task.id,
+            nodeId,
+            nodeLabel:        label,
+            action:           idx >= 0 ? 'deselected' : 'selected',
+            currentSelection: [...selectedAnswers],
+            timestamp:        new Date().toISOString(),
+        });
         return;
     }
 
@@ -629,6 +715,13 @@ function onNodeSelected(event) {
     const display = document.getElementById('selected-node-display');
     if (display) display.textContent = `Selected: ${label}`;
     updateSubmitState();
+
+    logEvent('node_highlighted', {
+        taskId:    task.id,
+        nodeId,
+        nodeLabel: label,
+        timestamp: new Date().toISOString(),
+    });
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -720,7 +813,12 @@ function updateSubmitState() {
         const required = task.requiredSelections ?? task.correctAnswers?.length ?? 2;
         btn.textContent = `Submit (${selectedAnswers.length} / ${required})`;
     }
-    btn.disabled = !(hasValidAnswer(task) && selectedConfidence != null);
+    // Reveal the confidence question only once a valid answer exists, so it
+    // doesn't distract from the task itself; collapse again if the answer is
+    // cleared. Mirrors study.js so participants learn the pattern in practice.
+    const valid = hasValidAnswer(task);
+    setConfidenceVisible(valid);
+    btn.disabled = !(valid && selectedConfidence != null);
 }
 
 function renderProgressBar(activeIdx) {
@@ -848,6 +946,12 @@ function renderDirectionalLegend(encodings) {
 //  MAIN INIT
 // ─────────────────────────────────────────────────────────────
 async function init() {
+    logEvent('demo_start', {
+        modality,
+        order,
+        timestamp: new Date().toISOString(),
+    });
+
     const [demoData] = await Promise.all([
         fetch('data/demo_tasks.json').then(r => r.json()),
         waitForGraph(),

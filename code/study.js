@@ -22,7 +22,7 @@ const COMPLETION_URL = 'https://app.prolific.com/submissions/complete?cc=C3OC2I8
 import { appState, svg, datasetSpec, width, height } from './main.js';
 import { buildNodeLinkOnly }          from './building/nl-builder.js';
 import { applyForceLayout }           from './building/force-layout.js';
-import { setSimulationState, deriveOrder, buildConfidenceBlock } from './utils.js';
+import { setSimulationState, deriveOrder, buildConfidenceBlock, setConfidenceVisible } from './utils.js';
 
 import {
     applyCategoricalColouring,
@@ -245,10 +245,24 @@ async function init() {
 function applyConditionEncoding(cond, encodings, thresholds = [], tooltipFields = ['all']) {
     const active = new Set(encodings);
 
-    if (cond === 'baseline') {
-        // No edge encoding — clear any legend left over from a previous task
+    // SV0 (tooltip-only): the hover tooltip is the ONLY active channel — no
+    // colour/dashing/thickness/gradient/taper/arrows. task.condition is always
+    // the modality (categorical/numerical/directional), never 'baseline', so we
+    // detect this from the encodings instead. Show a hover hint rather than the
+    // empty (or misleading "Route Distance"/"Flight Direction") legend the
+    // per-modality renderers would otherwise produce with no visual channel.
+    const VISUAL_CHANNELS = ['color', 'dashing', 'thickness', 'gradient', 'taper', 'arrows'];
+    const isTooltipOnly   = active.has('baseline') && !VISUAL_CHANNELS.some(c => active.has(c));
+
+    if (isTooltipOnly) {
         document.getElementById('study-legend').innerHTML =
-            '<p class="panel-label" style="color:#999;font-style:italic;">No edge encoding active</p>';
+            '<p class="panel-label" style="margin-bottom:6px;">Route Information</p>' +
+            '<div style="display:flex;align-items:center;gap:8px;font-size:12px;color:#333;">' +
+              '<svg width="40" height="14" style="flex-shrink:0">' +
+                '<line x1="2" y1="7" x2="38" y2="7" stroke="#999" stroke-width="2.5"/>' +
+              '</svg>' +
+              '<span>Hover over a route to show its information.</span>' +
+            '</div>';
 
     } else if (cond === 'categorical') {
         if (active.has('color'))   applyCategoricalColouring(datasetSpec.categoricalVar);
@@ -646,7 +660,12 @@ function updateSubmitState() {
         const required = task.requiredSelections ?? task.correctAnswers?.length ?? 2;
         btn.textContent = `Submit (${selectedAnswers.length} / ${required})`;
     }
-    btn.disabled = !(hasValidAnswer(task) && selectedConfidence != null);
+    // Reveal the confidence question only once a valid answer exists, so it
+    // doesn't distract from the task itself; collapse again if the answer is
+    // cleared (e.g. a node is deselected back below the required count).
+    const valid = hasValidAnswer(task);
+    setConfidenceVisible(valid);
+    btn.disabled = !(valid && selectedConfidence != null);
 }
 
 // ── Progress bar: one coloured segment per task ───────────────

@@ -12,9 +12,15 @@ import { applyDirectionalGradient, applyDirectionalTaper } from './multivariate/
 // Build the inline 5-point confidence widget shown in the answer area after each
 // task. `onChange(value)` is called with 1–5 when the participant picks a level.
 // Returns the DOM element (caller appends it). Pure DOM — no module state.
+//
+// The block starts collapsed (.confidence-area--hidden) so it doesn't compete
+// with the task question while the participant is still working out their
+// answer. Call setConfidenceVisible(true) once a valid answer exists to reveal
+// it with a short fade/slide (see updateSubmitState in study.js / demo.js).
 export function buildConfidenceBlock(onChange) {
     const wrap = document.createElement('div');
     wrap.id = 'confidence-area';
+    wrap.classList.add('confidence-area--hidden');
     wrap.innerHTML =
         '<p class="conf-label">How confident are you in your answer?</p>' +
         '<div class="conf-scale" role="radiogroup" aria-label="Confidence">' +
@@ -32,6 +38,23 @@ export function buildConfidenceBlock(onChange) {
         });
     });
     return wrap;
+}
+
+// Reveal or collapse the confidence widget built by buildConfidenceBlock().
+// Toggling the class (rather than rebuilding) preserves any already-picked value
+// and the reveal animation only fires on the hidden → visible transition.
+export function setConfidenceVisible(visible) {
+    const el = document.getElementById('confidence-area');
+    if (!el) return;
+    if (visible) {
+        if (el.classList.contains('confidence-area--hidden')) {
+            el.classList.remove('confidence-area--hidden');
+            el.classList.add('confidence-area--reveal');
+        }
+    } else {
+        el.classList.add('confidence-area--hidden');
+        el.classList.remove('confidence-area--reveal');
+    }
 }
 
 // Deterministically map a Prolific PID to a Latin-square order (1–4).

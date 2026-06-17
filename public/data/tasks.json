@@ -165,11 +165,11 @@
             ],
             "answerType": "select-nodes",
             "requiredSelections": 3,
-            "correctAnswers": ["PEK", "CAN", "CSX"],
+            "correctAnswers": ["PEK", "XIY", "CSX"],
             "tooltipFields": ["route", "country"],
             "diagram": "data/sampled_data.json",
             "candidateGroups": [
-              ["PEK", "CAN", "CSX"],
+              ["PEK", "XIY", "CSX"],
               ["ABJ", "BRU", "OUA"],
               ["LGW", "LYS", "MRS"]
             ]

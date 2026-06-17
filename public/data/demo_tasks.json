@@ -25,11 +25,11 @@
       "description": "Three groups of airports are highlighted. In one group, all flights between the airports are from the same country. Find that group and double-click each of its airports.",
       "answerType": "select-nodes",
       "requiredSelections": 3,
-      "correctAnswers": ["BOD", "LYS", "NCE"],
-      "explanation": "The correct group is BOD–LYS–NCE (Bordeaux, Lyon, Nice). All three edges share the same colour and dash pattern in the legend, they are all operated by French airlines. The other groups have mixed colours, indicating different airline countries.",
+      "correctAnswers": ["DOY", "PEK", "CAN"],
+      "explanation": "The correct group is DOY-PEK-CAN. All three edges share the same colour and dash pattern in the legend, they are all operated by Chinese airlines. The other groups have mixed colours, indicating different airline countries.",
       "candidateGroups": [
         ["EWR", "BRU", "ATL"],
-        ["BOD", "LYS", "NCE"],
+        ["DOY", "PEK", "CAN"],
         ["YYZ", "FRA", "MAN"]
       ]
     },

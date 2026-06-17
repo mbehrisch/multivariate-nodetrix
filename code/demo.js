@@ -52,13 +52,15 @@ const _p          = new URLSearchParams(window.location.search);
 const prolificPid = _p.get('PROLIFIC_PID') || 'PREVIEW';
 const studyId     = _p.get('STUDY_ID')     || 'PREVIEW';
 const sessionId   = _p.get('SESSION_ID')   || 'PREVIEW';
-const modality    = _p.get('modality')     || 'categorical';
-// Same order-derivation as study.js so the URL handed to study.html matches
-// what study.js would compute (explicit ?order= still wins for manual testing).
-const order       = _p.get('order')        || String(deriveOrder(prolificPid));
+// Fixed single-modality (categorical) study — not read from the URL.
+const modality    = 'categorical';
+// Order is always derived from the PID (same as study.js), so it can't be
+// overridden via the URL and stays consistent between the demo and the study.
+const order       = String(deriveOrder(prolificPid));
 
-// URL to redirect to after the demo is complete
-const STUDY_URL = `study.html?modality=${encodeURIComponent(modality)}&order=${encodeURIComponent(order)}&PROLIFIC_PID=${encodeURIComponent(prolificPid)}&STUDY_ID=${encodeURIComponent(studyId)}&SESSION_ID=${encodeURIComponent(sessionId)}`;
+// URL to redirect to after the demo is complete. modality/order are no longer
+// passed — study.js derives them itself — so we only forward the Prolific IDs.
+const STUDY_URL = `study.html?PROLIFIC_PID=${encodeURIComponent(prolificPid)}&STUDY_ID=${encodeURIComponent(studyId)}&SESSION_ID=${encodeURIComponent(sessionId)}`;
 
 // ── Layout constants (same as study.js) ───────────────────────
 const STUDY_NODE_R    = 20;

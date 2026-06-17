@@ -50,7 +50,7 @@ import {
 
 // ── Firebase ──────────────────────────────────────────────────
 import { initializeApp }                        from 'firebase/app';
-import { getFirestore, collection, addDoc }     from 'firebase/firestore';
+import { getFirestore, collection, addDoc, doc, runTransaction } from 'firebase/firestore';
 
 // ── Synchronous setup (before main.js's fetch resolves) ──────
 appState.visualizationMode = 'nodeLink';  // keeps buildEverything() in NL-only mode
@@ -61,13 +61,14 @@ const _p         = new URLSearchParams(window.location.search);
 const prolificPid = _p.get('PROLIFIC_PID') || 'PREVIEW';
 const studyId     = _p.get('STUDY_ID')     || 'PREVIEW';
 const sessionId   = _p.get('SESSION_ID')   || 'PREVIEW';
-// Modality (between-subjects): 'categorical' | 'numerical' | 'directional'
-const modality    = _p.get('modality')     || 'categorical';
-// Latin-Square order: 1–4. An explicit ?order= wins (for manual testing);
-// otherwise it's derived from the PID so counterbalancing is balanced across
-// participants and stable across reloads. (Prolific can't vary URL params per
-// participant, so we do it in code rather than running four separate studies.)
-const order       = _p.get('order')        || String(deriveOrder(prolificPid));
+// Modality is fixed: this is a single-modality (categorical) study, so it is
+// hard-coded rather than read from the URL.
+const modality    = 'categorical';
+// Latin-Square order: 1–4. Assigned round-robin via a Firestore counter in
+// init() (assignBalancedOrder) so the 4 orders fill evenly even at small N.
+// This is a fallback value only — used before the assignment resolves and if
+// Firestore is unreachable. Not read from the URL, so it can't be overridden.
+let order         = String(deriveOrder(prolificPid));
 
 // localStorage key for reload-resume (scoped to this participant)
 const PROGRESS_KEY = `study_progress_${prolificPid}`;
@@ -162,6 +163,42 @@ async function logEvent(eventName, data) {
     }
 }
 
+// ── Balanced (round-robin) Latin-square order assignment ──────
+// A PID hash (deriveOrder) is uniform only in the limit; at N≈26 it skews the
+// 4 orders badly (e.g. 9/2/8/7). Instead we hand out orders sequentially via a
+// Firestore counter inside a transaction, so the orders fill evenly:
+//   participant 1 → order 1, 2 → 2, 3 → 3, 4 → 4, 5 → 1, …
+// The assignment is stored at assignments/{pid}, so a reload reuses it without
+// advancing the counter. PREVIEW/testing and any Firestore error fall back to
+// the PID hash so the study always runs (then it just isn't perfectly balanced).
+async function assignBalancedOrder() {
+    if (prolificPid === 'PREVIEW') return String(deriveOrder(prolificPid));
+
+    const partRef    = doc(db, 'assignments', prolificPid);
+    const counterRef = doc(db, 'assignments', '_counter');
+    try {
+        return await runTransaction(db, async tx => {
+            const partSnap = await tx.get(partRef);
+            if (partSnap.exists() && partSnap.data().order) {
+                return String(partSnap.data().order);   // already assigned → stable
+            }
+            const counterSnap = await tx.get(counterRef);
+            const count    = counterSnap.exists() ? (counterSnap.data().count || 0) : 0;
+            const assigned = (count % 4) + 1;
+            tx.set(counterRef, { count: count + 1 }, { merge: true });
+            tx.set(partRef, {
+                order:      assigned,
+                prolificPid,
+                assignedAt: new Date().toISOString(),
+            });
+            return String(assigned);
+        });
+    } catch (err) {
+        console.warn('[STUDY] Order assignment failed — falling back to PID hash:', err);
+        return String(deriveOrder(prolificPid));
+    }
+}
+
 // ── Wait for main.js to populate appState.graph ───────────────
 // main.js loads sampled_data.json asynchronously; we poll via
 // requestAnimationFrame so we don't block the browser.
@@ -178,6 +215,11 @@ function waitForGraph() {
 //  Main async initialiser
 // ============================================================
 async function init() {
+    // Assign the balanced order BEFORE logging or building tasks, so every event
+    // (incl. page_load) and the task sequence use the final assigned value.
+    order = await assignBalancedOrder();
+    sessionData.order = order;
+
     logEvent('page_load', {
         prolificPid: sessionData.prolificPid,
         modality:    sessionData.modality,  // between-subjects modality

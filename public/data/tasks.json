@@ -149,7 +149,7 @@
             "diagram": "data/sampled_data.json"
           },
           "TS4": {
-            "id": "T_Cat_SV0_TS4",
+            "id": "T_Cat_SV1_TS4",
             "taskType": "structure",
             "condition": "categorical",
             "encodings": ["color"],
@@ -243,7 +243,7 @@
             "diagram": "data/sampled_data.json"
           },
           "TS4": {
-            "id": "T_Cat_SV0_TS4",
+            "id": "T_Cat_SV2_TS4",
             "taskType": "structure",
             "condition": "categorical",
             "encodings": ["dashing"],
@@ -337,7 +337,7 @@
             "diagram": "data/sampled_data.json"
           },
           "TS4": {
-            "id": "T_Cat_SV0_TS4",
+            "id": "T_Cat_SV3_TS4",
             "taskType": "structure",
             "condition": "categorical",
             "encodings": ["color", "dashing"],

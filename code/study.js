@@ -847,13 +847,24 @@ function submitAnswer() {
     }
 }
 
+// Resolve when `p` settles OR after `ms`, whichever comes first, so a hung
+// Firestore write can never strand the participant on the page — they still get
+// their Prolific redirect. logEvent swallows its own errors, so this only guards
+// against a write that never resolves at all.
+function withTimeout(p, ms) {
+    return Promise.race([p, new Promise(res => setTimeout(res, ms))]);
+}
+
 // Log completion and hand back to Prolific (called after the condition ratings).
-function completeStudy() {
-    logEvent('study_complete', {
+// AWAITS the study_complete write (bounded) BEFORE navigating: the redirect used
+// to fire while this write was still in flight, so page-unload aborted it and the
+// timestamp was lost for ~1 in 9 completers.
+async function completeStudy() {
+    await withTimeout(logEvent('study_complete', {
         totalTimeMs:    Date.now() - sessionData.startTime,
         tasksCompleted: tasks.length,
         timestamp:      new Date().toISOString(),
-    });
+    }), 8000);
     // Clear the resume marker so a later reload won't re-enter the study.
     try { localStorage.removeItem(PROGRESS_KEY); } catch (_) {}
 
@@ -998,10 +1009,16 @@ function showConditionRatings() {
         document.getElementById('ratings-submit').disabled = done < totalNeeded;
     });
 
-    document.getElementById('ratings-submit').addEventListener('click', () => {
-        logEvent('condition_ratings', { ratings, timestamp: new Date().toISOString() });
+    document.getElementById('ratings-submit').addEventListener('click', async (e) => {
+        const btn = e.currentTarget;
+        btn.disabled = true;
+        btn.textContent = 'Saving…';   // anti double-click + feedback while writes flush
+        // Await BOTH final writes before navigating. The redirect previously fired
+        // while these were still in flight, so page-unload cancelled them and both
+        // condition_ratings and study_complete were lost together.
+        await withTimeout(logEvent('condition_ratings', { ratings, timestamp: new Date().toISOString() }), 8000);
         overlay.remove();
-        completeStudy();
+        await completeStudy();
     });
 }
 

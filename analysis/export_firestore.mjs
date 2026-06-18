@@ -20,7 +20,11 @@
 //  cannot be used here — a server-side service-account key is required.
 // ============================================================
 
-import admin from 'firebase-admin';
+// firebase-admin v12+ exposes its API via modular subpath exports for ESM;
+// the old default `import admin from 'firebase-admin'` no longer carries
+// `.credential`/`.firestore`, so we import the pieces we need directly.
+import { initializeApp, cert } from 'firebase-admin/app';
+import { getFirestore }        from 'firebase-admin/firestore';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
@@ -28,13 +32,22 @@ import { fileURLToPath } from 'node:url';
 const SERVICE_ACCOUNT_PATH = process.env.GOOGLE_APPLICATION_CREDENTIALS || './serviceAccount.json';
 const OUTPUT_CSV           = fileURLToPath(new URL('./study_data.csv', import.meta.url));
 const OUTPUT_RATINGS_CSV   = fileURLToPath(new URL('./study_ratings.csv', import.meta.url));
+const OUTPUT_SUMMARY_CSV   = fileURLToPath(new URL('./study_participants.csv', import.meta.url));
 const EVENTS_GROUP         = 'events';   // collectionGroup name under sessions/{pid}
 const MODALITY_MAP         = { Cat: 'categorical', Num: 'numerical', Dir: 'directional' };
 
+// Participants dropped from every output — test/preview runs that are never real
+// Prolific participants. Add your own test PIDs here before exporting.
+const EXCLUDE_PIDS = new Set(['PREVIEW', 'UNKNOWN', 'TESTPID1', 'balancetest01']);
+// Answers faster than this (ms) are flagged as suspiciously quick in the summary.
+const FAST_RT_MS   = 2000;
+// Total tasks a complete session should contain (4 SVs × 4 task types).
+const TOTAL_TASKS  = 16;
+
 // ── Init admin SDK ────────────────────────────────────────────
 const serviceAccount = JSON.parse(readFileSync(SERVICE_ACCOUNT_PATH, 'utf8'));
-admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
-const db = admin.firestore();
+initializeApp({ credential: cert(serviceAccount) });
+const db = getFirestore();
 
 // ── Helpers ───────────────────────────────────────────────────
 // Parse "T_Cat_SV0_TE1" → { modality, sv, taskType }
@@ -48,6 +61,14 @@ function parseTaskId(taskId) {
 function eventTime(ev) {
     const t = ev.timestamp || ev.serverTime;
     return t ? new Date(t).getTime() : NaN;
+}
+
+// Median of a numeric array ('' when empty)
+function median(arr) {
+    if (!arr.length) return '';
+    const s = [...arr].sort((a, b) => a - b);
+    const m = Math.floor(s.length / 2);
+    return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
 }
 
 // CSV-escape a single cell
@@ -74,9 +95,13 @@ async function main() {
 
     const rows = [];
     const ratingRows = [];   // one row per participant × condition (end-of-study ratings)
+    const summaryRows = [];  // one row per participant (approve/reject decision support)
     for (const [pid, events] of byPid) {
+        if (EXCLUDE_PIDS.has(pid)) continue;   // drop test/preview runs from every output
+
         const pageLoad  = events.find(e => e.event === 'page_load');
-        const completed = events.some(e => e.event === 'study_complete');
+        const completeEv = events.find(e => e.event === 'study_complete');
+        const completed = !!completeEv;
 
         // End-of-study condition ratings (latest condition_ratings event wins)
         const ratingEv = events.filter(e => e.event === 'condition_ratings')
@@ -90,6 +115,26 @@ async function main() {
                     readability: r?.readability ?? '',
                     preference:  r?.preference ?? '',
                 });
+            }
+        }
+
+        // ── Repair the categorical TS4 duplicate-id bug ─────────────────────
+        // Before the tasks.json fix, every categorical TS4 trial was logged with
+        // SV0's id (T_Cat_SV0_TS4), so SV1/SV2/SV3 structure trials collapsed.
+        // The flow within each SV block is fixed (TE1 → TS4 → TB1 → TA2) and
+        // TE1/TB1/TA2 carry the correct SV in their id, so a TS4 event belongs
+        // to the SV of the most recent preceding non-TS4 event (that block's
+        // TE1). Walk the session in time order and rewrite each TS4 event's
+        // taskId to the correct SV-specific id. Idempotent for already-correct
+        // data (numerical/directional, and any categorical logged post-fix).
+        const timeSorted = [...events].sort((a, b) => eventTime(a) - eventTime(b));
+        let lastSvSeen = null;
+        for (const e of timeSorted) {
+            const { sv, taskType } = parseTaskId(e.taskId);
+            if (taskType && taskType !== 'TS4' && sv) { lastSvSeen = sv; continue; }
+            if (taskType === 'TS4' && lastSvSeen) {
+                const mPrefix = (e.taskId.match(/^T_([A-Za-z]+)_/) || [])[1] || 'Cat';
+                e.taskId = `T_${mPrefix}_${lastSvSeen}_TS4`;   // mutate in place
             }
         }
 
@@ -113,6 +158,14 @@ async function main() {
             if (!prev || eventTime(e) > eventTime(prev)) answerByTask.set(e.taskId, e);
         });
 
+        // ── Per-participant accumulators (for the summary file) ──────────────
+        const rtList = [];               // best RT per task, ms
+        let nCorrect = 0, nGraded = 0;   // graded = isCorrect not null (TS4 is null)
+        let confSum  = 0, confN   = 0;
+        let nFast    = 0;                 // answers under FAST_RT_MS
+        let maxRt    = -1, maxRtTask = '';
+        let lastAnsTs = NaN;
+
         for (const [taskId, ans] of answerByTask) {
             const { modality, sv, taskType } = parseTaskId(taskId);
             const start    = startByTask.get(taskId);
@@ -120,6 +173,19 @@ async function main() {
             const ansTs    = eventTime(ans);
             const rtDerived = Number.isFinite(startTs) && Number.isFinite(ansTs)
                 ? ansTs - startTs : '';
+
+            // Best available RT: the logged value, else the derived one.
+            const rtBest = Number.isFinite(+ans.responseTimeMs) ? +ans.responseTimeMs
+                         : Number.isFinite(rtDerived) ? rtDerived : NaN;
+            if (Number.isFinite(rtBest)) {
+                rtList.push(rtBest);
+                if (rtBest > maxRt) { maxRt = rtBest; maxRtTask = `${sv}/${taskType}`; }
+                if (rtBest < FAST_RT_MS) nFast++;
+            }
+            if (ans.isCorrect === true)  { nGraded++; nCorrect++; }
+            if (ans.isCorrect === false) { nGraded++; }
+            if (Number.isFinite(+ans.confidence)) { confSum += +ans.confidence; confN++; }
+            if (Number.isFinite(ansTs)) lastAnsTs = Math.max(lastAnsTs || 0, ansTs);
 
             rows.push({
                 participant:   pid,
@@ -140,6 +206,32 @@ async function main() {
                 completed,
             });
         }
+
+        // ── One summary row per participant ─────────────────────────────────
+        // total time: prefer the logged study_complete value, else page_load →
+        // last answer (still meaningful for people who dropped out).
+        const pageTs   = pageLoad ? eventTime(pageLoad) : NaN;
+        const totalMs  = Number.isFinite(+completeEv?.totalTimeMs) ? +completeEv.totalTimeMs
+                       : (Number.isFinite(pageTs) && Number.isFinite(lastAnsTs) ? lastAnsTs - pageTs : NaN);
+        const medRt    = median(rtList);
+
+        summaryRows.push({
+            participant:     pid,
+            order:           pageLoad?.order ?? '',
+            modality:        pageLoad?.modality ?? '',
+            completed,
+            n_answered:      answerByTask.size,                          // out of TOTAL_TASKS
+            missing_tasks:   TOTAL_TASKS - answerByTask.size,
+            n_correct:       nGraded ? nCorrect : '',
+            n_graded:        nGraded,                                    // TS4 tasks are ungraded
+            accuracy:        nGraded ? +(nCorrect / nGraded).toFixed(2) : '',
+            mean_confidence: confN  ? +(confSum / confN).toFixed(2) : '',
+            total_time_min:  Number.isFinite(totalMs) ? +(totalMs / 60000).toFixed(1) : '',
+            median_rt_s:     medRt === '' ? '' : +(medRt / 1000).toFixed(1),
+            max_rt_s:        maxRt >= 0 ? +(maxRt / 1000).toFixed(1) : '',  // slowest single question
+            slowest_task:    maxRtTask,
+            n_fast_answers:  nFast,                                       // answers under FAST_RT_MS
+        });
     }
 
     // Stable sort: participant, then SV order, then task type
@@ -156,7 +248,7 @@ async function main() {
         .join('\n');
 
     writeFileSync(OUTPUT_CSV, csv + '\n', 'utf8');
-    console.log(`Wrote ${rows.length} trial rows for ${byPid.size} participant(s) → ${OUTPUT_CSV}`);
+    console.log(`Wrote ${rows.length} trial rows for ${summaryRows.length} participant(s) → ${OUTPUT_CSV}`);
 
     // Second file: end-of-study condition ratings (long format)
     const rHeader = ['participant', 'modality', 'sv', 'readability', 'preference'];
@@ -165,6 +257,19 @@ async function main() {
         .join('\n');
     writeFileSync(OUTPUT_RATINGS_CSV, rCsv + '\n', 'utf8');
     console.log(`Wrote ${ratingRows.length} condition-rating rows → ${OUTPUT_RATINGS_CSV}`);
+
+    // Third file: per-participant summary for the approve/reject decision.
+    summaryRows.sort((a, b) => String(a.participant).localeCompare(String(b.participant)));
+    const sHeader = Object.keys(summaryRows[0] ?? { participant: '' });
+    const sCsv = [sHeader.join(',')]
+        .concat(summaryRows.map(r => sHeader.map(h => csvCell(r[h])).join(',')))
+        .join('\n');
+    writeFileSync(OUTPUT_SUMMARY_CSV, sCsv + '\n', 'utf8');
+    console.log(`Wrote ${summaryRows.length} participant summary rows → ${OUTPUT_SUMMARY_CSV}`);
+
+    // Also print it to the console so you can eyeball approve/reject at a glance.
+    console.log('\nPer-participant summary:');
+    console.table(summaryRows);
 }
 
 main().catch(err => { console.error(err); process.exit(1); });

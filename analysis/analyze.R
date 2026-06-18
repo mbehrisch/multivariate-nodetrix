@@ -23,15 +23,22 @@
 library(tidyverse)
 library(effectsize)   # eta_squared
 library(emmeans)      # post-hoc EMMs for the ANOVA route
-
+setwd("/Users/wouterbagh/Library/CloudStorage/SynologyDrive-Mac/Kunstmatige Intelligentie/Jaar 3/Bachelor Thesis/Code_NodeLink/multivariate-nodetrix/analysis")
 # ── Config ────────────────────────────────────────────────────
 CFG <- list(
-  csv             = Sys.getenv("STUDY_CSV", "study_data_synthetic.csv"),
-  ratings_csv     = Sys.getenv("STUDY_RATINGS_CSV", "study_ratings_synthetic.csv"),
+  csv             = Sys.getenv("STUDY_CSV", "study_data.csv"),
+  ratings_csv     = Sys.getenv("STUDY_RATINGS_CSV", "study_ratings.csv"),
   out_dir         = "analysis/output",
   exclude_preview = TRUE,    # drop the local PREVIEW session(s); set FALSE to test locally
   require_complete = TRUE,   # drop participants without study_complete / missing tasks
   n_expected_tasks = 16,     # 4 sv x 4 task types
+  # Participants who demonstrably finished (all 16 tasks + Prolific completion) but
+  # whose study_complete write was lost to the redirect race condition (fixed in
+  # study.js). Treated as completed here so they aren't dropped. Their per-task
+  # data is intact; only their (also-lost) condition_ratings are missing.
+  recovered_complete = c("6119b5c448fbd1d8b49155ff",
+                         "69b0286b4b2ec5b74ef37f63",
+                         "69f9df91a02f3d821106a123"),
   rt_floor_ms     = 1000,    # fast-guess floor (Q5)
   rt_ceiling_ms   = NA,      # NA = no hard cap; slow trials are flagged for inspection
   chance_exclude  = FALSE,   # if TRUE, drop participants at/below chance accuracy
@@ -88,6 +95,9 @@ complete_ids <- raw %>%
   summarise(n_tasks = n_distinct(task_id),
             completed = any(completed %in% c(TRUE, "true", "True")),
             .groups = "drop") %>%
+  # Override: count the race-condition victims as completed (their study_complete
+  # write was lost). They must still have all expected tasks to pass the gate.
+  mutate(completed = completed | as.character(participant) %in% CFG$recovered_complete) %>%
   filter(!CFG$require_complete | (completed & n_tasks >= CFG$n_expected_tasks)) %>%
   pull(participant)
 

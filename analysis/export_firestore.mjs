@@ -36,9 +36,16 @@ const OUTPUT_SUMMARY_CSV   = fileURLToPath(new URL('./study_participants.csv', i
 const EVENTS_GROUP         = 'events';   // collectionGroup name under sessions/{pid}
 const MODALITY_MAP         = { Cat: 'categorical', Num: 'numerical', Dir: 'directional' };
 
-// Participants dropped from every output — test/preview runs that are never real
-// Prolific participants. Add your own test PIDs here before exporting.
-const EXCLUDE_PIDS = new Set(['PREVIEW', 'UNKNOWN', 'TESTPID1', 'balancetest01']);
+// Participants dropped from every output. The first group are test/preview runs
+// that are never real Prolific participants; the second group are researcher
+// decided data-quality exclusions.
+const EXCLUDE_PIDS = new Set([
+    // test / preview runs
+    'PREVIEW', 'UNKNOWN', 'TESTPID1', 'balancetest01',
+    // data-quality exclusions
+    '68d40e365640abed99e0ba51',   // incomplete (15/16 tasks)
+    '6a0e1af66c5e0aa953d68cc4',
+]);
 // Answers faster than this (ms) are flagged as suspiciously quick in the summary.
 const FAST_RT_MS   = 2000;
 // Total tasks a complete session should contain (4 SVs × 4 task types).

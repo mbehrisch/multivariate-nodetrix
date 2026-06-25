@@ -80,6 +80,61 @@ needed when the Firestore data changes).
 PID to `EXCLUDE_PIDS` at the top of `export_firestore.mjs` and re-export — that removes
 them from all three CSVs consistently, which is cleaner than filtering in R.
 
+## Interpreting the output
+
+Everything is written to `analysis/output/` (figures + summary CSVs); the full
+statistical detail is printed to the **console**, so read it there (or in RStudio).
+
+**Console, top to bottom:**
+
+- `Loaded N trials, K participant(s)` / `Dropped (incomplete): ...` / `Analysis N = ...`
+  — the cleaning log. `Analysis N` is the set entering the tests.
+- **Friedman test** (primary, per DV): `chi-squared`, `df`, `p-value`, then
+  `Kendall's W` (effect size: ~.1 small, ~.3 medium, ~.5 large). Significant *p*
+  means the four encodings differ on that measure.
+  - The `(n=...)` in the header is the number of participants **in that specific
+    test**. It can be **lower than `Analysis N`**: a participant missing a value in
+    any one condition is dropped from that test (Friedman needs complete blocks).
+    Report this per-test `n`, not the global N. (e.g. confidence often runs on a
+    slightly smaller n than accuracy.)
+  - **Pairwise comparisons** below it = Wilcoxon signed-rank, Holm-corrected.
+    Read which condition pairs differ. On accuracy these are *approximate* (the
+    {0,.25,.5,.75,1} values produce many ties → normal approximation).
+- **RM-ANOVA** (secondary): a parametric cross-check. Look at the `sv` row F/`Pr(>F)`
+  and `partial eta^2`. Agreement with Friedman strengthens the conclusion.
+- **2-way RM-ANOVA** (`sv * task_type`, runs at N ≥ 25): the `sv:task_type` row tests
+  whether the encoding effect depends on task type.
+- **GLMM** (`is_correct ~ sv + (1|participant)`, runs at N ≥ 25): the principled
+  binary model. Check the fixed-effect estimates and the `emmeans` back-transformed
+  per-condition probabilities. **Glance for a `boundary (singular) fit` or
+  convergence warning** — if present, treat the GLMM as unreliable for this N.
+- **Mean confidence by correctness** — a calibration check (confidence should be
+  higher on correct trials).
+
+**Summary CSVs** (`summary_accuracy.csv`, `summary_rt.csv`, `summary_confidence.csv`,
+`summary_rating_*.csv`): per-condition `mean`, `median`, `se`, and bootstrap CI
+(`ci_lo`/`ci_hi`). Use these for results tables.
+
+**Figures**: the two **thesis-ready combined panels** are `objective_by_sv.png`
+(a: accuracy mean+CI, b: response time) and `subjective_by_sv.png` (a: confidence,
+b: readability & preference) — these need the `patchwork` package
+(`install.packages("patchwork")`; the script skips them gracefully if absent).
+The individual plots are also written: `accuracy_by_sv.png` (mean + 95% bootstrap
+CI point-range — *not* a boxplot, since the {0,.25,.5,.75,1} values make a boxplot
+degenerate), `rt_by_sv.png`, `confidence_by_sv.png`, `ratings_by_sv.png`, plus
+`accuracy_spaghetti.png` (per-participant lines), `interaction_rt.png`
+(encoding × task type), `rt_by_correctness.png`, and `rt_validation.png`
+(logged vs derived RT sanity check).
+
+**Two interpretation caveats baked into the data:**
+
+- **RT includes the confidence rating.** `responseTimeMs` runs from task render to
+  Submit, and the confidence buttons sit in the same panel, so RT is "time per trial
+  incl. rating", not pure solving time. It is comparable across conditions, but adjust
+  absolute-RT wording.
+- For reproducible bootstrap CIs, **Source the whole script once** rather than running
+  blocks out of order (the seed is set once at the top).
+
 ## Dry-run with synthetic data (`gen_synthetic.mjs`)
 
 Before any real participant exists, generate fake-but-realistic data (planted

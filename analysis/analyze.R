@@ -28,7 +28,7 @@ setwd("/Users/wouterbagh/Library/CloudStorage/SynologyDrive-Mac/Kunstmatige Inte
 CFG <- list(
   csv             = Sys.getenv("STUDY_CSV", "study_data.csv"),
   ratings_csv     = Sys.getenv("STUDY_RATINGS_CSV", "study_ratings.csv"),
-  out_dir         = "analysis/output",
+  out_dir         = "output",   # relative to the analysis/ dir (see setwd above)
   exclude_preview = TRUE,    # drop the local PREVIEW session(s); set FALSE to test locally
   require_complete = TRUE,   # drop participants without study_complete / missing tasks
   n_expected_tasks = 16,     # 4 sv x 4 task types
@@ -40,7 +40,7 @@ CFG <- list(
                          "69b0286b4b2ec5b74ef37f63",
                          "69f9df91a02f3d821106a123"),
   rt_floor_ms     = 1000,    # fast-guess floor (Q5)
-  rt_ceiling_ms   = NA,      # NA = no hard cap; slow trials are flagged for inspection
+  rt_ceiling_ms   = 300000,  # 5 (300000ms) min cap: drop off-task trials (walked-away / idle tab) from RT
   chance_exclude  = FALSE,   # if TRUE, drop participants at/below chance accuracy
   glmm_min_n      = 25,      # run binomial GLMM only at/above this many participants
   twoway_min_n    = 25,      # run 2-way sv x task_type RM-ANOVA only at/above this N
@@ -227,9 +227,37 @@ if ("confidence" %in% names(dat) && any(!is.na(dat$confidence))) {
   print(dat %>% filter(!is.na(confidence), !is.na(is_correct)) %>%
           group_by(is_correct) %>%
           summarise(mean_conf = mean(confidence), n = n(), .groups = "drop"))
+  
+  # Test if confidence and correctness are significanlty correlated
+  t.test(confidence ~ is_correct, data = dat)
+
+  # ── Within-subject accuracy–confidence association ──────────────────────────
+  # Backs the claim that the conditions read most accurately were also rated with
+  # higher confidence. (1) Spearman correlation of the four condition means
+  # (matches the condition-level wording); (2) a repeated-measures correlation
+  # that pools the within-participant association across conditions, controlling
+  # for between-participant differences.
+  acc_conf <- inner_join(acc_ps, conf_ps, by = c("participant", "sv"))
+
+  cond_means <- acc_conf %>% group_by(sv) %>%
+    summarise(acc = mean(accuracy), conf = mean(confidence), .groups = "drop")
+  cat("\n-- Accuracy vs confidence across conditions --\n")
+  print(cond_means)
+  cat(sprintf("Spearman rho (condition means, n=%d) = %.3f\n",
+              nrow(cond_means),
+              cor(cond_means$acc, cond_means$conf, method = "spearman")))
+
+  if (requireNamespace("rmcorr", quietly = TRUE)) {
+    rc <- rmcorr::rmcorr(participant, accuracy, confidence,
+                         dataset = as.data.frame(acc_conf))
+    cat(sprintf("Repeated-measures correlation: r_rm = %.3f, p = %.4f (df = %d), 95%% CI [%.3f, %.3f]\n",
+                rc$r, rc$p, rc$df, rc$CI[1], rc$CI[2]))
+  } else {
+    message("[skipped] repeated-measures correlation — run install.packages('rmcorr') to enable.")
+  }
 }
 
-# Secondary: one-way RM-ANOVA (matches your MAR2 aov(...+Error(participant/sv)) style)
+# Secondary: one-way RM-ANOVA 
 run_rm_anova <- function(df, value, label) {
   v <- rlang::as_string(rlang::ensym(value))
   cc <- to_complete(df, !!rlang::ensym(value))
@@ -258,10 +286,23 @@ if (N >= CFG$twoway_min_n) {
 # Optional: trial-level binomial GLMM for accuracy (more powerful; needs lme4 + larger N)
 if (N >= CFG$glmm_min_n && requireNamespace("lme4", quietly = TRUE)) {
   cat("\n=== GLMM: is_correct ~ sv + (1|participant) ===\n")
+  acc_trials <- dat %>% filter(!is.na(is_correct))
   g <- lme4::glmer(is_correct ~ sv + (1 | participant),
-                   data = dat %>% filter(!is.na(is_correct)), family = binomial)
+                   data = acc_trials, family = binomial)
   print(summary(g))
   print(emmeans(g, ~ sv, type = "response"))
+
+  # ── Accuracy x task-type interaction (clean LRT) ──────────────────────────
+  # Does the encoding effect on accuracy depend on task type? Uses all trials
+  # (no RT cap), so it does not suffer the singular-fit problem of the 2-way
+  # RT ANOVA. Likelihood-ratio test of the interaction term.
+  cat("\n=== GLMM: accuracy encoding x task-type interaction (LRT) ===\n")
+  g_main <- lme4::glmer(is_correct ~ sv + task_type + (1 | participant),
+                        data = acc_trials, family = binomial)
+  g_int  <- lme4::glmer(is_correct ~ sv * task_type + (1 | participant),
+                        data = acc_trials, family = binomial)
+  print(anova(g_main, g_int))   # LRT: main-effects vs interaction model
+  if (lme4::isSingular(g_int)) message("NOTE: interaction model is singular — interpret with caution.")
 } else {
   message(sprintf("[skipped] binomial GLMM (N=%d < %d or lme4 missing).", N, CFG$glmm_min_n))
 }
@@ -271,10 +312,16 @@ theme_set(theme_bw(base_size = 13))
 save_plot <- function(p, name, w = 7, h = 5)
   ggsave(file.path(CFG$out_dir, name), p, width = w, height = h, dpi = 150)
 
-# 5a. Accuracy distribution by SV (box + participant points)
-p_acc <- ggplot(acc_ps, aes(sv, accuracy)) +
-  geom_boxplot(outlier.shape = NA, width = 0.5, fill = "grey92") +
-  geom_jitter(width = 0.12, height = 0, alpha = 0.6, size = 2) +
+# 5a. Accuracy by SV — mean + 95% bootstrap CI (point-range), NOT a boxplot.
+# Accuracy can only be {0,.25,.5,.75,1}, so a boxplot degenerates (e.g. SV3's
+# box collapses to a line because most participants score exactly .75). The
+# point-range from acc_summary shows the effect cleanly; jittered points keep
+# the per-participant pile-ups visible.
+p_acc <- ggplot() +
+  geom_jitter(data = acc_ps, aes(sv, accuracy),
+              width = 0.08, height = 0.015, alpha = 0.25, size = 1.8) +
+  geom_pointrange(data = acc_summary, aes(sv, mean, ymin = ci_lo, ymax = ci_hi),
+                  colour = "firebrick", linewidth = 0.7, size = 0.6) +
   labs(x = "Encoding level", y = "Accuracy (proportion correct)")
 save_plot(p_acc, "accuracy_by_sv.png")
 
@@ -284,6 +331,32 @@ p_rt <- ggplot(rt_ps, aes(sv, mean_rt)) +
   geom_jitter(width = 0.12, height = 0, alpha = 0.6, size = 2) +
   labs(x = "Encoding level", y = "Mean response time (ms)")
 save_plot(p_rt, "rt_by_sv.png")
+
+# 5b2. Per-task breakdown: the same accuracy & RT charts, faceted by task type.
+# (Supervisor request — pooled charts split into one panel per task.)
+task_labs <- c(TE1 = "Estimation (TE1)", TS4 = "Structure (TS4)",
+               TB1 = "Browsing (TB1)",  TA2 = "Attribute (TA2)")
+
+acc_task_sum <- acc_pst %>% group_by(sv, task_type) %>%
+  summarise(mean = mean(accuracy),
+            ci = list(boot_ci(accuracy)), .groups = "drop") %>%
+  mutate(ci_lo = map_dbl(ci, "lo"), ci_hi = map_dbl(ci, "hi")) %>% select(-ci)
+
+p_acc_task <- ggplot() +
+  geom_jitter(data = acc_pst, aes(sv, accuracy),
+              width = 0.12, height = 0.02, alpha = 0.15, size = 1.2) +
+  geom_pointrange(data = acc_task_sum, aes(sv, mean, ymin = ci_lo, ymax = ci_hi),
+                  colour = "firebrick", linewidth = 0.6, size = 0.4) +
+  facet_wrap(~ task_type, nrow = 1, labeller = labeller(task_type = task_labs)) +
+  labs(x = "Encoding level", y = "Accuracy (proportion correct)")
+save_plot(p_acc_task, "accuracy_by_task.png", w = 11, h = 3.8)
+
+p_rt_task <- ggplot(rt_pst, aes(sv, mean_rt)) +
+  geom_boxplot(outlier.shape = NA, width = 0.5, fill = "grey92") +
+  geom_jitter(width = 0.12, height = 0, alpha = 0.4, size = 1.2) +
+  facet_wrap(~ task_type, nrow = 1, labeller = labeller(task_type = task_labs)) +
+  labs(x = "Encoding level", y = "Mean response time (ms)")
+save_plot(p_rt_task, "rt_by_task.png", w = 11, h = 3.8)
 
 # 5c. Within-subject trajectories (spaghetti)
 p_spag_acc <- ggplot(acc_ps, aes(sv, accuracy, group = participant)) +
@@ -364,6 +437,34 @@ if (file.exists(CFG$ratings_csv)) {
   save_plot(p_rate, "ratings_by_sv.png")
 } else {
   message("\n[skipped] condition ratings — '", CFG$ratings_csv, "' not found.")
+}
+
+# ── 7. Combined panels for the results section ───────────────────────────────
+# Two thesis-ready figures: objective (accuracy + RT) and subjective (confidence
+# + ratings). Needs patchwork; if it is not installed the individual PNGs are
+# still written and only the combined panels are skipped.
+if (requireNamespace("patchwork", quietly = TRUE)) {
+  library(patchwork)
+  bold_tag <- theme(plot.tag = element_text(face = "bold"))
+
+  # Figure 1 — objective performance
+  obj <- (p_acc | p_rt) + plot_annotation(tag_levels = "a") & bold_tag
+  ggsave(file.path(CFG$out_dir, "objective_by_sv.png"), obj,
+         width = 11, height = 4.5, dpi = 150)
+  message("Wrote objective_by_sv.png")
+
+  # Figure 2 — subjective experience (only if both panels exist)
+  if (exists("p_conf") && exists("p_rate")) {
+    subj <- (p_conf | (p_rate + labs(title = NULL))) +
+      plot_annotation(tag_levels = "a") & bold_tag
+    ggsave(file.path(CFG$out_dir, "subjective_by_sv.png"), subj,
+           width = 11, height = 4.5, dpi = 150)
+    message("Wrote subjective_by_sv.png")
+  } else {
+    message("[skipped] subjective panel — confidence or ratings plot missing.")
+  }
+} else {
+  message("[skipped] combined panels — run install.packages('patchwork') to enable.")
 }
 
 message("\nDone. Figures + summaries written to ", CFG$out_dir)
